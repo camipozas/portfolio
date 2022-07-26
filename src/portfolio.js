@@ -96,7 +96,7 @@ const educationInfo = {
   schools: [
     {
       schoolName: "Universidad Adolfo Ibáñez",
-      logo: require("./assets/images/logo-uai.jpeg"),
+      logo: require("./assets/images/uaiLogo.jpeg"),
       subHeader: "Industrial Engineering",
       duration: "March 2017 - January 2022",
       desc: "Minor in IT",

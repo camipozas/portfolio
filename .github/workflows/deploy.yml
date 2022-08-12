@@ -20,10 +20,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install and Build 🔧 # Build the Project
-        run: |
-          yarn install
-          npm yarn build
+        - uses: borales/actions-yarn@v3.0.0
+            with:
+              cmd: install # will run `yarn install` command
+        - uses: borales/actions-yarn@v3.0.0
+          with:
+            cmd: build # will run `yarn build` command
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:

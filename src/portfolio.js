@@ -96,7 +96,7 @@ const educationInfo = {
   schools: [
     {
       schoolName: "Universidad Adolfo Ibáñez",
-      logo: require("./assets/images/uaiLogo.jpeg"),
+      logo: "https://d3j0xmrk71qrvn.cloudfront.net/images/uaiLogo.jpeg",
       subHeader: "Industrial Engineering",
       duration: "March 2017 - January 2022",
       desc: "Minor in IT",
@@ -272,7 +272,7 @@ const blogSection = {
   title: "Blogs",
   subtitle:
     "Sometimes I like to write and share some things that I've learned.",
-  displayMediumBlogs: "false", // Set true to display fetched medium blogs instead of hardcoded ones
+  displayMediumBlogs: "true", // Set true to display fetched medium blogs instead of hardcoded ones
   blogs: [
     {
       url: "https://docker-gh-actions.cam1pozas.xyz/",
@@ -330,6 +330,8 @@ const twitterDetails = {
   display: false // Set true to display this section, defaults to false
 };
 
+const isHireable = true; // Set false if you are not looking for a job. Also isHireable will be display as Open for opportunities: Yes/No in the GitHub footer
+
 export {
   illustration,
   greeting,
@@ -346,5 +348,6 @@ export {
   talkSection,
   podcastSection,
   contactInfo,
-  twitterDetails
+  twitterDetails,
+  isHireable
 };

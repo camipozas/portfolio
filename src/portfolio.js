@@ -137,7 +137,7 @@ const workExperiences = {
     {
       role: "Technology Operations Analyst",
       company: "Buk SpA",
-      companylogo: require("./assets/images/bukLogo.jpeg"),
+      companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/bukLogo.jpeg",
       date: "December 2021 – Present",
       desc: "Responsible for supporting the evaluation and implementation of technological initiatives within Buk.",
       descBullets: [
@@ -147,7 +147,8 @@ const workExperiences = {
     {
       role: "Process Engineer",
       company: "Empresas Dimerc SpA",
-      companylogo: require("./assets/images/dimercLogo.jpeg"),
+      companylogo:
+        "https://d3j0xmrk71qrvn.cloudfront.net/images/dimercLogo.jpeg",
       date: "April 2021 – December 2021",
       descBullets: [
         "Review of the current processes of the company and, where they are evaluated which can be automated and/or streamlined.",
@@ -157,7 +158,8 @@ const workExperiences = {
     {
       role: "Student Intern",
       company: "Grupo Saesa",
-      companylogo: require("./assets/images/saesaLogo.jpeg"),
+      companylogo:
+        "https://d3j0xmrk71qrvn.cloudfront.net/images/saesaLogo.jpeg",
       date: "Jan 2021 – March 2021",
       descBullets: [
         "Responsible for preparing business intelligence reports.",
@@ -241,7 +243,7 @@ const achievementSection = {
       title: "Google Assistant Action",
       subtitle:
         "Developed a Google Assistant Action JavaScript Guru that is available on 2 Billion devices world wide.",
-      image: require("./assets/images/googleAssistantLogo.webp"),
+      image: "https://d3j0xmrk71qrvn.cloudfront.net/images/googleAssistant.svg",
       footerLink: [
         {
           name: "View Google Assistant Action",

@@ -23,7 +23,7 @@ const greeting = {
   username: "Camila Pozas",
   title: "Hi all, I'm Camila",
   subTitle: emoji(
-    "An enthusiastic TechOps 👩🏽‍💻🚀 with experience in process automation and continuous improvement, in Python + Docker 🐳 + Cloud ☁️"
+    "An enthusiastic TechOps 👩🏽‍💻🚀 with experience in process automation and continuous improvement, in Python/JS + Docker 🐳 + Cloud ☁️"
   ),
   resumeLink:
     "https://drive.google.com/file/d/10SzeIybUcKNFMPtbzKao8PWyhpXj26rA/view?usp=sharing", // Set to empty to hide the button
@@ -48,8 +48,10 @@ const skillsSection = {
   title: "What I do",
   subTitle: "TRYING TO IMPROVE THE WORLD WITH TECHNOLOGY",
   skills: [
-    emoji("⚡ Process improvement through RPA"),
-    emoji("⚡ Tools in different languages that help reduce manual processes")
+    emoji("⚡ Tools in different languages that help reduce manual processes"),
+    emoji("⚡ Integration of tools to automate processes"),
+    emoji("⚡ Solve problems with technology"),
+    emoji("⚡ Backend development using Python and NodeJS")
   ],
 
   /* Make Sure to include correct Font Awesome Classname to view your icon
@@ -101,7 +103,7 @@ const educationInfo = {
       duration: "March 2017 - January 2022",
       desc: "Minor in IT",
       descBullets: [
-        "Title project: Reengineering of glued sales notes, logics incorporated in ERP for correct release in the distribution center (Dimerc S.A.).",
+        "Capstone Project: Reengineering of glued sales notes, logics incorporated in ERP for correct release in the distribution center (Dimerc S.A.).",
         "Assistant Professor: Operations Management, Optimization, Programming, Databases, inter alia."
       ]
     }
@@ -122,7 +124,7 @@ const techStack = {
       progressPercentage: "70%"
     },
     {
-      Stack: "Programming",
+      Stack: "JavaScript",
       progressPercentage: "60%"
     }
   ],

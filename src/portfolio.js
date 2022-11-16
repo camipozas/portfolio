@@ -137,10 +137,18 @@ const workExperiences = {
   display: true, //Set it to true to show workExperiences Section
   experience: [
     {
+      role: "Software Engineer",
+      company: "MACH",
+      companylogo:
+        "https://d3j0xmrk71qrvn.cloudfront.net/images/logo-mach.jpeg",
+      date: "November 2022 – Present",
+      descBullets: ["Backend development using NodeJS and TypeScript"]
+    },
+    {
       role: "Technology Operations Analyst",
       company: "Buk SpA",
-      companylogo: require("./assets/images/bukLogo.jpeg"),
-      date: "December 2021 – Present",
+      companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/bukLogo.jpeg",
+      date: "December 2021 – November 2022",
       desc: "Responsible for supporting the evaluation and implementation of technological initiatives within Buk.",
       descBullets: [
         "Survey of continuous improvement and development of robots, APIs, Machine Learning projects, etc."
@@ -149,21 +157,12 @@ const workExperiences = {
     {
       role: "Process Engineer",
       company: "Empresas Dimerc SpA",
-      companylogo: require("./assets/images/dimercLogo.jpeg"),
+      companylogo:
+        "https://d3j0xmrk71qrvn.cloudfront.net/images/dimercLogo.jpeg",
       date: "April 2021 – December 2021",
       descBullets: [
         "Review of the current processes of the company and, where they are evaluated which can be automated and/or streamlined.",
         "Leading project of interns who perform RPA, ML, etc."
-      ]
-    },
-    {
-      role: "Student Intern",
-      company: "Grupo Saesa",
-      companylogo: require("./assets/images/saesaLogo.jpeg"),
-      date: "Jan 2021 – March 2021",
-      descBullets: [
-        "Responsible for preparing business intelligence reports.",
-        "Analysis of customer data using Power BI to detect new opportunities."
       ]
     }
   ]
@@ -332,7 +331,7 @@ const twitterDetails = {
   display: false // Set true to display this section, defaults to false
 };
 
-const isHireable = true; // Set false if you are not looking for a job. Also isHireable will be display as Open for opportunities: Yes/No in the GitHub footer
+const isHireable = false; // Set false if you are not looking for a job. Also isHireable will be display as Open for opportunities: Yes/No in the GitHub footer
 
 export {
   illustration,

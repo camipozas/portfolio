@@ -139,8 +139,7 @@ const workExperiences = {
     {
       role: "Software Engineer",
       company: "MACH",
-      companylogo:
-        "https://d3j0xmrk71qrvn.cloudfront.net/images/logo-mach.jpeg",
+      companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/logo-mach.png",
       date: "November 2022 – Present",
       descBullets: ["Backend development using NodeJS and TypeScript"]
     },

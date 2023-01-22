@@ -4,6 +4,16 @@
 
 import emoji from "react-easy-emoji";
 import splashAnimation from "./assets/lottie/splashAnimation"; // Rename to your file name for custom animation
+import {
+  SiAmazonaws,
+  SiDocker,
+  SiJavascript,
+  SiMongodb,
+  SiMysql,
+  SiPython,
+  SiTypescript,
+  SiReacttable
+} from "react-icons/si";
 
 // Splash Screen
 
@@ -23,10 +33,10 @@ const greeting = {
   username: "Camila Pozas",
   title: "Hi all, I'm Camila",
   subTitle: emoji(
-    "An enthusiastic TechOps 👩🏽‍💻🚀 with experience in process automation and continuous improvement, in Python/JS + Docker 🐳 + Cloud ☁️"
+    "An enthusiastic TechOps/Developer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
   ),
   resumeLink:
-    "https://drive.google.com/file/d/10SzeIybUcKNFMPtbzKao8PWyhpXj26rA/view?usp=sharing", // Set to empty to hide the button
+    "https://drive.google.com/file/d/15l687uoxFxm7hvuoNCudMQkix_D2z2fO/view?usp=sharing", // Set to empty to hide the button
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
@@ -51,7 +61,7 @@ const skillsSection = {
     emoji("⚡ Tools in different languages that help reduce manual processes"),
     emoji("⚡ Integration of tools to automate processes"),
     emoji("⚡ Solve problems with technology"),
-    emoji("⚡ Backend development using Python and NodeJS")
+    emoji("⚡ Backend development using NodeJS and TypeScript")
   ],
 
   /* Make Sure to include correct Font Awesome Classname to view your icon
@@ -59,33 +69,37 @@ https://fontawesome.com/icons?d=gallery */
 
   softwareSkills: [
     {
-      skillName: "JavaScript",
-      fontAwesomeClassname: "fab fa-js"
+      skillName: "TypeScript",
+      Icon: SiTypescript
     },
     {
-      skillName: "reactjs",
-      fontAwesomeClassname: "fab fa-react"
+      skillName: "JavaScript",
+      Icon: SiJavascript
+    },
+    {
+      skillName: "React JS",
+      Icon: SiReacttable
     },
     {
       skillName: "mongo-database",
-      fontAwesomeClassname: "fas fa-database"
+      Icon: SiMongodb
     },
     {
       skillName: "sql-database",
-      fontAwesomeClassname: "fas fa-database"
+      Icon: SiMysql
     },
     {
       skillName: "aws",
-      fontAwesomeClassname: "fab fa-aws"
+      Icon: SiAmazonaws
     },
 
     {
       skillName: "python",
-      fontAwesomeClassname: "fab fa-python"
+      Icon: SiPython
     },
     {
       skillName: "docker",
-      fontAwesomeClassname: "fab fa-docker"
+      Icon: SiDocker
     }
   ],
   display: true // Set false to hide this section, defaults to true
@@ -125,7 +139,11 @@ const techStack = {
     },
     {
       Stack: "JavaScript",
-      progressPercentage: "60%"
+      progressPercentage: "70%"
+    },
+    {
+      Stack: "TypeScript",
+      progressPercentage: "70%"
     }
   ],
   displayCodersrank: false // Set true to display codersrank badges section need to changes your username in src/containers/skillProgress/skillProgress.js:17:62, defaults to false
@@ -159,10 +177,8 @@ const workExperiences = {
       companylogo:
         "https://d3j0xmrk71qrvn.cloudfront.net/images/dimercLogo.jpeg",
       date: "April 2021 – December 2021",
-      descBullets: [
-        "Review of the current processes of the company and, where they are evaluated which can be automated and/or streamlined.",
-        "Leading project of interns who perform RPA, ML, etc."
-      ]
+      desc: "Review of the current processes of the company and, where they are evaluated which can be automated and/or streamlined.",
+      descBullets: ["Leading project of interns who perform RPA, ML, etc."]
     }
   ]
 };
@@ -218,52 +234,20 @@ const achievementSection = {
 
   achievementsCards: [
     {
-      title: "Google Code-In Finalist",
+      title: "AWS Academy Cloud Foundations",
       subtitle:
-        "First Pakistani to be selected as Google Code-in Finalist from 4000 students from 77 different countries.",
-      image: require("./assets/images/codeInLogo.webp"),
+        "Successfully completed the AWS Academy Cloud Foundations course from AWS Educate",
+      image:
+        "https://images.credly.com/size/680x680/images/73e4a58b-a8ef-41a3-a7db-9183dd269882/image.png",
       footerLink: [
         {
           name: "Certification",
-          url: "https://drive.google.com/file/d/0B7kazrtMwm5dYkVvNjdNWjNybWJrbndFSHpNY2NFV1p4YmU0/view?usp=sharing"
-        },
-        {
-          name: "Award Letter",
-          url: "https://drive.google.com/file/d/0B7kazrtMwm5dekxBTW5hQkg2WXUyR3QzQmR0VERiLXlGRVdF/view?usp=sharing"
-        },
-        {
-          name: "Google Code-in Blog",
-          url: "https://opensource.googleblog.com/2019/01/google-code-in-2018-winners.html"
-        }
-      ]
-    },
-    {
-      title: "Google Assistant Action",
-      subtitle:
-        "Developed a Google Assistant Action JavaScript Guru that is available on 2 Billion devices world wide.",
-      image: require("./assets/images/googleAssistantLogo.webp"),
-      footerLink: [
-        {
-          name: "View Google Assistant Action",
-          url: "https://assistant.google.com/services/a/uid/000000100ee688ee?hl=en"
-        }
-      ]
-    },
-
-    {
-      title: "PWA Web App Developer",
-      subtitle: "Completed Certifcation from SMIT for PWA Web App Development",
-      image: require("./assets/images/pwaLogo.webp"),
-      footerLink: [
-        {name: "Certification", url: ""},
-        {
-          name: "Final Project",
-          url: "https://pakistan-olx-1.firebaseapp.com/"
+          url: "https://www.credly.com/badges/3888ee5a-2307-488b-a6b9-81927e50d6a2/public_url"
         }
       ]
     }
   ],
-  display: false // Set false to hide this section, defaults to true
+  display: true // Set false to hide this section, defaults to true
 };
 
 // Blogs Section

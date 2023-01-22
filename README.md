@@ -8,3 +8,17 @@ Contact me!
 
 - [LinkedIn](https://www.linkedin.com/in/camila-pozas-garcia/)
 - [Mail](cpozasg1103@gmail.com)
+
+## Run
+
+1. To run the project you need to install the dependencies with:
+
+```bash
+yarn
+```
+
+2. Then you can run the project with:
+
+```bash
+yarn start
+```

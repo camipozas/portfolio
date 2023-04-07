@@ -20,7 +20,8 @@
     "react-scripts": "^5.0.1",
     "react-test-renderer": "^17.0.2",
     "react-twitter-embed": "3.0.3",
-    "sass": "^1.32.8"
+    "sass": "^1.32.8",
+    "vercel": "^28.18.3"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -55,5 +56,9 @@
   "devDependencies": {
     "dotenv": "^8.2.0",
     "prettier": "^2.3.1"
+  },
+  "volta": {
+    "node": "18.12.0",
+    "yarn": "1.22.19"
   }
 }

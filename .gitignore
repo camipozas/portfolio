@@ -28,3 +28,6 @@ public/blogs.json
 .vercel
 
 settings.json
+
+# ignore dist folder
+dist

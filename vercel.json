@@ -1,13 +1,9 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "yarn build",
-        "use": "@vercel/static"
-      }
-    ],
-    "schedule": [
-      "cron: 0 0 * * 1"
-    ]
-  }
-  
+  "version": 2,
+  "builds": [
+    {
+      "src": "yarn build",
+      "use": "@vercel/static"
+    }
+  ]
+}

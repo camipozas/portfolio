@@ -33,7 +33,7 @@ const greeting = {
   username: "Camila Pozas",
   title: "Hi all, I'm Camila",
   subTitle: emoji(
-    "An enthusiastic TechOps/Developer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
+    "An enthusiastic TechOps / Software Engineer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
   ),
   resumeLink:
     "https://drive.google.com/file/d/15l687uoxFxm7hvuoNCudMQkix_D2z2fO/view?usp=sharing", // Set to empty to hide the button
@@ -110,6 +110,17 @@ https://fontawesome.com/icons?d=gallery */
 const educationInfo = {
   display: true, // Set false to hide this section, defaults to true
   schools: [
+    {
+      schoolName: "Universidad Santiago de Chile",
+      logo: "https://d3j0xmrk71qrvn.cloudfront.net/images/usach_logo.png",
+      subHeader: "Diploma in Cloud Architecture and Security",
+      duration: "September 2022 - February 2023",
+      desc: "Specialization in Amazon Web Services",
+      descBullets: [
+        "Certification: AWS Certified Cloud Practitioner",
+        "Principal topics: Role of the Cloud Architect, Cloud Technology Fundamentals, SaaS application architecture, Scalable monolithic architectures, Microservice Architecture, Serverless architectures."
+      ]
+    },
     {
       schoolName: "Universidad Adolfo Ibáñez",
       logo: "https://d3j0xmrk71qrvn.cloudfront.net/images/uaiLogo.jpeg",
@@ -243,6 +254,19 @@ const achievementSection = {
         {
           name: "Certification",
           url: "https://www.credly.com/badges/3888ee5a-2307-488b-a6b9-81927e50d6a2/public_url"
+        }
+      ]
+    },
+    {
+      title: "AWS Certified Cloud Practitioner",
+      subtitle:
+        "Successfully completed the AWS Certified Cloud Practitioner exam",
+      image:
+        "https://images.credly.com/size/340x340/images/00634f82-b07f-4bbd-a6bb-53de397fc3a6/image.png",
+      footerLink: [
+        {
+          name: "Certification",
+          url: "https://www.credly.com/badges/1cafefef-d9d7-4463-badf-6ad5e8230e77/public_url"
         }
       ]
     }

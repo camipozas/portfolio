@@ -33,7 +33,7 @@ const greeting = {
   username: "Camila Pozas",
   title: "Hi all, I'm Camila",
   subTitle: emoji(
-    "An enthusiastic TechOps / Software Engineer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
+    "An enthusiastic Software Engineer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
   ),
   resumeLink:
     "https://drive.google.com/file/d/15l687uoxFxm7hvuoNCudMQkix_D2z2fO/view?usp=sharing", // Set to empty to hide the button
@@ -170,7 +170,7 @@ const workExperiences = {
       company: "MACH",
       companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/logo-mach.png",
       date: "November 2022 – Present",
-      descBullets: ["Backend development using NodeJS and TypeScript"]
+      descBullets: ["Backend development using NodeJS and TypeScript."]
     },
     {
       role: "Technology Operations Analyst",

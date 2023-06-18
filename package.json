@@ -1,5 +1,5 @@
 {
-  "homepage": "https://developerfolio.js.org/",
+  "homepage": "https://www.camipg.com/",
   "name": "developerfolio",
   "version": "0.1.0",
   "private": true,
@@ -59,7 +59,7 @@
     "prettier": "^2.3.1"
   },
   "volta": {
-    "node": "18.12.0",
+    "node": "18.16.0",
     "yarn": "1.22.19"
   }
 }

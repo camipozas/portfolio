@@ -36,7 +36,7 @@ const greeting = {
     "An enthusiastic Software Engineer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️"
   ),
   resumeLink:
-    "https://drive.google.com/file/d/15l687uoxFxm7hvuoNCudMQkix_D2z2fO/view?usp=sharing", // Set to empty to hide the button
+    "https://d3j0xmrk71qrvn.cloudfront.net/public/English_CV%20CAMILA%20POZAS%20GARCIA.pdf", // Set to empty to hide the button
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
@@ -45,8 +45,8 @@ const greeting = {
 const socialMediaLinks = {
   github: "https://github.com/camipozas",
   linkedin: "https://www.linkedin.com/in/camila-pozas-garcia/",
-  gmail: "cpozasg1103@gmail.com",
-  medium: "https://medium.com/@cpozasg1103",
+  gmail: "camila@camipg.com",
+  medium: "https://medium.com/@camipg",
   // Instagram, Twitter and Kaggle are also supported in the links!
   // To customize icons and social links, tweak src/components/SocialMedia
   display: true // Set true to display this section, defaults to false
@@ -328,7 +328,7 @@ const contactInfo = {
   title: emoji("Contact Me ☎️"),
   subtitle: "Discuss a project or just want to say hi? Contact me 👋🏼",
   number: "+56962357752",
-  email_address: "cpozasg1103@gmail.com"
+  email_address: "camila@camipg.com"
 };
 
 // Twitter Section

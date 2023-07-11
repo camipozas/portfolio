@@ -6,15 +6,16 @@ On the website you will find information such as my skills, education and some p
 
 Contact me!
 
-- [LinkedIn](https://www.linkedin.com/in/camila-pozas-garcia/)
-- [Mail](cpozasg1103@gmail.com)
+- [🛜 LinkedIn](https://www.linkedin.com/in/camila-pozas-garcia/)
+- [📩 Mail](camila@camipg.com)
+- [📕 Portfolio](https://camipg.com/)
 
 ## Run
 
 1. To run the project you need to install the dependencies with:
 
 ```bash
-yarn
+yarn install
 ```
 
 2. Then you can run the project with:
@@ -22,3 +23,7 @@ yarn
 ```bash
 yarn start
 ```
+
+## Deploy
+
+The project is deployed with [Vercel](https://vercel.com/).

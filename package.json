@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "colorthief": "^2.3.0",
+    "colorthief": "^2.4.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "gh-pages": "^5.0.0",
@@ -20,8 +20,8 @@
     "react-scripts": "^5.0.1",
     "react-test-renderer": "^18.2.0",
     "react-twitter-embed": "3.0.3",
-    "sass": "^1.32.8",
-    "vercel": "^31.0.2"
+    "sass": "^1.64.1",
+    "vercel": "^31.2.0"
   },
   "scripts": {
     "predeploy": "npm run build",

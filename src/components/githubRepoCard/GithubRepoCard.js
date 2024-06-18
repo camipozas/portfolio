@@ -1,6 +1,6 @@
-import React from "react";
-import "./GithubRepoCard.scss";
-import { Fade } from "react-reveal";
+import React from 'react';
+import './GithubRepoCard.scss';
+import { Fade } from 'react-reveal';
 
 export default function GithubRepoCard({ repo, isDark }) {
   function openUrlInNewTab(url, name) {
@@ -8,7 +8,7 @@ export default function GithubRepoCard({ repo, isDark }) {
       console.log(`URL in ${name} is undefined`);
       return;
     }
-    var win = window.open(url, "_blank");
+    var win = window.open(url, '_blank');
     win.focus();
   }
 
@@ -16,7 +16,7 @@ export default function GithubRepoCard({ repo, isDark }) {
     <Fade bottom duration={1000} distance="20px">
       <div>
         <div
-          className={isDark ? "dark-card-mode repo-card-div" : "repo-card-div"}
+          className={isDark ? 'dark-card-mode repo-card-div' : 'repo-card-div'}
           key={repo.node.id}
           onClick={() => openUrlInNewTab(repo.node.url, repo.node.name)}
         >

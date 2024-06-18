@@ -1,6 +1,6 @@
-import React from "react";
-import "./SoftwareSkill.scss";
-import { skillsSection } from "../../portfolio";
+import React from 'react';
+import './SoftwareSkill.scss';
+import { skillsSection } from '../../portfolio';
 
 export default function SoftwareSkill() {
   return (
@@ -10,11 +10,7 @@ export default function SoftwareSkill() {
           {skillsSection.softwareSkills.map((skills, i) => {
             const { Icon } = skills;
             return (
-              <li
-                key={i}
-                className="software-skill-inline"
-                name={skills.skillName}
-              >
+              <li key={i} className="software-skill-inline" name={skills.skillName}>
                 <Icon />
                 <p>{skills.skillName}</p>
               </li>

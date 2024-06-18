@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import "./Contact.scss";
-import SocialMedia from "../../components/socialMedia/SocialMedia";
-import { illustration, contactInfo } from "../../portfolio";
-import { Fade } from "react-reveal";
-import email from "../../assets/lottie/email";
-import DisplayLottie from "../../components/displayLottie/DisplayLottie";
-import StyleContext from "../../contexts/StyleContext";
+import React, { useContext } from 'react';
+import './Contact.scss';
+import SocialMedia from '../../components/socialMedia/SocialMedia';
+import { illustration, contactInfo } from '../../portfolio';
+import { Fade } from 'react-reveal';
+import email from '../../assets/lottie/email';
+import DisplayLottie from '../../components/displayLottie/DisplayLottie';
+import StyleContext from '../../contexts/StyleContext';
 
 export default function Contact() {
   const { isDark } = useContext(StyleContext);
@@ -17,24 +17,15 @@ export default function Contact() {
             <h1 className="heading contact-title">{contactInfo.title}</h1>
             <p
               className={
-                isDark
-                  ? "dark-mode contact-subtitle"
-                  : "subTitle contact-subtitle"
+                isDark ? 'dark-mode contact-subtitle' : 'subTitle contact-subtitle'
               }
             >
               {contactInfo.subtitle}
             </p>
-            <div
-              className={
-                isDark ? "dark-mode contact-text-div" : "contact-text-div"
-              }
-            >
+            <div className={isDark ? 'dark-mode contact-text-div' : 'contact-text-div'}>
               {contactInfo.number && (
                 <>
-                  <a
-                    className="contact-detail"
-                    href={"tel:" + contactInfo.number}
-                  >
+                  <a className="contact-detail" href={'tel:' + contactInfo.number}>
                     {contactInfo.number}
                   </a>
                   <br />
@@ -43,7 +34,7 @@ export default function Contact() {
               )}
               <a
                 className="contact-detail-email"
-                href={"mailto:" + contactInfo.email_address}
+                href={'mailto:' + contactInfo.email_address}
               >
                 {contactInfo.email_address}
               </a>

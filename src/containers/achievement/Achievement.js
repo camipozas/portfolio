@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
-import "./Achievement.scss";
-import AchievementCard from "../../components/achievementCard/AchievementCard";
-import { achievementSection } from "../../portfolio";
-import { Fade } from "react-reveal";
-import StyleContext from "../../contexts/StyleContext";
+import React, { useContext } from 'react';
+import './Achievement.scss';
+import AchievementCard from '../../components/achievementCard/AchievementCard';
+import { achievementSection } from '../../portfolio';
+import { Fade } from 'react-reveal';
+import StyleContext from '../../contexts/StyleContext';
 export default function Achievement() {
   const { isDark } = useContext(StyleContext);
   if (!achievementSection.display) {
@@ -17,8 +17,8 @@ export default function Achievement() {
             <h1
               className={
                 isDark
-                  ? "dark-mode heading achievement-heading"
-                  : "heading achievement-heading"
+                  ? 'dark-mode heading achievement-heading'
+                  : 'heading achievement-heading'
               }
             >
               {achievementSection.title}
@@ -26,8 +26,8 @@ export default function Achievement() {
             <p
               className={
                 isDark
-                  ? "dark-mode subTitle achievement-subtitle"
-                  : "subTitle achievement-subtitle"
+                  ? 'dark-mode subTitle achievement-subtitle'
+                  : 'subTitle achievement-subtitle'
               }
             >
               {achievementSection.subtitle}
@@ -43,7 +43,7 @@ export default function Achievement() {
                     title: card.title,
                     description: card.subtitle,
                     image: card.image,
-                    footer: card.footerLink
+                    footer: card.footerLink,
                   }}
                 />
               );

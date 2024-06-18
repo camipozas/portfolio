@@ -1,7 +1,7 @@
-import React, { createRef, useContext } from "react";
-import { Fade, Slide } from "react-reveal";
-import "./EducationCard.scss";
-import StyleContext from "../../contexts/StyleContext";
+import React, { createRef, useContext } from 'react';
+import { Fade, Slide } from 'react-reveal';
+import './EducationCard.scss';
+import StyleContext from '../../contexts/StyleContext';
 
 export default function EducationCard({ school }) {
   const imgRef = createRef();
@@ -25,7 +25,7 @@ export default function EducationCard({ school }) {
         <div className="education-card">
           <div className="education-card-left">
             <img
-              crossOrigin={"anonymous"}
+              crossOrigin={'anonymous'}
               ref={imgRef}
               className="education-roundedimg"
               src={school.logo}
@@ -39,17 +39,13 @@ export default function EducationCard({ school }) {
               <h5
                 className={
                   isDark
-                    ? "dark-mode education-text-subHeader"
-                    : "education-text-subHeader"
+                    ? 'dark-mode education-text-subHeader'
+                    : 'education-text-subHeader'
                 }
               >
                 {school.subHeader}
               </h5>
-              <p
-                className={`${
-                  isDark ? "dark-mode" : ""
-                } education-text-duration`}
-              >
+              <p className={`${isDark ? 'dark-mode' : ''} education-text-duration`}>
                 {school.duration}
               </p>
               <p className="education-text-desc">{school.desc}</p>

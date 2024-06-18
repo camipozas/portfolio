@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
-import "./WorkExperience.scss";
-import ExperienceCard from "../../components/experienceCard/ExperienceCard";
-import { workExperiences } from "../../portfolio";
-import { Fade } from "react-reveal";
-import StyleContext from "../../contexts/StyleContext";
+import React, { useContext } from 'react';
+import './WorkExperience.scss';
+import ExperienceCard from '../../components/experienceCard/ExperienceCard';
+import { workExperiences } from '../../portfolio';
+import { Fade } from 'react-reveal';
+import StyleContext from '../../contexts/StyleContext';
 
 export default function WorkExperience() {
   const { isDark } = useContext(StyleContext);
@@ -26,7 +26,7 @@ export default function WorkExperience() {
                         date: card.date,
                         companylogo: card.companylogo,
                         role: card.role,
-                        descBullets: card.descBullets
+                        descBullets: card.descBullets,
                       }}
                     />
                   );

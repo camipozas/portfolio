@@ -1,4 +1,4 @@
-@import "../../_globalColor";
+@import '../../_globalColor';
 
 .switch {
   position: relative;
@@ -26,7 +26,7 @@ input {
 
 .slider::before {
   position: absolute;
-  content: "";
+  content: '';
   height: 26px;
   width: 28px;
   left: 0;

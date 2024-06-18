@@ -45,8 +45,9 @@ const greeting = {
 const socialMediaLinks = {
   github: "https://github.com/camipozas",
   linkedin: "https://www.linkedin.com/in/camila-pozas-garcia/",
-  gmail: "camila@camipg.com",
+  gmail: "cpozasg1103@gmail.com",
   medium: "https://medium.com/@camipg",
+  instagram: "https://www.instagram.com/camipozas_/",
   // Instagram, Twitter and Kaggle are also supported in the links!
   // To customize icons and social links, tweak src/components/SocialMedia
   display: true // Set true to display this section, defaults to false
@@ -92,7 +93,6 @@ https://fontawesome.com/icons?d=gallery */
       skillName: "aws",
       Icon: SiAmazonaws
     },
-
     {
       skillName: "python",
       Icon: SiPython
@@ -142,7 +142,7 @@ const techStack = {
   experience: [
     {
       Stack: "Python", //Insert stack or technology you have experience in
-      progressPercentage: "80%" //Insert relative proficiency in percentage
+      progressPercentage: "70%" //Insert relative proficiency in percentage
     },
     {
       Stack: "Docker",
@@ -150,11 +150,11 @@ const techStack = {
     },
     {
       Stack: "JavaScript",
-      progressPercentage: "70%"
+      progressPercentage: "80%"
     },
     {
       Stack: "TypeScript",
-      progressPercentage: "70%"
+      progressPercentage: "80%"
     }
   ],
   displayCodersrank: false // Set true to display codersrank badges section need to changes your username in src/containers/skillProgress/skillProgress.js:17:62, defaults to false
@@ -169,14 +169,15 @@ const workExperiences = {
       role: "Software Engineer",
       company: "MACH",
       companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/logo-mach.png",
-      date: "November 2022 – Present",
+      date: "November 2022 - Present",
+      desc: "Registration and activation of accounts for more than 4MM users.",
       descBullets: ["Backend development using NodeJS and TypeScript."]
     },
     {
       role: "Technology Operations Analyst",
       company: "Buk SpA",
       companylogo: "https://d3j0xmrk71qrvn.cloudfront.net/images/bukLogo.jpeg",
-      date: "December 2021 – November 2022",
+      date: "December 2021 - November 2022",
       desc: "Responsible for supporting the evaluation and implementation of technological initiatives within Buk.",
       descBullets: [
         "Survey of continuous improvement and development of robots, APIs, Machine Learning projects, etc."
@@ -187,7 +188,7 @@ const workExperiences = {
       company: "Empresas Dimerc SpA",
       companylogo:
         "https://d3j0xmrk71qrvn.cloudfront.net/images/dimercLogo.jpeg",
-      date: "April 2021 – December 2021",
+      date: "April 2021 - December 2021",
       desc: "Review of the current processes of the company and, where they are evaluated which can be automated and/or streamlined.",
       descBullets: ["Leading project of interns who perform RPA, ML, etc."]
     }
@@ -328,7 +329,7 @@ const contactInfo = {
   title: emoji("Contact Me ☎️"),
   subtitle: "Discuss a project or just want to say hi? Contact me 👋🏼",
   number: "+56962357752",
-  email_address: "camila@camipg.com"
+  email_address: "cpozasg1103@gmail.com"
 };
 
 // Twitter Section
@@ -338,7 +339,7 @@ const twitterDetails = {
   display: false // Set true to display this section, defaults to false
 };
 
-const isHireable = false; // Set false if you are not looking for a job. Also isHireable will be display as Open for opportunities: Yes/No in the GitHub footer
+const isHireable = true; // Set false if you are not looking for a job. Also isHireable will be display as Open for opportunities: Yes/No in the GitHub footer
 
 export {
   illustration,

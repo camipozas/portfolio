@@ -269,6 +269,18 @@ const achievementSection = {
         },
       ],
     },
+    {
+      title: 'AWS Certified Solutions Architect – Associate',
+      subtitle: 'Successfully completed the AWS Solutions Architect Associate exam',
+      image:
+        'https://images.credly.com/size/680x680/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png',
+      footerLink: [
+        {
+          name: 'Certification',
+          url: 'https://www.credly.com/badges/1455f7bb-892c-4929-95f2-1667ed0e79ca/public_url',
+        },
+      ],
+    },
   ],
   display: true, // Set false to hide this section, defaults to true
 };

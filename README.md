@@ -7,7 +7,7 @@ On the website you will find information such as my skills, education and some p
 Contact me!
 
 - [🛜 LinkedIn](https://www.linkedin.com/in/camila-pozas-garcia/)
-- [📩 Mail](camila@camipg.com)
+- [📩 Mail](cpozasg1103@gmail.com)
 - [📕 Portfolio](https://camipg.com/)
 
 ## Run

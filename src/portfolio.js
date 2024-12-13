@@ -106,7 +106,7 @@ https://fontawesome.com/icons?d=gallery */
     {
       skillName: 'terraform',
       Icon: SiTerraform,
-    }
+    },
   ],
   display: true, // Set false to hide this section, defaults to true
 };

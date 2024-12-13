@@ -12,6 +12,7 @@ import {
   SiMysql,
   SiPython,
   SiTypescript,
+  SiTerraform,
   SiReacttable,
 } from 'react-icons/si';
 
@@ -36,7 +37,7 @@ const greeting = {
     'An enthusiastic Software Engineer 👩🏽‍💻 with experience in backend development and continuous improvement, in NodeJS/TypeScript 🚀 + Docker 🐳 + Cloud ☁️',
   ),
   resumeLink:
-    'https://d3j0xmrk71qrvn.cloudfront.net/public/English_CV%20CAMILA%20POZAS%20GARCIA.pdf', // Set to empty to hide the button
+    'https://d3j0xmrk71qrvn.cloudfront.net/public/CV%20Camila%20Pozas%20Garcia.pdf', // Set to empty to hide the button
   displayGreeting: true, // Set false to hide this section, defaults to true
 };
 
@@ -62,6 +63,7 @@ const skillsSection = {
     emoji('⚡ Tools in different languages that help reduce manual processes'),
     emoji('⚡ Integration of tools to automate processes'),
     emoji('⚡ Solve problems with technology'),
+    emoji('⚡ Build robust and scalable applications'),
     emoji('⚡ Backend development using NodeJS and TypeScript'),
   ],
 
@@ -101,6 +103,10 @@ https://fontawesome.com/icons?d=gallery */
       skillName: 'docker',
       Icon: SiDocker,
     },
+    {
+      skillName: 'terraform',
+      Icon: SiTerraform,
+    }
   ],
   display: true, // Set false to hide this section, defaults to true
 };
@@ -141,20 +147,16 @@ const techStack = {
   viewSkillBars: true, //Set it to true to show Proficiency Section
   experience: [
     {
-      Stack: 'Python', //Insert stack or technology you have experience in
-      progressPercentage: '70%', //Insert relative proficiency in percentage
-    },
-    {
-      Stack: 'Docker',
-      progressPercentage: '70%',
+      Stack: 'TypeScript',
+      progressPercentage: '80%',
     },
     {
       Stack: 'JavaScript',
       progressPercentage: '80%',
     },
     {
-      Stack: 'TypeScript',
-      progressPercentage: '80%',
+      Stack: 'AWS',
+      progressPercentage: '65%',
     },
   ],
   displayCodersrank: false, // Set true to display codersrank badges section need to changes your username in src/containers/skillProgress/skillProgress.js:17:62, defaults to false
@@ -270,7 +272,7 @@ const achievementSection = {
       ],
     },
     {
-      title: 'AWS Certified Solutions Architect – Associate',
+      title: 'AWS Certified Solutions Architect - Associate',
       subtitle: 'Successfully completed the AWS Solutions Architect Associate exam',
       image:
         'https://images.credly.com/size/680x680/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png',

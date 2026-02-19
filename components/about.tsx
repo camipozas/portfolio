@@ -1,7 +1,7 @@
-import { bio, skillCategories } from "@/lib/data";
-import { Section } from "./section";
 import { Badge } from "@/components/ui/badge";
+import { bio, skillCategories } from "@/lib/data";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export function About() {
   return (

@@ -1,7 +1,7 @@
-import { certifications } from "@/lib/data";
-import { Section } from "./section";
 import { ExternalLink } from "lucide-react";
+import { certifications } from "@/lib/data";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export function Certifications() {
   return (

@@ -1,4 +1,10 @@
-import { title, subtitle, resumeUrl, heroEmoji, heroIllustration } from "@/lib/data";
+import {
+  heroEmoji,
+  heroIllustration,
+  resumeUrl,
+  subtitle,
+  title,
+} from "@/lib/data";
 import { SocialLinks } from "./social-links";
 
 export function Hero() {
@@ -22,7 +28,7 @@ export function Hero() {
           </a>
         </div>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* biome-ignore lint/performance/noImgElement: remote SVG not supported by next/image */}
       <img
         src={heroIllustration}
         alt=""

@@ -1,12 +1,12 @@
 import type {
-  Experience,
-  Education,
+  BlogPost,
   Certification,
+  Education,
+  Experience,
+  NavLink,
   Skill,
   SkillCategory,
-  BlogPost,
   SocialLinks,
-  NavLink,
 } from "./types";
 
 export const CLOUDFRONT_BASE = "https://d3j0xmrk71qrvn.cloudfront.net";
@@ -176,9 +176,28 @@ export const certifications: Certification[] = [
 
 export const blogPosts: BlogPost[] = [
   {
-    url: "https://docker-gh-actions.cam1pozas.xyz/",
-    title: "Docker & GitHub Actions",
+    url: "https://camipg.medium.com/cordyceps-automate-cloning-all-repositories-in-a-github-organization-b1961b68dd49",
+    title:
+      "Cordyceps: Automate cloning all repositories in a GitHub organization",
     description:
-      "How to use Docker with GitHub Actions — you don't need a complex architecture.",
+      "A tool that can clone all repositories in a GitHub organization with ease.",
+  },
+  {
+    url: "https://camipg.medium.com/best-vs-code-extensions-for-productivity-9e02e1d39ef8",
+    title: "Best VS Code Extensions for Productivity",
+    description:
+      "A curated list of unique extensions to boost your productivity and streamline your workflow.",
+  },
+  {
+    url: "https://camipg.medium.com/upload-data-to-a-google-sheet-with-node-js-8afcc124a574",
+    title: "Upload data to a Google Sheet with Node.js",
+    description:
+      "How to get data and post it in Google Sheets for stakeholders to read easily.",
+  },
+  {
+    url: "https://camipg.medium.com/python-how-to-extract-text-from-pdf-files-easily-c9bf4dc545fa",
+    title: "Python — How to extract text from PDF files easily",
+    description:
+      "Reading unstructured PDFs with Python using temporary folders.",
   },
 ];

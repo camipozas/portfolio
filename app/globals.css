@@ -42,7 +42,11 @@ a {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-foreground) 40%, var(--color-accent));
+  background: linear-gradient(
+    135deg,
+    var(--color-foreground) 40%,
+    var(--color-accent)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -51,13 +55,17 @@ a {
 .gradient-border-hover {
   border: 1px solid var(--color-border);
   border-radius: 0.75rem;
-  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .gradient-border-hover:hover {
   border-color: var(--color-accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  box-shadow: 0 4px 12px
+    color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
 .accent-link {
@@ -85,7 +93,9 @@ a {
 .reveal {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
   transition-delay: var(--delay, 0ms);
 }
 

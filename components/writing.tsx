@@ -1,11 +1,14 @@
-import { blogPosts } from "@/lib/data";
-import { Section } from "./section";
 import { ExternalLink } from "lucide-react";
+import { blogPosts } from "@/lib/data";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export function Writing() {
   return (
     <Section id="writing" heading="Writing">
+      <p className="mb-6 text-muted leading-relaxed">
+        Sometimes I like to write and share some things that I&apos;ve learned.
+      </p>
       <div className="space-y-4">
         {blogPosts.map((post, i) => (
           <AnimateOnScroll key={post.url} delay={i * 100}>

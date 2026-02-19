@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { education } from "@/lib/data";
-import { Section } from "./section";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export function EducationSection() {
   return (
@@ -27,7 +27,9 @@ export function EducationSection() {
                       <p className="text-sm font-medium">{edu.degree}</p>
                       <p className="text-sm text-muted">{edu.school}</p>
                     </div>
-                    <p className="text-sm text-muted shrink-0">{edu.duration}</p>
+                    <p className="text-sm text-muted shrink-0">
+                      {edu.duration}
+                    </p>
                   </div>
                   <p className="mt-2 text-sm text-muted leading-relaxed">
                     {edu.description}

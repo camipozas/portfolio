@@ -1,7 +1,7 @@
+import { GitFork, Star } from "lucide-react";
 import { fetchPinnedRepos } from "@/lib/github";
-import { Section } from "./section";
-import { Star, GitFork } from "lucide-react";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export async function Projects() {
   const repos = await fetchPinnedRepos();

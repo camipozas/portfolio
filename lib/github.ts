@@ -62,7 +62,7 @@ export async function fetchPinnedRepos(): Promise<GitHubRepo[]> {
         stars: repo.stargazerCount,
         forks: repo.forkCount,
         language: repo.primaryLanguage?.name ?? null,
-      })
+      }),
     );
   } catch {
     return [];

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { experiences } from "@/lib/data";
-import { Section } from "./section";
 import { AnimateOnScroll } from "./animate-on-scroll";
+import { Section } from "./section";
 
 export function Experience() {
   return (

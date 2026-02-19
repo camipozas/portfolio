@@ -8,7 +8,11 @@ interface AnimateOnScrollProps {
   className?: string;
 }
 
-export function AnimateOnScroll({ children, delay = 0, className = "" }: AnimateOnScrollProps) {
+export function AnimateOnScroll({
+  children,
+  delay = 0,
+  className = "",
+}: AnimateOnScrollProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

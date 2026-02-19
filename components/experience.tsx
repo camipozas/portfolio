@@ -12,14 +12,16 @@ export function Experience() {
             <div className="gradient-border-hover p-4">
               <div className="flex gap-3">
                 {exp.logo && (
-                  <Image
-                    src={exp.logo}
-                    alt={`${exp.company} logo`}
-                    width={40}
-                    height={40}
-                    unoptimized
-                    className="h-10 w-10 shrink-0 rounded-md object-contain"
-                  />
+                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
+                    <Image
+                      src={exp.logo}
+                      alt={`${exp.company} logo`}
+                      width={40}
+                      height={40}
+                      unoptimized
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 )}
                 <div className="flex-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">

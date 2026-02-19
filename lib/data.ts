@@ -95,9 +95,20 @@ export const skillCategories: SkillCategory[] = [
 
 export const experiences: Experience[] = [
   {
+    role: "Product Engineer",
+    company: "Ria Money Transfer",
+    date: "November 2025 — Present",
+    description:
+      "Building digital products for international money transfer services, collaborating with cross-functional teams on architecture and technical strategy.",
+    bullets: [
+      "Using TypeScript, React, Next.js, AWS, and cloud-native applications.",
+    ],
+    logo: `${CLOUDFRONT_BASE}/images/ria-logo.svg`,
+  },
+  {
     role: "Software Engineer",
     company: "MACH",
-    date: "November 2022 — Present",
+    date: "November 2022 — April 2025",
     description:
       "Registration and activation of accounts for more than 4MM users.",
     bullets: ["Backend development using Node.js and TypeScript."],

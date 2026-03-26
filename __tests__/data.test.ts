@@ -6,6 +6,7 @@ import {
   certifications,
   education,
   experiences,
+  featuredProjects,
   heroEmoji,
   heroIllustration,
   name,
@@ -135,6 +136,21 @@ describe("certifications", () => {
       expect(cert.subtitle).toBeTruthy();
       expect(cert.credlyUrl).toMatch(/^https:\/\/www\.credly\.com\//);
       expect(cert.emoji).toBeTruthy();
+    }
+  });
+});
+
+describe("featured projects", () => {
+  it("has at least one entry", () => {
+    expect(featuredProjects.length).toBeGreaterThan(0);
+  });
+
+  it("each entry has name, description, url, and language", () => {
+    for (const project of featuredProjects) {
+      expect(project.name).toBeTruthy();
+      expect(project.description).toBeTruthy();
+      expect(project.url).toMatch(/^https:\/\//);
+      expect(project.language).toBeTruthy();
     }
   });
 });

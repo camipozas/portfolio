@@ -40,6 +40,13 @@ export interface BlogPost {
   description: string;
 }
 
+export interface FeaturedProject {
+  name: string;
+  description: string;
+  url: string;
+  language: string | null;
+}
+
 export interface GitHubRepo {
   name: string;
   description: string | null;

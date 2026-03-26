@@ -3,6 +3,7 @@ import type {
   Certification,
   Education,
   Experience,
+  FeaturedProject,
   NavLink,
   Skill,
   SkillCategory,
@@ -185,7 +186,23 @@ export const certifications: Certification[] = [
   },
 ];
 
+export const featuredProjects: FeaturedProject[] = [
+  {
+    name: "llenode.cl",
+    description:
+      "Chilean fuel price comparison app — find the cheapest gas station near you with route optimization.",
+    url: "https://llenode.cl",
+    language: "TypeScript",
+  },
+];
+
 export const blogPosts: BlogPost[] = [
+  {
+    url: "https://camipg.medium.com/your-work-contributions-are-invisible-heres-how-i-fixed-it-abaab7d260ee",
+    title: "Your Work Contributions Are Invisible. Here's How I Fixed It.",
+    description:
+      "How I built mirror-commits to make work GitHub contributions visible on my personal profile.",
+  },
   {
     url: "https://camipg.medium.com/cordyceps-automate-cloning-all-repositories-in-a-github-organization-b1961b68dd49",
     title:

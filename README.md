@@ -14,7 +14,7 @@
 
 <img src="https://github.com/user-attachments/assets/placeholder" alt="Portfolio screenshot" width="600" />
 
-> *Inspired by [leerob.io](https://leerob.io) and [rauno.me](https://rauno.me)*
+> _Inspired by [leerob.io](https://leerob.io) and [rauno.me](https://rauno.me)_
 
 </div>
 
@@ -22,14 +22,14 @@
 
 ## 🏗️ Stack
 
-| Layer | Tech |
-|---|---|
-| ⚡ Framework | [Next.js 16](https://nextjs.org/) (App Router, RSC) |
-| 🎨 Styling | [Tailwind CSS v4](https://tailwindcss.com/) + CSS custom properties |
-| 🧩 Components | [shadcn/ui](https://ui.shadcn.com/) (button, card, separator, badge) |
-| 🌗 Theme | [next-themes](https://github.com/pacocoursey/next-themes) (light / dark) |
-| 🔤 Icons | [lucide-react](https://lucide.dev/) |
-| 📦 Package Manager | [pnpm](https://pnpm.io/) |
+| Layer              | Tech                                                                     |
+| ------------------ | ------------------------------------------------------------------------ |
+| ⚡ Framework       | [Next.js 16](https://nextjs.org/) (App Router, RSC)                      |
+| 🎨 Styling         | [Tailwind CSS v4](https://tailwindcss.com/) + CSS custom properties      |
+| 🧩 Components      | [shadcn/ui](https://ui.shadcn.com/) (button, card, separator, badge)     |
+| 🌗 Theme           | [next-themes](https://github.com/pacocoursey/next-themes) (light / dark) |
+| 🔤 Icons           | [lucide-react](https://lucide.dev/)                                      |
+| 📦 Package Manager | [pnpm](https://pnpm.io/)                                                 |
 
 ## 🎨 Design
 
@@ -62,9 +62,9 @@ Create a `.env.local` file in the root:
 GITHUB_TOKEN=ghp_your_token_here
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `GITHUB_TOKEN` | No | GitHub PAT — used to fetch pinned repos via GraphQL |
+| Variable       | Required | Description                                         |
+| -------------- | -------- | --------------------------------------------------- |
+| `GITHUB_TOKEN` | No       | GitHub PAT — used to fetch pinned repos via GraphQL |
 
 > 💡 Without the token, the Projects section shows a fallback link to GitHub.
 

@@ -1,0 +1,67 @@
+name: Terraform Setup and Validation
+description: Configures AWS credentials (OIDC), sets up Terraform, then init, fmt and validate in infra/.
+
+inputs:
+  aws_account_id:
+    description: AWS account ID that owns the role
+    required: true
+  role_name:
+    description: IAM role to assume (gha-portfolio-terraform-plan or -apply)
+    required: true
+  aws_region:
+    description: AWS region
+    required: true
+  tf_state_bucket:
+    description: S3 bucket for Terraform state
+    required: true
+  tf_state_key:
+    description: S3 key for Terraform state
+    required: true
+  terraform_version:
+    description: Must match infra/.terraform-version and required_version in infra/provider.tf
+    required: false
+    default: 1.17.2
+
+outputs:
+  init_outcome:
+    description: Outcome of the Terraform Init step (success/failure)
+    value: ${{ steps.init.outcome }}
+  fmt_outcome:
+    description: Outcome of the Terraform Format step (success/failure)
+    value: ${{ steps.fmt.outcome }}
+  validate_outcome:
+    description: Outcome of the Terraform Validate step (success/failure)
+    value: ${{ steps.validate.outcome }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.role_name }}
+        aws-region: ${{ inputs.aws_region }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v4
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+        terraform_wrapper: false
+
+    - name: Terraform Init
+      id: init
+      shell: bash
+      working-directory: infra
+      run: terraform init -input=false -backend-config="bucket=${{ inputs.tf_state_bucket }}" -backend-config="key=${{ inputs.tf_state_key }}" -backend-config="region=${{ inputs.aws_region }}"
+
+    - name: Terraform Format
+      id: fmt
+      shell: bash
+      working-directory: infra
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      id: validate
+      shell: bash
+      working-directory: infra
+      run: terraform validate

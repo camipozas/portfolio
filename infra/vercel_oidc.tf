@@ -1,5 +1,6 @@
-# The online backoffice (Vercel, production only) reaches AWS through Vercel's
-# OIDC tokens: no AWS keys stored in Vercel.
+# The online backoffice reaches AWS through Vercel's OIDC tokens: no AWS keys
+# stored in Vercel. It is its own Vercel project (same repo), so the public site
+# and its builds never hold a token this role accepts.
 resource "aws_iam_openid_connect_provider" "vercel" {
   url            = "https://oidc.vercel.com/${var.vercel_team_slug}"
   client_id_list = ["https://vercel.com/${var.vercel_team_slug}"]
@@ -17,7 +18,8 @@ resource "aws_iam_role" "backoffice" {
       Condition = {
         StringEquals = {
           "oidc.vercel.com/${var.vercel_team_slug}:aud" = "https://vercel.com/${var.vercel_team_slug}"
-          # Production deployments of this project only; previews cannot publish.
+          # Production of the backoffice project only; previews and the public
+          # site cannot assume it. IAM can only match the project by name.
           "oidc.vercel.com/${var.vercel_team_slug}:sub" = "owner:${var.vercel_team_slug}:project:${var.vercel_project}:environment:production"
         }
       }
@@ -61,11 +63,28 @@ resource "aws_iam_role_policy" "backoffice" {
         Condition = { StringLike = { "s3:prefix" = ["photos/*"] } }
       },
       {
-        # Publish = server-side copy from web/ into photos/; unpublish = delete there.
-        Sid      = "Publish"
+        # Unpublish = delete there.
+        Sid      = "PublishedReadDelete"
         Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+        Action   = ["s3:GetObject", "s3:DeleteObject"]
         Resource = "${aws_s3_bucket.assets.arn}/photos/*"
+      },
+      {
+        # Publish = server-side copy of a prepared web version, never an upload:
+        # a stolen session cannot host arbitrary HTML/JS on the CDN. The app copies
+        # with TaggingDirective=REPLACE, so no tagging permissions are needed.
+        Sid       = "PublishByCopyOnly"
+        Effect    = "Allow"
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.assets.arn}/photos/*"
+        Condition = { StringLike = { "s3:x-amz-copy-source" = "${aws_s3_bucket.photos_backup.bucket}/web/*" } }
+      },
+      {
+        # The one file written directly: what the public site renders.
+        Sid      = "PublishManifest"
+        Effect   = "Allow"
+        Action   = "s3:PutObject"
+        Resource = "${aws_s3_bucket.assets.arn}/photos/manifest.json"
       },
     ]
   })

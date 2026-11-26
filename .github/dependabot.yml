@@ -1,0 +1,18 @@
+version: 2
+
+# No terraform ecosystem: infra/ pins required_version exactly and Dependabot's
+# bundled CLI refuses it. Provider bumps = `terraform init -upgrade` by hand.
+updates:
+  - package-ecosystem: github-actions
+    # `/` alone only reaches .github/workflows; the glob brings in the
+    # composite actions, which pin configure-aws-credentials and friends.
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "06:00"
+    commit-message:
+      prefix: chore
+      include: scope

@@ -1,0 +1,125 @@
+name: "Terraform Plan Comment"
+description: "Post terraform plan as a sticky PR comment"
+
+inputs:
+  environment:
+    description: "Environment label for the comment header (staging, production)"
+    required: true
+  planfile:
+    description: "Path to the terraform plan binary file"
+    required: true
+  fmt_outcome:
+    description: "Outcome of terraform fmt step"
+    required: true
+  init_outcome:
+    description: "Outcome of terraform init step"
+    required: true
+  validate_outcome:
+    description: "Outcome of terraform validate step"
+    required: true
+  plan_outcome:
+    description: "Outcome of terraform plan step"
+    required: true
+  github_token:
+    description: "GitHub token for posting comments"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate plan text
+      shell: bash
+      working-directory: infra
+      env:
+        PLANFILE: ${{ inputs.planfile }}
+      # A failed plan leaves no file; still write the comment with the status table.
+      run: |
+        if [[ -f "$PLANFILE" ]]; then terraform show -no-color "$PLANFILE" > plan_text.txt; else : > plan_text.txt; fi
+
+    - name: Post plan comment
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        FMT: ${{ inputs.fmt_outcome }}
+        INIT: ${{ inputs.init_outcome }}
+        VALIDATE: ${{ inputs.validate_outcome }}
+        PLAN: ${{ inputs.plan_outcome }}
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const fs = require('fs');
+          const env = process.env.ENVIRONMENT;
+          const fmt = process.env.FMT;
+          const init = process.env.INIT;
+          const validate = process.env.VALIDATE;
+          const plan = process.env.PLAN;
+          const marker = `<!-- tf-plan-${env} -->`;
+          const allPassed = [fmt, init, validate, plan].every(s => s === 'success');
+          const icon = (s) => s === 'success' ? '✅' : '❌';
+
+          const planText = fs.readFileSync('infra/plan_text.txt', 'utf8').trim();
+          const summaryMatch = planText.match(/(\d+ to add, \d+ to change, \d+ to destroy)/);
+          const summary = summaryMatch ? summaryMatch[1] : null;
+          const noChanges = !summary || summary === '0 to add, 0 to change, 0 to destroy';
+
+          const parts = [marker, `## Plan — ${env}`, ''];
+
+          if (allPassed) {
+            parts.push('✅ All checks passed (format, init, validate, plan)', '');
+          } else {
+            parts.push(
+              '| Step | Status |',
+              '|------|--------|',
+              `| 🖌 Format | ${icon(fmt)} \`${fmt}\` |`,
+              `| ⚙️ Init | ${icon(init)} \`${init}\` |`,
+              `| 🤖 Validate | ${icon(validate)} \`${validate}\` |`,
+              `| 📖 Plan | ${icon(plan)} \`${plan}\` |`,
+              ''
+            );
+          }
+
+          if (allPassed && noChanges) {
+            parts.push('**No changes.** Infrastructure is up to date.', '');
+          } else if (allPassed) {
+            let planOutput = planText;
+            const maxLen = 60000;
+            if (planOutput.length > maxLen) {
+              planOutput = planOutput.substring(0, maxLen) + '\n\n... Truncated. See workflow logs.';
+            }
+            parts.push(
+              `<details><summary>📖 Show Plan (${summary})</summary>`,
+              '',
+              '```terraform',
+              planOutput,
+              '```',
+              '',
+              '</details>',
+              ''
+            );
+          }
+
+          parts.push(`*Pushed by: @${context.actor}*`);
+          const body = parts.join('\n');
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const existing = comments.find(c => c.body.includes(marker));
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body: body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+          }

@@ -1,0 +1,90 @@
+name: Terraform Apply on Main
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infra/**"
+      - ".github/actions/**"
+      - ".github/workflows/terraform-*.yml"
+  # Re-run apply + verification by hand (e.g. after a manual console change).
+  workflow_dispatch:
+
+env:
+  TF_LOG: ERROR
+
+jobs:
+  terraform_apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    # The apply role only trusts this environment, and the environment only
+    # allows main: a PR branch cannot reach the admin role. Not `production`:
+    # that name belongs to Vercel's environment, which has no branch policy.
+    environment: aws-infra
+    concurrency:
+      group: terraform-deploy-aws-infra
+      cancel-in-progress: false
+    steps:
+      - name: Validate inputs
+        env:
+          VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+          VAR_TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          VAR_TF_STATE_KEY: ${{ vars.TF_STATE_KEY }}
+        run: |
+          error=0
+          [[ -z "$VAR_AWS_REGION" ]] && echo "AWS_REGION is not set." && error=1
+          [[ -z "$VAR_TF_STATE_BUCKET" ]] && echo "TF_STATE_BUCKET is not set." && error=1
+          [[ -z "$VAR_TF_STATE_KEY" ]] && echo "TF_STATE_KEY is not set." && error=1
+          exit $error
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup and Validate Terraform
+        id: common_setup
+        uses: ./.github/actions/setup-and-validate-terraform
+        with:
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          role_name: gha-portfolio-terraform-apply
+          aws_region: ${{ vars.AWS_REGION }}
+          tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}
+          tf_state_key: ${{ vars.TF_STATE_KEY }}
+
+      # The shared action keeps going on failure so PRs can report it; apply must not.
+      - name: Stop if init, fmt or validate failed
+        env:
+          FMT: ${{ steps.common_setup.outputs.fmt_outcome }}
+          INIT: ${{ steps.common_setup.outputs.init_outcome }}
+          VALIDATE: ${{ steps.common_setup.outputs.validate_outcome }}
+        run: |
+          if [[ "$FMT$INIT$VALIDATE" != "successsuccesssuccess" ]]; then
+            echo "fmt=$FMT init=$INIT validate=$VALIDATE"
+            exit 1
+          fi
+
+      - name: Terraform Apply
+        working-directory: infra
+        run: terraform apply -auto-approve -input=false -lock-timeout=5m -var-file=./prod.tfvars
+
+      # Did the infra come out right? 1) nothing left pending or drifted,
+      # 2) the live resources behave as intended.
+      - name: Verify — no pending changes
+        working-directory: infra
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -no-color -input=false -lock-timeout=5m -var-file=./prod.tfvars > /dev/null
+          code=$?
+          case $code in
+            0) echo "✅ Infra matches the code" >> "$GITHUB_STEP_SUMMARY" ;;
+            2) echo "❌ Changes still pending after apply (drift or non-converging resource)" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1 ;;
+            *) echo "❌ Verification plan failed" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1 ;;
+          esac
+
+      - name: Verify — live checks
+        working-directory: infra
+        run: ./scripts/verify.sh

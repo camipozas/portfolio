@@ -1,0 +1,86 @@
+name: Terraform Plan on Pull Request
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  TF_LOG: ERROR
+
+# No paths filter on purpose: `Plan Result` is a required check, and a workflow
+# skipped by a paths filter never reports it, so app-only PRs would block forever.
+jobs:
+  terraform_plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    # Dependabot runs get no Actions secrets and no OIDC token, so the role
+    # assumption would fail. plan_gate accepts that skip for Dependabot only.
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup and Validate Terraform
+        id: common_setup
+        uses: ./.github/actions/setup-and-validate-terraform
+        with:
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          role_name: gha-portfolio-terraform-plan
+          aws_region: ${{ vars.AWS_REGION }}
+          tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}
+          tf_state_key: ${{ vars.TF_STATE_KEY }}
+
+      - name: Terraform Plan
+        id: plan
+        if: steps.common_setup.outputs.init_outcome == 'success'
+        working-directory: infra
+        # -lock=false: the plan role is read-only and must not touch the lock an
+        # apply may be holding.
+        run: terraform plan -no-color -input=false -lock=false -var-file=./prod.tfvars -out=tfplan.binary
+        continue-on-error: true
+
+      - name: Post Plan to PR
+        if: always()
+        uses: ./.github/actions/terraform-plan-comment
+        with:
+          environment: production
+          planfile: tfplan.binary
+          fmt_outcome: ${{ steps.common_setup.outputs.fmt_outcome }}
+          init_outcome: ${{ steps.common_setup.outputs.init_outcome }}
+          validate_outcome: ${{ steps.common_setup.outputs.validate_outcome }}
+          plan_outcome: ${{ steps.plan.outcome }}
+          github_token: ${{ github.token }}
+
+      - name: Terraform Plan Status Check
+        env:
+          FMT: ${{ steps.common_setup.outputs.fmt_outcome }}
+          INIT: ${{ steps.common_setup.outputs.init_outcome }}
+          VALIDATE: ${{ steps.common_setup.outputs.validate_outcome }}
+          PLAN: ${{ steps.plan.outcome }}
+        run: |
+          if [[ "$FMT$INIT$VALIDATE$PLAN" != "successsuccesssuccesssuccess" ]]; then
+            echo "fmt=$FMT init=$INIT validate=$VALIDATE plan=$PLAN — see the PR comment."
+            exit 1
+          fi
+
+  plan_gate:
+    name: Plan Result
+    runs-on: ubuntu-latest
+    needs: terraform_plan
+    if: always()
+    steps:
+      - env:
+          RESULT: ${{ needs.terraform_plan.result }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          case "$RESULT:$ACTOR" in
+            success:*) ;;
+            skipped:'dependabot[bot]') echo "Dependabot PR — plan not applicable." ;;
+            *) echo "Plan did not pass ($RESULT)."; exit 1 ;;
+          esac

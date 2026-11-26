@@ -3,13 +3,13 @@
 AWS for camipg.com: the assets CDN and the Lightroom photo backup.
 Account `326733328768`, region `us-east-1`.
 
-| File | What |
-|---|---|
-| `cdn.tf` | `assets-portfolio` bucket + CloudFront (OAC). Everything in this bucket is public through the CDN. |
-| `photos.tf` | Private photo backup bucket (no CDN, deletes denied) + `photos-sync` role and `photos-mac` user for the Mac. |
-| `github_oidc.tf` | GitHub OIDC + `gha-portfolio-terraform-plan` (PRs, read-only) and `gha-portfolio-terraform-apply` (environment `aws-infra`). |
-| `imports.tf` | Resources that existed before this folder, adopted with `import` blocks. |
-| `scripts/verify.sh` | Post-apply live checks (run by CI after every apply). |
+| File                | What                                                                                                                         |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `cdn.tf`            | `assets-portfolio` bucket + CloudFront (OAC). Everything in this bucket is public through the CDN.                           |
+| `photos.tf`         | Private photo backup bucket (no CDN, deletes denied) + `photos-sync` role and `photos-mac` user for the Mac.                 |
+| `github_oidc.tf`    | GitHub OIDC + `gha-portfolio-terraform-plan` (PRs, read-only) and `gha-portfolio-terraform-apply` (environment `aws-infra`). |
+| `imports.tf`        | Resources that existed before this folder, adopted with `import` blocks.                                                     |
+| `scripts/verify.sh` | Post-apply live checks (run by CI after every apply).                                                                        |
 
 ## How changes ship
 

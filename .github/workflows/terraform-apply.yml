@@ -20,13 +20,14 @@ env:
 
 jobs:
   terraform_apply:
-    name: Terraform Apply (production)
+    name: Terraform Apply
     runs-on: ubuntu-latest
     # The apply role only trusts this environment, and the environment only
-    # allows main: a PR branch cannot reach the admin role.
-    environment: production
+    # allows main: a PR branch cannot reach the admin role. Not `production`:
+    # that name belongs to Vercel's environment, which has no branch policy.
+    environment: aws-infra
     concurrency:
-      group: terraform-deploy-production
+      group: terraform-deploy-aws-infra
       cancel-in-progress: false
     steps:
       - name: Validate inputs
@@ -42,7 +43,7 @@ jobs:
           exit $error
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup and Validate Terraform
         uses: ./.github/actions/setup-and-validate-terraform
@@ -55,7 +56,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: infra
-        run: terraform apply -auto-approve -input=false -var-file=./prod.tfvars
+        run: terraform apply -auto-approve -input=false -lock-timeout=5m -var-file=./prod.tfvars
 
       # Did the infra come out right? 1) nothing left pending or drifted,
       # 2) the live resources behave as intended.
@@ -63,7 +64,7 @@ jobs:
         working-directory: infra
         run: |
           set +e
-          terraform plan -detailed-exitcode -no-color -input=false -var-file=./prod.tfvars > /dev/null
+          terraform plan -detailed-exitcode -no-color -input=false -lock-timeout=5m -var-file=./prod.tfvars > /dev/null
           code=$?
           case $code in
             0) echo "✅ Infra matches the code" >> "$GITHUB_STEP_SUMMARY" ;;

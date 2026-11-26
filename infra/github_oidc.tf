@@ -4,16 +4,14 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list = ["sts.amazonaws.com"]
 }
 
-locals {
-  state_bucket_arn = "arn:aws:s3:::camipg-tfstate-326733328768"
-}
-
 data "aws_iam_policy_document" "gha_trust" {
   for_each = {
     # Any PR branch of this repo. Fork PRs never get an OIDC token.
     plan = "repo:${var.github_repository}:pull_request"
-    # Only jobs bound to the `production` environment, which only main can use.
-    apply = "repo:${var.github_repository}:environment:production"
+    # Only jobs bound to the `aws-infra` environment, which only main can use.
+    # Not `production`: Vercel already owns a `Production` environment with no
+    # branch policy, and GitHub matches environment names case-insensitively.
+    apply = "repo:${var.github_repository}:environment:aws-infra"
   }
 
   statement {
@@ -45,27 +43,21 @@ resource "aws_iam_role_policy_attachment" "gha_plan_read_only" {
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
+# PR plans run with -lock=false, so this role writes nothing, not even the
+# state lock (it could otherwise delete a lock held by an apply).
 resource "aws_iam_role_policy" "gha_plan" {
-  name = "state-lock-and-no-photos"
+  name = "no-photo-content"
   role = aws_iam_role.gha_plan.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        # use_lockfile writes and removes <key>.tflock next to the state.
-        Sid      = "StateLock"
-        Effect   = "Allow"
-        Action   = ["s3:PutObject", "s3:DeleteObject"]
-        Resource = "${local.state_bucket_arn}/*.tflock"
-      },
-      {
-        # ReadOnlyAccess would let any PR branch download the photos.
-        Sid      = "NoPhotoContent"
-        Effect   = "Deny"
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.photos_backup.arn}/*"
-      },
-    ]
+    Statement = [{
+      # ReadOnlyAccess would let any PR branch download the photos; the
+      # wildcard also covers GetObjectVersion (?versionId=) and attributes.
+      Sid      = "NoPhotoContent"
+      Effect   = "Deny"
+      Action   = "s3:GetObject*"
+      Resource = "${aws_s3_bucket.photos_backup.arn}/*"
+    }]
   })
 }
 

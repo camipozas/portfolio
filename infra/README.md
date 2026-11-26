@@ -7,7 +7,7 @@ Account `326733328768`, region `us-east-1`.
 |---|---|
 | `cdn.tf` | `assets-portfolio` bucket + CloudFront (OAC). Everything in this bucket is public through the CDN. |
 | `photos.tf` | Private photo backup bucket (no CDN, deletes denied) + `photos-sync` role and `photos-mac` user for the Mac. |
-| `github_oidc.tf` | GitHub OIDC + `gha-portfolio-terraform-plan` (PRs, read-only) and `gha-portfolio-terraform-apply` (environment `production`). |
+| `github_oidc.tf` | GitHub OIDC + `gha-portfolio-terraform-plan` (PRs, read-only) and `gha-portfolio-terraform-apply` (environment `aws-infra`). |
 | `imports.tf` | Resources that existed before this folder, adopted with `import` blocks. |
 | `scripts/verify.sh` | Post-apply live checks (run by CI after every apply). |
 
@@ -35,7 +35,9 @@ terraform plan -var-file=prod.tfvars
 
 GitHub settings the workflows need:
 
-- Environment `production`, deployment branches limited to `main`.
+- Environment `aws-infra`, deployment branches limited to `main` (not Vercel's
+  `Production`, which has no branch policy; names are case-insensitive).
+- `Plan Result` as a required status check on `main`.
 - Secret `AWS_ACCOUNT_ID`; variables `AWS_REGION`, `TF_STATE_BUCKET`, `TF_STATE_KEY`.
 
 ## Mac credentials (photo scripts and local backoffice)
@@ -44,10 +46,12 @@ GitHub settings the workflows need:
 Keychain, never in a file, in Terraform state or in a terminal transcript:
 
 ```bash
-aws iam create-access-key --user-name photos-mac \
+# Works in zsh and bash. Compact JSON: Keychain returns multi-line values as hex.
+creds=$(AWS_PROFILE=personal aws iam create-access-key --user-name photos-mac \
   --query '{Version:`1`,AccessKeyId:AccessKey.AccessKeyId,SecretAccessKey:AccessKey.SecretAccessKey}' \
-  --output json \
-  | security add-generic-password -a photos-mac -s aws-photos-mac -U -w "$(cat)"
+  --output json | tr -d ' \n')
+security add-generic-password -a photos-mac -s aws-photos-mac -U -w "$creds"
+unset creds
 ```
 
 `~/.aws/config`:

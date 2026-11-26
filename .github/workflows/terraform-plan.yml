@@ -24,7 +24,7 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup and Validate Terraform
         id: common_setup
@@ -38,11 +38,15 @@ jobs:
 
       - name: Terraform Plan
         id: plan
+        if: steps.common_setup.outputs.init_outcome == 'success'
         working-directory: infra
-        run: terraform plan -no-color -input=false -var-file=./prod.tfvars -out=tfplan.binary
+        # -lock=false: the plan role is read-only and must not touch the lock an
+        # apply may be holding.
+        run: terraform plan -no-color -input=false -lock=false -var-file=./prod.tfvars -out=tfplan.binary
         continue-on-error: true
 
       - name: Post Plan to PR
+        if: always()
         uses: ./.github/actions/terraform-plan-comment
         with:
           environment: production
@@ -54,10 +58,16 @@ jobs:
           github_token: ${{ github.token }}
 
       - name: Terraform Plan Status Check
-        if: steps.plan.outcome == 'failure'
+        env:
+          FMT: ${{ steps.common_setup.outputs.fmt_outcome }}
+          INIT: ${{ steps.common_setup.outputs.init_outcome }}
+          VALIDATE: ${{ steps.common_setup.outputs.validate_outcome }}
+          PLAN: ${{ steps.plan.outcome }}
         run: |
-          echo "Terraform plan failed. Please review the plan output."
-          exit 1
+          if [[ "$FMT$INIT$VALIDATE$PLAN" != "successsuccesssuccesssuccess" ]]; then
+            echo "fmt=$FMT init=$INIT validate=$VALIDATE plan=$PLAN — see the PR comment."
+            exit 1
+          fi
 
   plan_gate:
     name: Plan Result

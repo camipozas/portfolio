@@ -94,4 +94,9 @@ resource "aws_cloudfront_distribution" "assets" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+
+  # A replacement gets a new *.cloudfront.net domain and breaks every asset URL.
+  lifecycle {
+    prevent_destroy = true
+  }
 }

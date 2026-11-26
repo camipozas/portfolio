@@ -30,10 +30,14 @@ runs:
     - name: Generate plan text
       shell: bash
       working-directory: infra
-      run: terraform show -no-color ${{ inputs.planfile }} > plan_text.txt
+      env:
+        PLANFILE: ${{ inputs.planfile }}
+      # A failed plan leaves no file; still write the comment with the status table.
+      run: |
+        if [[ -f "$PLANFILE" ]]; then terraform show -no-color "$PLANFILE" > plan_text.txt; else : > plan_text.txt; fi
 
     - name: Post plan comment
-      uses: actions/github-script@v9
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         ENVIRONMENT: ${{ inputs.environment }}
         FMT: ${{ inputs.fmt_outcome }}

@@ -3,6 +3,10 @@
 # here, so this bucket is the only copy besides Drive: nothing may delete objects.
 resource "aws_s3_bucket" "photos_backup" {
   bucket = "camipg-photos-backup-326733328768"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "photos_backup" {
@@ -20,6 +24,10 @@ resource "aws_s3_bucket_versioning" "photos_backup" {
 
   versioning_configuration {
     status = "Enabled"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -61,6 +69,12 @@ resource "aws_s3_bucket_policy" "photos_backup" {
       },
     ]
   })
+
+  # Dropping this block from the code would delete the policy, and with it the
+  # delete protection.
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Role used on the Mac by the backup script and the local backoffice.

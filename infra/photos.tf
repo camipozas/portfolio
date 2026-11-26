@@ -70,8 +70,8 @@ resource "aws_s3_bucket_policy" "photos_backup" {
     ]
   })
 
-  # Dropping this block from the code would delete the policy, and with it the
-  # delete protection.
+  # Guards against replacement only: removing the whole resource block still
+  # deletes the policy. scripts/verify.sh fails the apply if that happens.
   lifecycle {
     prevent_destroy = true
   }

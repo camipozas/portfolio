@@ -46,6 +46,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup and Validate Terraform
+        id: common_setup
         uses: ./.github/actions/setup-and-validate-terraform
         with:
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -53,6 +54,18 @@ jobs:
           aws_region: ${{ vars.AWS_REGION }}
           tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}
           tf_state_key: ${{ vars.TF_STATE_KEY }}
+
+      # The shared action keeps going on failure so PRs can report it; apply must not.
+      - name: Stop if init, fmt or validate failed
+        env:
+          FMT: ${{ steps.common_setup.outputs.fmt_outcome }}
+          INIT: ${{ steps.common_setup.outputs.init_outcome }}
+          VALIDATE: ${{ steps.common_setup.outputs.validate_outcome }}
+        run: |
+          if [[ "$FMT$INIT$VALIDATE" != "successsuccesssuccess" ]]; then
+            echo "fmt=$FMT init=$INIT validate=$VALIDATE"
+            exit 1
+          fi
 
       - name: Terraform Apply
         working-directory: infra

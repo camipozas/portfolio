@@ -1,3 +1,5 @@
 env               = "prod"
 region            = "us-east-1"
 github_repository = "camipozas/portfolio"
+vercel_team_slug  = "camila-pozas-projects"
+vercel_project    = "portfolio-backoffice"

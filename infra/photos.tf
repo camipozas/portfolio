@@ -34,6 +34,19 @@ resource "aws_s3_bucket_versioning" "photos_backup" {
 resource "aws_s3_bucket_lifecycle_configuration" "photos_backup" {
   bucket = aws_s3_bucket.photos_backup.id
 
+  # Every backoffice save is a new version of curation/ and deletes are denied;
+  # keep 90 days of history, not forever.
+  rule {
+    id     = "expire-old-curation-versions"
+    status = "Enabled"
+    filter {
+      prefix = "curation/"
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+  }
+
   # Multi-GB uploads that die halfway are billed until aborted.
   rule {
     id     = "abort-incomplete-multipart"

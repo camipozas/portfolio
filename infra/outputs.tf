@@ -17,3 +17,7 @@ output "gha_plan_role_arn" {
 output "gha_apply_role_arn" {
   value = aws_iam_role.gha_apply.arn
 }
+
+output "backoffice_role_arn" {
+  value = aws_iam_role.backoffice.arn
+}

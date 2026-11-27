@@ -1,3 +1,4 @@
+import { Languages } from "lucide-react";
 import { name } from "@/lib/data";
 import { type Locale, languageNames, localizedPath } from "@/lib/locale";
 import type { NavLink } from "@/lib/types";
@@ -39,8 +40,10 @@ export function Nav({ lang, navLinks, toggleThemeLabel }: NavProps) {
             hrefLang={other}
             lang={other}
             aria-label={languageNames[other]}
-            className="text-sm text-muted transition-colors hover:text-accent"
+            title={languageNames[other]}
+            className="flex items-center gap-1 text-sm text-muted transition-colors hover:text-accent"
           >
+            <Languages size={16} aria-hidden="true" />
             {other.toUpperCase()}
           </a>
           <ThemeToggle label={toggleThemeLabel} />

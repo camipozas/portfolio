@@ -1,16 +1,19 @@
 import { Separator } from "@/components/ui/separator";
+import type { Content } from "@/lib/content";
 import { name, socialLinks } from "@/lib/data";
 import { SocialLinks } from "./social-links";
 
-export function Footer() {
+export function Footer({ content }: { content: Content }) {
+  const { ui } = content;
+
   return (
     <footer className="py-12">
       <Separator className="mb-8" />
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-muted">
-          ☕ Want to chat?{" "}
+          ☕ {ui.chat}{" "}
           <a href={`mailto:${socialLinks.email}`} className="accent-link">
-            Send me an email
+            {ui.sendEmail}
           </a>
           .
         </p>

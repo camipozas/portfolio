@@ -1,17 +1,20 @@
 import { ExternalLink, GitFork, Star } from "lucide-react";
-import { featuredProjects } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { fetchPinnedRepos } from "@/lib/github";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export async function Projects() {
+export async function Projects({ content }: { content: Content }) {
+  const { featuredProjects, ui } = content;
+  const heading = headingFor(content, "projects");
+
   const repos = await fetchPinnedRepos();
 
   if (repos.length === 0 && featuredProjects.length === 0) {
     return (
-      <Section id="projects" heading="Projects">
+      <Section id="projects" heading={heading}>
         <p className="text-sm text-muted">
-          Check out my work on{" "}
+          {ui.projectsFallback}{" "}
           <a
             href="https://github.com/camipozas"
             target="_blank"
@@ -27,7 +30,7 @@ export async function Projects() {
   }
 
   return (
-    <Section id="projects" heading="Projects">
+    <Section id="projects" heading={heading}>
       <div className="grid gap-4 sm:grid-cols-2">
         {featuredProjects.map((project, i) => (
           <AnimateOnScroll key={project.name} delay={i * 100}>
@@ -45,7 +48,7 @@ export async function Projects() {
                 {project.language && <span>{project.language}</span>}
                 <span className="flex items-center gap-1">
                   <ExternalLink size={12} />
-                  Live
+                  {ui.live}
                 </span>
               </div>
             </a>

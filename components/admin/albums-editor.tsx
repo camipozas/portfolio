@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { saveAlbums } from '@/app/admin/actions';
-import type { AlbumState } from '@/lib/backoffice/curation';
+import type { AlbumState, AlbumStatus } from '@/lib/backoffice/curation';
 import { move } from '@/lib/backoffice/curation';
 import { cn } from '@/lib/utils';
 import { PublishBar } from './publish-bar';
@@ -20,10 +20,32 @@ export type AlbumCard = Pick<
   AlbumState,
   'key' | 'slug' | 'title' | 'visible'
 > & {
+  status: AlbumStatus;
   total: number;
   shown: number;
   coverUrl?: string;
 };
+
+const STATUS: Record<AlbumStatus, { label: string; className: string }> = {
+  published: { label: 'Publicado', className: 'bg-emerald-500 text-white' },
+  changed: {
+    label: 'Cambios sin publicar',
+    className: 'bg-amber-400 text-black',
+  },
+  new: { label: 'Nuevo, sin publicar', className: 'bg-accent text-white' },
+  hidden: { label: 'Oculto', className: 'bg-black/70 text-white' },
+};
+
+function editedStatus(
+  album: AlbumCard,
+  patch: Partial<AlbumCard>
+): AlbumStatus {
+  const visible = patch.visible ?? album.visible;
+  if (album.status === 'published' || album.status === 'changed') {
+    return 'changed';
+  }
+  return visible && album.shown > 0 ? 'new' : 'hidden';
+}
 
 interface AlbumsEditorProps {
   initial: AlbumCard[];
@@ -51,7 +73,11 @@ export function AlbumsEditor({
   );
   const update = (key: string, patch: Partial<AlbumCard>) =>
     setAlbums((list) =>
-      list.map((album) => (album.key === key ? { ...album, ...patch } : album))
+      list.map((album) =>
+        album.key === key
+          ? { ...album, ...patch, status: editedStatus(album, patch) }
+          : album
+      )
     );
 
   const live = albums.filter((album) => album.visible && album.shown > 0);
@@ -59,7 +85,15 @@ export function AlbumsEditor({
   return (
     <>
       <PublishBar
-        onPublished={() => setPending(false)}
+        onPublished={() => {
+          setPending(false);
+          setAlbums((list) =>
+            list.map((album) => ({
+              ...album,
+              status: album.visible && album.shown > 0 ? 'published' : 'hidden',
+            }))
+          );
+        }}
         pending={pending}
         publishedAt={publishedAt}
         saveStatus={saveStatus}
@@ -106,11 +140,14 @@ export function AlbumsEditor({
                     <ImageOff />
                   </div>
                 )}
-                {!album.visible && (
-                  <span className="absolute top-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-xs text-white">
-                    Oculto
-                  </span>
-                )}
+                <span
+                  className={cn(
+                    'absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium',
+                    STATUS[album.status].className
+                  )}
+                >
+                  {STATUS[album.status].label}
+                </span>
                 <GripVertical
                   aria-hidden="true"
                   className="absolute top-2 right-2 text-white drop-shadow"

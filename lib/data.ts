@@ -39,13 +39,14 @@ export const ui = {
   sendEmail: 'Send me an email',
   picturesIntro: 'Places and moments, edited by me.',
   picturesEmpty: 'Photos are coming soon.',
-  allAlbums: 'All albums',
   photo: 'photo',
   photos: 'photos',
   close: 'Close',
   previousPhoto: 'Previous photo',
   nextPhoto: 'Next photo',
   openFullSize: 'Open full size',
+  nextAlbum: 'Next album',
+  photoDetails: 'Photo details',
 };
 
 export const heroEmoji = '👋';

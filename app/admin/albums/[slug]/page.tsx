@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { PhotosEditor } from '@/components/admin/photos-editor';
 import { loadOverview } from '@/lib/backoffice/overview';
 import { requireSession } from '@/lib/backoffice/session';
-import { thumbUrl } from '@/lib/backoffice/storage';
+import { webUrl } from '@/lib/backoffice/storage';
 
 export const maxDuration = 60;
 
@@ -22,7 +22,8 @@ export default async function AlbumEditorPage({
       const found = photos.get(photo.id);
       return {
         ...photo,
-        thumbUrl: await thumbUrl(found?.path ?? ''),
+        thumbUrl: await webUrl(found?.path ?? ''),
+        largeUrl: await webUrl(found?.path ?? '', '2048'),
         takenAt: found?.exif.takenAt,
       };
     })

@@ -5,12 +5,14 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
+  Maximize2,
   Star,
 } from 'lucide-react';
 import { useState } from 'react';
 import { saveAlbumPhotos } from '@/app/admin/actions';
 import { move } from '@/lib/backoffice/curation';
 import { cn } from '@/lib/utils';
+import { PhotoReview } from './photo-review';
 import { PublishBar } from './publish-bar';
 import { useAutosave } from './use-autosave';
 
@@ -18,6 +20,7 @@ export interface PhotoTile {
   id: string;
   visible: boolean;
   thumbUrl: string;
+  largeUrl: string;
   takenAt?: string;
 }
 
@@ -42,6 +45,7 @@ export function PhotosEditor(props: PhotosEditorProps) {
   const [anchor, setAnchor] = useState<number | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [dragged, setDragged] = useState<number | null>(null);
+  const [review, setReview] = useState<number | null>(null);
 
   const saveStatus = useAutosave(
     album,
@@ -289,10 +293,33 @@ export function PhotosEditor(props: PhotosEditorProps) {
                   size={14}
                 />
               </button>
+              <button
+                aria-label={`Ver foto ${index + 1} en grande`}
+                className="absolute right-1 bottom-1 rounded-full bg-black/60 p-1.5 text-white shadow"
+                onClick={() => setReview(index)}
+                type="button"
+              >
+                <Maximize2 size={14} />
+              </button>
             </li>
           );
         })}
       </ol>
+      {review === null ? null : (
+        <PhotoReview
+          coverId={coverId}
+          index={review}
+          onClose={() => setReview(null)}
+          onCover={(id) => setAlbum((a) => ({ ...a, coverId: id }))}
+          onIndex={setReview}
+          onToggle={(id) =>
+            setPhotos((list) =>
+              list.map((p) => (p.id === id ? { ...p, visible: !p.visible } : p))
+            )
+          }
+          photos={photos}
+        />
+      )}
     </>
   );
 }

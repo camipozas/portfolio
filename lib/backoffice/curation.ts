@@ -1,3 +1,4 @@
+import { PHOTO_SIZES } from '@/lib/pictures/manifest';
 import type {
   Album,
   Localized,
@@ -11,6 +12,7 @@ export interface CatalogPhoto {
   path: string;
   width: number;
   height: number;
+  color?: string;
   exif: PhotoExif;
 }
 
@@ -128,6 +130,7 @@ export function buildManifest(
                 id: found.id,
                 width: found.width,
                 height: found.height,
+                color: found.color,
                 exif: found.exif,
               },
             ]
@@ -157,7 +160,7 @@ const photoIds = (manifest: Manifest | undefined) =>
   );
 
 /**
- * `published` maps each id to how many of its 3 sizes exist. Photos of the previous
+ * `published` maps each id to how many of its sizes exist. Photos of the previous
  * manifest stay one more publish: the site may still render it for up to an hour.
  */
 export function planPublish(
@@ -168,7 +171,9 @@ export function planPublish(
   const wanted = photoIds(manifest);
   const recent = photoIds(previous);
   return {
-    copy: [...wanted].filter((id) => (published.get(id) ?? 0) < 3),
+    copy: [...wanted].filter(
+      (id) => (published.get(id) ?? 0) < PHOTO_SIZES.length
+    ),
     remove: [...published.keys()].filter(
       (id) => !(wanted.has(id) || recent.has(id))
     ),
@@ -193,4 +198,31 @@ export async function inBatches<T>(
   for (let start = 0; start < items.length; start += size) {
     await Promise.all(items.slice(start, start + size).map(task));
   }
+}
+
+export type AlbumStatus = 'published' | 'changed' | 'new' | 'hidden';
+
+/** Per album slug: is what the site shows the same as what would be published now? */
+export function albumStatuses(
+  slugs: string[],
+  next: Manifest,
+  published?: Manifest
+): Map<string, AlbumStatus> {
+  const live = new Map(
+    published?.albums.map((a) => [a.slug, JSON.stringify(a)])
+  );
+  const wanted = new Map(next.albums.map((a) => [a.slug, JSON.stringify(a)]));
+  return new Map(
+    slugs.map((slug): [string, AlbumStatus] => {
+      const now = wanted.get(slug);
+      const before = live.get(slug);
+      if (now === undefined) {
+        return [slug, before === undefined ? 'hidden' : 'changed'];
+      }
+      if (before === undefined) {
+        return [slug, 'new'];
+      }
+      return [slug, now === before ? 'published' : 'changed'];
+    })
+  );
 }

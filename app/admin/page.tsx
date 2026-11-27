@@ -1,14 +1,15 @@
 import { AlbumsEditor } from '@/components/admin/albums-editor';
 import { loadOverview } from '@/lib/backoffice/overview';
 import { requireSession } from '@/lib/backoffice/session';
-import { thumbUrl } from '@/lib/backoffice/storage';
+import { webUrl } from '@/lib/backoffice/storage';
 
 // Hobby plan limit. A publish cut short resumes on the next click (see planPublish).
 export const maxDuration = 60;
 
 export default async function AdminPage() {
   await requireSession();
-  const { state, photos, pending, publishedAt } = await loadOverview();
+  const { state, photos, pending, publishedAt, statuses } =
+    await loadOverview();
 
   const albums = await Promise.all(
     state.albums.map(
@@ -24,9 +25,10 @@ export default async function AdminPage() {
           slug,
           title,
           visible,
+          status: statuses.get(slug) ?? 'hidden',
           total: albumPhotos.length,
           shown: albumPhotos.filter((photo) => photo.visible).length,
-          coverUrl: cover ? await thumbUrl(cover.path) : undefined,
+          coverUrl: cover ? await webUrl(cover.path) : undefined,
         };
       }
     )

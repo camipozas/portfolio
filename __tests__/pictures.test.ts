@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatCamera,
+  formatDateRange,
   formatExposure,
   formatSettings,
   formatTakenAt,
@@ -70,5 +71,26 @@ describe('manifest', () => {
     expect(localized({ en: 'Rome', es: 'Roma' }, 'es')).toBe('Roma');
     expect(localized({ en: 'Rome' }, 'es')).toBe('Rome');
     expect(localized(undefined, 'en')).toBe('');
+  });
+});
+
+describe('formatDateRange', () => {
+  it('should show one month, a range within a year and across years', () => {
+    expect(
+      formatDateRange(['2025:05:03 10:00:00', '2025:05:20 10:00:00'], 'en')
+    ).toBe('May 2025');
+    expect(
+      formatDateRange(['2025:05:03 10:00:00', '2025:04:20 10:00:00'], 'en')
+    ).toBe('Apr – May 2025');
+    expect(
+      formatDateRange(['2024:12:30 10:00:00', '2025:01:02 10:00:00'], 'en')
+    ).toBe('Dec 2024 – Jan 2025');
+  });
+
+  it('should ignore photos without a date and return nothing when none has one', () => {
+    expect(formatDateRange([undefined, '2025:05:03 10:00:00'], 'en')).toBe(
+      'May 2025'
+    );
+    expect(formatDateRange([undefined], 'en')).toBeUndefined();
   });
 });

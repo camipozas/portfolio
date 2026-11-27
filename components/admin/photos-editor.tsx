@@ -296,7 +296,7 @@ export function PhotosEditor(props: PhotosEditorProps) {
               <button
                 aria-label={`Ver foto ${index + 1} en grande`}
                 className="absolute right-1 bottom-1 rounded-full bg-black/60 p-1.5 text-white shadow"
-                onClick={() => setReview(i)}
+                onClick={() => setReview(index)}
                 type="button"
               >
                 <Maximize2 size={14} />
@@ -317,7 +317,7 @@ export function PhotosEditor(props: PhotosEditorProps) {
               list.map((p) => (p.id === id ? { ...p, visible: !p.visible } : p))
             )
           }
-          photos={view}
+          photos={photos}
         />
       )}
     </>

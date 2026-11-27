@@ -44,11 +44,14 @@ export function PhotoReview({
       className="m-0 h-dvh max-h-none w-screen max-w-none bg-black p-0 text-white backdrop:bg-black"
       onClose={onClose}
       onKeyDown={(event) => {
-        switch (event.key) {
-          case 'ArrowLeft':
+        if (event.metaKey || event.ctrlKey || event.altKey) {
+          return;
+        }
+        switch (event.key.toLowerCase()) {
+          case 'arrowleft':
             go(-1);
             break;
-          case 'ArrowRight':
+          case 'arrowright':
             go(1);
             break;
           case 'v':

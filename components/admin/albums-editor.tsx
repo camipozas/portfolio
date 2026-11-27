@@ -36,6 +36,17 @@ const STATUS: Record<AlbumStatus, { label: string; className: string }> = {
   hidden: { label: 'Oculto', className: 'bg-black/70 text-white' },
 };
 
+function editedStatus(
+  album: AlbumCard,
+  patch: Partial<AlbumCard>
+): AlbumStatus {
+  const visible = patch.visible ?? album.visible;
+  if (album.status === 'published' || album.status === 'changed') {
+    return 'changed';
+  }
+  return visible && album.shown > 0 ? 'new' : 'hidden';
+}
+
 interface AlbumsEditorProps {
   initial: AlbumCard[];
   initialPending: boolean;
@@ -63,7 +74,9 @@ export function AlbumsEditor({
   const update = (key: string, patch: Partial<AlbumCard>) =>
     setAlbums((list) =>
       list.map((album) =>
-        album.key === key ? { ...album, ...patch, status: 'changed' } : album
+        album.key === key
+          ? { ...album, ...patch, status: editedStatus(album, patch) }
+          : album
       )
     );
 
@@ -72,7 +85,15 @@ export function AlbumsEditor({
   return (
     <>
       <PublishBar
-        onPublished={() => setPending(false)}
+        onPublished={() => {
+          setPending(false);
+          setAlbums((list) =>
+            list.map((album) => ({
+              ...album,
+              status: album.visible && album.shown > 0 ? 'published' : 'hidden',
+            }))
+          );
+        }}
         pending={pending}
         publishedAt={publishedAt}
         saveStatus={saveStatus}

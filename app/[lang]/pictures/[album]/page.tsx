@@ -70,7 +70,7 @@ export default async function AlbumPage({
 
   return (
     <>
-      <nav aria-label={content.picturesLabel} className="text-sm">
+      <nav aria-label="Breadcrumb" className="text-sm">
         <ol className="flex items-center gap-2">
           <li>
             <a

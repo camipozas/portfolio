@@ -59,7 +59,7 @@ export default async function PicturesPage({
                   {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
                   <img
                     alt=""
-                    className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    className="aspect-[4/3] w-full object-cover motion-safe:transition motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]"
                     decoding="async"
                     loading="lazy"
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

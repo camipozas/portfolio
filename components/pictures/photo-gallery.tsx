@@ -7,7 +7,7 @@ import {
   Download,
   Info,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Locale } from '@/lib/locale';
 import {
   formatCamera,
@@ -31,8 +31,10 @@ interface PhotoGalleryProps {
 }
 
 const SWIPE_PX = 50;
-// Row heights of the justified grid (keep in sync with --row below).
-const ROW_PX = { phone: 144, wide: 224 };
+// Row heights of the justified grid (keep in sync with --row below). Tiles grow up to
+// ~1.6x their base width to fill a row, so `sizes` asks for that much.
+const ROW_PX = { phone: 144 * 1.6, wide: 224 * 1.6 };
+const EAGER = 6;
 
 // Images that finished loading before hydration never fire onLoad.
 const revealWhenLoaded = (img: HTMLImageElement | null) => {
@@ -59,55 +61,59 @@ export function PhotoGallery({
 
   const altOf = (photo: Photo, i: number) =>
     localized(photo.alt, lang) || `${albumTitle} ${i + 1}/${photos.length}`;
-  const urlFor = (i: number | null) =>
-    i === null ? window.location.pathname : `?photo=${photos[i].id}`;
-
-  // Each photo has its own URL; the browser/phone back button closes the viewer.
-  const open = (i: number) => {
+  // Each photo has its own URL. The URL is the source of truth: back/forward and
+  // shared links open or close the viewer, and every way of closing it lands in onClose.
+  const show = (i: number) => {
     setIndex(i);
-    dialog.current?.showModal();
-    window.history.pushState({ viewer: true }, '', urlFor(i));
-    pushed.current = true;
-  };
-  const close = () => {
-    if (pushed.current) {
-      window.history.back();
-      return;
-    }
-    // Arrived through a shared photo link: there is no entry of ours to go back to.
-    window.history.replaceState(null, '', urlFor(null));
-    dialog.current?.close();
-  };
-  const step = useCallback(
-    (delta: number) =>
-      setIndex((i) => {
-        if (i === null) {
-          return i;
-        }
-        const next = (i + delta + photos.length) % photos.length;
-        window.history.replaceState(
-          window.history.state,
-          '',
-          `?photo=${photos[next].id}`
-        );
-        return next;
-      }),
-    [photos]
-  );
-
-  useEffect(() => {
-    const shared = new URLSearchParams(window.location.search).get('photo');
-    const at = photos.findIndex((photo) => photo.id === shared);
-    if (at >= 0) {
-      setIndex(at);
+    if (!dialog.current?.open) {
       dialog.current?.showModal();
     }
-    const onPop = () => {
+  };
+  const open = (i: number) => {
+    show(i);
+    window.history.pushState({ viewer: true }, '', `?photo=${photos[i].id}`);
+    pushed.current = true;
+  };
+  const close = () => dialog.current?.close();
+  const onClose = () => {
+    setIndex(null);
+    if (pushed.current) {
+      pushed.current = false;
+      window.history.back();
+    } else if (window.location.search) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  };
+  const step = (delta: number) => {
+    if (index === null) {
+      return;
+    }
+    const next = (index + delta + photos.length) % photos.length;
+    setIndex(next);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `?photo=${photos[next].id}`
+    );
+  };
+
+  useEffect(() => {
+    const syncWithUrl = () => {
+      const id = new URLSearchParams(window.location.search).get('photo');
+      const at = photos.findIndex((photo) => photo.id === id);
+      if (at >= 0) {
+        setIndex(at);
+        if (!dialog.current?.open) {
+          dialog.current?.showModal();
+        }
+        return;
+      }
       pushed.current = false;
       dialog.current?.close();
     };
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    syncWithUrl();
+    window.addEventListener('popstate', syncWithUrl);
+    return () => window.removeEventListener('popstate', syncWithUrl);
   }, [photos]);
 
   useEffect(() => {
@@ -148,7 +154,7 @@ export function PhotoGallery({
                   className="absolute inset-0 size-full object-cover opacity-0 data-loaded:opacity-100 motion-safe:transition motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]"
                   decoding="async"
                   height={photo.height}
-                  loading="lazy"
+                  loading={i < EAGER ? 'eager' : 'lazy'}
                   onLoad={reveal}
                   ref={revealWhenLoaded}
                   sizes={`(min-width: 640px) ${Math.round(ROW_PX.wide * ratio)}px, ${Math.round(ROW_PX.phone * ratio)}px`}
@@ -165,17 +171,13 @@ export function PhotoGallery({
       <dialog
         aria-label={albumTitle}
         className="m-0 h-dvh max-h-none w-screen max-w-none bg-black p-0 text-white backdrop:bg-black"
-        onClose={() => setIndex(null)}
+        onClose={onClose}
         onKeyDown={(event) => {
           if (event.key === 'ArrowLeft') {
             step(-1);
           }
           if (event.key === 'ArrowRight') {
             step(1);
-          }
-          if (event.key === 'Escape') {
-            event.preventDefault();
-            close();
           }
         }}
         onTouchEnd={(event) => {
@@ -195,7 +197,7 @@ export function PhotoGallery({
           <div className="flex h-full flex-col">
             <header className="flex items-center gap-3 px-3 py-2 text-sm">
               <button
-                aria-label={labels.close}
+                aria-label={`${labels.close}: ${albumTitle}`}
                 className="flex items-center gap-1.5 rounded-full px-3 py-2 hover:bg-white/10"
                 onClick={close}
                 type="button"
@@ -203,7 +205,10 @@ export function PhotoGallery({
                 <ArrowLeft aria-hidden="true" size={18} />
                 <span className="max-w-48 truncate">{albumTitle}</span>
               </button>
-              <span className="ml-auto text-white/60 tabular-nums">
+              <span
+                aria-live="polite"
+                className="ml-auto text-white/60 tabular-nums"
+              >
                 {index + 1} / {photos.length}
               </span>
               {current.exif ? (
@@ -225,7 +230,9 @@ export function PhotoGallery({
                 target="_blank"
               >
                 <Download aria-hidden="true" size={16} />
-                <span className="hidden sm:inline">{labels.openFullSize}</span>
+                <span className="sr-only sm:not-sr-only">
+                  {labels.openFullSize}
+                </span>
               </a>
             </header>
 
@@ -236,9 +243,11 @@ export function PhotoGallery({
                 <img
                   alt=""
                   aria-hidden="true"
-                  className="absolute max-h-full max-w-full scale-95 object-contain blur-md"
+                  className="absolute max-h-full max-w-full object-contain blur-md"
+                  height={current.height}
                   key={`thumb-${current.id}`}
                   src={photoUrl(current.id, 'thumb')}
+                  width={current.width}
                 />
                 {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
                 <img

@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Download,
   Info,
+  Share2,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Locale } from '@/lib/locale';
@@ -17,6 +18,8 @@ import { PhotoInfo } from './photo-info';
 interface PhotoGalleryProps {
   photos: Photo[];
   albumTitle: string;
+  /** The album's public path; each photo lives at `${basePath}/${id}`. */
+  basePath: string;
   lang: Locale;
   labels: {
     close: string;
@@ -25,9 +28,19 @@ interface PhotoGalleryProps {
     openFullSize: string;
     details: string;
     closeDetails: string;
+    share: string;
+    linkCopied: string;
     specs: PhotoInfoLabels['specs'];
   };
 }
+
+/** The photo a URL points at: `<album>/<id>`, or the older `?photo=<id>`. */
+const photoIdIn = (basePath: string) => {
+  const { pathname, search } = window.location;
+  return pathname.startsWith(`${basePath}/`)
+    ? decodeURIComponent(pathname.slice(basePath.length + 1))
+    : new URLSearchParams(search).get('photo');
+};
 
 const SWIPE_PX = 50;
 // Row heights of the justified grid (keep in sync with --row below). Tiles grow up to
@@ -48,6 +61,7 @@ const reveal = (event: React.SyntheticEvent<HTMLImageElement>) => {
 export function PhotoGallery({
   photos,
   albumTitle,
+  basePath,
   lang,
   labels,
 }: PhotoGalleryProps) {
@@ -79,9 +93,10 @@ export function PhotoGallery({
       dialog.current?.showModal();
     }
   };
+  const urlOf = (photo: Photo) => `${basePath}/${photo.id}`;
   const open = (i: number) => {
     show(i);
-    window.history.pushState({ viewer: true }, '', `?photo=${photos[i].id}`);
+    window.history.pushState({ viewer: true }, '', urlOf(photos[i]));
     pushed.current = true;
   };
   const close = () => dialog.current?.close();
@@ -90,8 +105,11 @@ export function PhotoGallery({
     if (pushed.current) {
       pushed.current = false;
       window.history.back();
-    } else if (window.location.search) {
-      window.history.replaceState(null, '', window.location.pathname);
+    } else if (
+      window.location.pathname !== basePath ||
+      window.location.search
+    ) {
+      window.history.replaceState(null, '', basePath);
     }
   };
   const step = (delta: number) => {
@@ -100,16 +118,24 @@ export function PhotoGallery({
     }
     const next = (index + delta + photos.length) % photos.length;
     setIndex(next);
-    window.history.replaceState(
-      window.history.state,
-      '',
-      `?photo=${photos[next].id}`
-    );
+    window.history.replaceState(window.history.state, '', urlOf(photos[next]));
+  };
+  const [copied, setCopied] = useState(false);
+  // Phones get the system share sheet; desktops copy the link.
+  const share = async (photo: Photo) => {
+    const url = new URL(urlOf(photo), window.location.origin).href;
+    if (navigator.share) {
+      await navigator.share({ title: albumTitle, url }).catch(() => undefined);
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   useEffect(() => {
     const syncWithUrl = () => {
-      const id = new URLSearchParams(window.location.search).get('photo');
+      const id = photoIdIn(basePath);
       const at = photos.findIndex((photo) => photo.id === id);
       if (at >= 0) {
         setIndex(at);
@@ -124,7 +150,7 @@ export function PhotoGallery({
     syncWithUrl();
     window.addEventListener('popstate', syncWithUrl);
     return () => window.removeEventListener('popstate', syncWithUrl);
-  }, [photos]);
+  }, [photos, basePath]);
 
   useEffect(() => {
     if (index === null) {
@@ -225,6 +251,18 @@ export function PhotoGallery({
               >
                 {index + 1} / {photos.length}
               </span>
+              <span aria-live="polite" className="text-xs text-white/80">
+                {copied ? labels.linkCopied : ''}
+              </span>
+              <button
+                aria-label={labels.share}
+                className="rounded-full p-2 hover:bg-white/10"
+                onClick={() => share(current)}
+                title={labels.share}
+                type="button"
+              >
+                <Share2 aria-hidden="true" size={18} />
+              </button>
               {current.exif ? (
                 <button
                   aria-label={labels.details}

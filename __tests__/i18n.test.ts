@@ -106,6 +106,20 @@ describe('proxy', () => {
     ).toBeNull();
   });
 
+  it('should send an old ?photo= link to the photo page, keeping the language', () => {
+    const response = proxy(request('/pictures/berlin?photo=2a56a0edc9837498'));
+    expect(response.status).toBe(308);
+    expect(response.headers.get('location')).toBe(
+      'https://www.camipg.com/pictures/berlin/2a56a0edc9837498'
+    );
+    expect(
+      proxy(request('/es/pictures/berlin?photo=abc')).headers.get('location')
+    ).toBe('https://www.camipg.com/es/pictures/berlin/abc');
+    expect(
+      proxy(request('/pictures/c/trips?photo=abc')).headers.get('location')
+    ).toBeNull();
+  });
+
   it('should ignore an unknown ?lang= value', () => {
     const response = proxy(request('/?lang=fr'));
     expect(response.cookies.get('lang')).toBeUndefined();

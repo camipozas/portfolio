@@ -54,6 +54,8 @@ export const ui = {
   nextIn: 'Next in',
   photoDetails: 'Photo details',
   closeDetails: 'Hide details',
+  sharePhoto: 'Share photo',
+  linkCopied: 'Link copied',
   aperture: 'Aperture',
   shutterSpeed: 'Shutter',
   focalLength: 'Focal length',

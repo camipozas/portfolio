@@ -124,7 +124,7 @@ export async function publish() {
     await readPublishedManifest(),
   );
   const paths = catalogIndex(catalog);
-  for (let i = 0; i < copy.length; i += 8) {
+  for (let i = 0; i < copy.length; i += 24) {
     await Promise.all(
       copy
         .slice(i, i + 8)

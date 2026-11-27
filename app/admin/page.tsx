@@ -4,7 +4,8 @@ import { requireSession } from "@/lib/backoffice/session";
 import { readCatalog, readState, thumbUrl } from "@/lib/backoffice/storage";
 import { logout } from "./actions";
 
-export const maxDuration = 300;
+// Hobby plan limit. A publish cut short resumes on the next click (see planPublish).
+export const maxDuration = 60;
 
 export default async function AdminPage() {
   await requireSession();

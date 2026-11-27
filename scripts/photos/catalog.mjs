@@ -42,6 +42,7 @@ function photo(sha, path) {
       model: exif.Model,
       lens: exif.LensModel,
       focalLength: exif.FocalLength,
+      focalLength35: exif.FocalLengthIn35mmFormat,
       fNumber: exif.FNumber,
       exposureTime: exif.ExposureTime,
       iso: exif.ISO,

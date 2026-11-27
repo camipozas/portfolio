@@ -8,13 +8,13 @@ const inter = Inter({ subsets: ["latin"] });
 const CLOUDFRONT = "https://d3j0xmrk71qrvn.cloudfront.net/public";
 
 export const metadata: Metadata = {
-  title: "Camila Pozas — Software Engineer",
+  title: "Camila Pozas — Senior Software Engineer",
   description:
-    "Software Engineer with experience in backend development, TypeScript, Docker, and Cloud.",
+    "Senior Software Engineer with experience in backend development, TypeScript, Next.js, Docker, and Cloud.",
   openGraph: {
-    title: "Camila Pozas — Software Engineer",
+    title: "Camila Pozas — Senior Software Engineer",
     description:
-      "Software Engineer with experience in backend development, TypeScript, Docker, and Cloud.",
+      "Senior Software Engineer with experience in backend development, TypeScript, Next.js, Docker, and Cloud.",
     url: "https://camipozas.dev",
     type: "website",
   },

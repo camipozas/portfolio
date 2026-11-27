@@ -17,7 +17,7 @@ export const name = "Camila Pozas";
 export const title = "Hi, I'm Camila";
 
 export const subtitle =
-  "Software Engineer with experience in backend development and continuous improvement — TypeScript, Docker, and Cloud.";
+  "Senior Software Engineer with experience in backend development and continuous improvement — TypeScript, Next.js, Docker, and Cloud.";
 
 export const heroEmoji = "👋";
 
@@ -58,6 +58,7 @@ export const skills: Skill[] = [
   { name: "TypeScript" },
   { name: "JavaScript" },
   { name: "React" },
+  { name: "Next.js" },
   { name: "Node.js" },
   { name: "Python" },
   { name: "MongoDB" },

@@ -33,6 +33,10 @@ rebuilt from its `index.tsv`.
 
 Each run appends one line to `report.tsv`.
 
+When `derive.sh` starts reading a new EXIF tag, `scripts/photos/backfill-exif.sh`
+adds it to the `meta/*.json` of photos already derived (no image is rebuilt),
+uploads `meta/` and rebuilds the catalog. Then press Publicar in the backoffice.
+
 ## Tools
 
 - AWS CLI with the `photos` profile

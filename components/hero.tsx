@@ -1,17 +1,16 @@
-import {
-  heroEmoji,
-  heroIllustration,
-  resumeUrl,
-  subtitle,
-  title,
-} from "@/lib/data";
+import type { Content } from "@/lib/content";
+import { heroEmoji, heroIllustration, resumeUrl } from "@/lib/data";
 import { SocialLinks } from "./social-links";
 
-export function Hero() {
+export function Hero({ content }: { content: Content }) {
+  const { title, subtitle, ui } = content;
+
   return (
     <section className="flex items-center gap-12 pt-16 pb-12">
       <div className="flex-1">
-        <p className="mb-2 text-lg">{heroEmoji} Hey there!</p>
+        <p className="mb-2 text-lg">
+          {heroEmoji} {ui.greeting}
+        </p>
         <h1 className="gradient-text mb-3 text-3xl font-semibold tracking-tight">
           {title}
         </h1>
@@ -24,7 +23,7 @@ export function Hero() {
             rel="noopener noreferrer"
             className="accent-link text-sm"
           >
-            Resume
+            {ui.resume}
           </a>
         </div>
       </div>

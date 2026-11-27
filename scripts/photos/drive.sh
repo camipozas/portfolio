@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
-# Second copy of the full-size photos in Google Drive ("Lightroom Backup/<album>/").
-# Copies only (never deletes on either side), then checks every local file is in
-# Drive with the same size and appends the result to $ROOT/report.tsv.
-#
-#   scripts/photos/drive.sh
-#
-# Needs an rclone remote `gdrive` with scope drive.file (rclone only sees what it created).
+# Second copy of the full-size photos in Google Drive ("Lightroom Backup/<album>/"), copy only.
+# Needs an rclone remote `gdrive` with scope drive.file.
 set -euo pipefail
 
 ROOT=${ROOT:-$HOME/Pictures/lightroom-backup}

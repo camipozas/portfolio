@@ -1,6 +1,7 @@
 import { PHOTO_SIZES } from '@/lib/pictures/manifest';
 import type {
   Album,
+  Collection,
   Localized,
   Manifest,
   Photo,
@@ -27,13 +28,19 @@ export interface AlbumState {
   title: Localized;
   visible: boolean;
   coverId?: string;
+  collection?: string;
   photos: { id: string; visible: boolean }[];
 }
 
-/** Album order is display order; so is each album's photo order. */
+/** Album order is display order; so is each album's photo order and the collections'. */
 export interface CurationState {
   albums: AlbumState[];
+  collections: Collection[];
 }
+
+/** As stored: states saved before collections existed lack them. */
+export type SavedState = Omit<CurationState, 'collections'> &
+  Partial<Pick<CurationState, 'collections'>>;
 
 export function slugify(text: string): string {
   return text
@@ -54,8 +61,12 @@ export function move<T>(list: T[], from: number, to: number): T[] {
   return next;
 }
 
-function uniqueSlug(base: string, taken: Set<string>): string {
-  const root = base || 'album';
+export function uniqueSlug(
+  base: string,
+  taken: Set<string>,
+  fallback = 'album'
+): string {
+  const root = base || fallback;
   let slug = root;
   for (let n = 2; taken.has(slug); n++) {
     slug = `${root}-${n}`;
@@ -65,10 +76,9 @@ function uniqueSlug(base: string, taken: Set<string>): string {
 }
 
 /** New albums and photos join hidden, at the end; those gone from the catalog drop out. */
-export function syncState(
-  catalog: Catalog,
-  state: CurationState
-): CurationState {
+export function syncState(catalog: Catalog, state: SavedState): CurationState {
+  const collections = state.collections ?? [];
+  const collectionSlugs = new Set(collections.map((c) => c.slug));
   const catalogAlbums = new Map(
     catalog.albums.map((album) => [album.key, album])
   );
@@ -88,6 +98,7 @@ export function syncState(
     });
 
   return {
+    collections,
     albums: [...kept, ...added].map((album) => {
       const ids = new Set(
         catalogAlbums.get(album.key)?.photos.map((photo) => photo.id)
@@ -97,7 +108,11 @@ export function syncState(
       const fresh = [...ids]
         .filter((id) => !known.has(id))
         .map((id) => ({ id, visible: false }));
-      return { ...album, photos: [...photos, ...fresh] };
+      const collection =
+        album.collection && collectionSlugs.has(album.collection)
+          ? album.collection
+          : undefined;
+      return { ...album, collection, photos: [...photos, ...fresh] };
     }),
   };
 }
@@ -116,6 +131,7 @@ export function buildManifest(
   generatedAt: string
 ): Manifest {
   const photos = catalogIndex(catalog);
+  const known = new Set(state.collections.map((c) => c.slug));
   const albums = state.albums.flatMap((album): Album[] => {
     if (!album.visible) {
       return [];
@@ -148,10 +164,16 @@ export function buildManifest(
         title: album.title,
         coverId: coverId as string,
         photos: shown,
+        collection:
+          album.collection && known.has(album.collection)
+            ? album.collection
+            : undefined,
       },
     ];
   });
-  return { version: 1, generatedAt, albums };
+  const used = new Set(albums.map((album) => album.collection));
+  const collections = state.collections.filter((c) => used.has(c.slug));
+  return { version: 1, generatedAt, albums, collections };
 }
 
 const photoIds = (manifest: Manifest | undefined) =>
@@ -184,9 +206,9 @@ export function hasUnpublishedChanges(
   next: Manifest,
   published?: Manifest
 ): boolean {
-  return (
-    JSON.stringify(next.albums) !== JSON.stringify(published?.albums ?? [])
-  );
+  const shown = (manifest?: Manifest) =>
+    JSON.stringify([manifest?.albums ?? [], manifest?.collections ?? []]);
+  return shown(next) !== shown(published);
 }
 
 /** Runs `task` over every item, `size` at a time. */

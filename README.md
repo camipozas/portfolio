@@ -80,6 +80,20 @@ GITHUB_TOKEN=ghp_your_token_here
 
 > 💡 Without the token, the Projects section shows a fallback link to GitHub.
 
+## 🖼️ Pictures backoffice
+
+`/admin` chooses which albums and photos `/pictures` shows, their order and titles, and publishes them. It only runs in the separate Vercel project `portfolio-backoffice` (same repo, `BACKOFFICE=1`); on the public site it answers 404. AWS access comes from Vercel OIDC (`infra/vercel_oidc.tf`), no keys.
+
+| Variable (backoffice project) | Value                                                  |
+| ----------------------------- | ------------------------------------------------------ |
+| `BACKOFFICE`                  | `1`                                                    |
+| `AWS_ROLE_ARN`                | output `backoffice_role_arn` of `infra/`               |
+| `ADMIN_USERNAME`              | the login name                                         |
+| `ADMIN_PASSWORD_HASH`         | `read -rs PW && PW="$PW" pnpm -s admin:hash; unset PW` |
+| `SESSION_SECRET`              | `openssl rand -base64 48`                              |
+
+Locally: the same variables in `.env.local` (without `AWS_ROLE_ARN`) and `AWS_PROFILE=photos pnpm dev`.
+
 ## 📁 Project Structure
 
 ```

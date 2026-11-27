@@ -33,6 +33,9 @@ export interface Photo {
 export interface Collection {
   slug: string;
   title: Localized;
+  description?: Localized;
+  /** Slug of the album whose cover leads the mosaic; the first album by default. */
+  coverAlbum?: string;
 }
 
 export interface Album {

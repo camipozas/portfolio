@@ -1,13 +1,15 @@
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Breadcrumb } from '@/components/pictures/breadcrumb';
 import { PhotoGallery } from '@/components/pictures/photo-gallery';
 import { getContent, photoCount } from '@/lib/content';
 import { isLocale, localizedPath } from '@/lib/locale';
 import { formatDateRange } from '@/lib/pictures/exif';
 import {
+  albumsIn,
   getAlbum,
-  getAlbums,
+  getManifest,
   localized,
   photoUrl,
 } from '@/lib/pictures/manifest';
@@ -52,14 +54,20 @@ export default async function AlbumPage({
   if (!isLocale(lang)) {
     notFound();
   }
-  const albums = await getAlbums();
-  const position = albums.findIndex((a) => a.slug === slug);
-  if (position < 0) {
+  const { albums, collections } = await getManifest();
+  const album = albums.find((a) => a.slug === slug);
+  if (!album) {
     notFound();
   }
-  const album = albums[position];
+  const collection = collections.find((c) => c.slug === album.collection);
+  // "Next" stays within the album's collection, or among the albums without one.
+  const siblings = albumsIn(albums, collections, collection?.slug);
+  const position = siblings.indexOf(album);
   const next =
-    albums.length > 1 ? albums[(position + 1) % albums.length] : undefined;
+    siblings.length > 1
+      ? siblings[(position + 1) % siblings.length]
+      : undefined;
+  const collectionTitle = collection && localized(collection.title, lang);
   const content = getContent(lang);
   const { ui } = content;
   const title = localized(album.title, lang);
@@ -70,25 +78,23 @@ export default async function AlbumPage({
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="text-sm">
-        <ol className="flex items-center gap-2">
-          <li>
-            <a
-              className="text-muted hover:text-accent inline-flex items-center gap-1.5 transition-colors"
-              href={localizedPath('/pictures', lang)}
-            >
-              <ArrowLeft aria-hidden="true" size={16} />
-              {content.picturesLabel}
-            </a>
-          </li>
-          <li aria-hidden="true" className="text-muted">
-            /
-          </li>
-          <li aria-current="page" className="truncate">
-            {title}
-          </li>
-        </ol>
-      </nav>
+      <Breadcrumb
+        crumbs={[
+          {
+            label: content.picturesLabel,
+            href: localizedPath('/pictures', lang),
+          },
+          ...(collection && collectionTitle
+            ? [
+                {
+                  label: collectionTitle,
+                  href: localizedPath(`/pictures/c/${collection.slug}`, lang),
+                },
+              ]
+            : []),
+          { label: title },
+        ]}
+      />
       <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
       <p className="text-muted mt-1 mb-8 text-sm">
         {[photoCount(content, album.photos.length), dates]
@@ -120,7 +126,11 @@ export default async function AlbumPage({
             src={photoUrl(next.coverId, 'thumb')}
           />
           <span className="flex-1">
-            <span className="text-muted block text-xs">{ui.nextAlbum}</span>
+            <span className="text-muted block text-xs">
+              {collectionTitle
+                ? `${ui.nextIn} ${collectionTitle}`
+                : ui.nextAlbum}
+            </span>
             <span className="group-hover:text-accent font-medium">
               {localized(next.title, lang)}
             </span>

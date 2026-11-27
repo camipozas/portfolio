@@ -1,18 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
-import type { Section } from '@/components/pictures/collection-sections';
+import { AlbumGrid } from '@/components/pictures/album-grid';
 import {
-  CollectionSections,
-  FilteredCollectionSections,
-} from '@/components/pictures/collection-sections';
-import type { Content } from '@/lib/content';
-import { getContent, photoCount } from '@/lib/content';
-import type { Locale } from '@/lib/locale';
+  CollectionCard,
+  CollectionTabs,
+} from '@/components/pictures/collections';
+import { getContent } from '@/lib/content';
 import { isLocale, localizedPath } from '@/lib/locale';
-import { formatDateRange } from '@/lib/pictures/exif';
-import { getManifest, localized, photoUrl } from '@/lib/pictures/manifest';
-import type { Album } from '@/lib/pictures/types';
+import { albumsIn, getManifest } from '@/lib/pictures/manifest';
 
 export async function generateMetadata({
   params,
@@ -39,56 +34,6 @@ export async function generateMetadata({
   };
 }
 
-function AlbumGrid({
-  albums,
-  content,
-  lang,
-  heading: Heading = 'h2',
-}: {
-  albums: Album[];
-  content: Content;
-  lang: Locale;
-  heading?: 'h2' | 'h3';
-}) {
-  return (
-    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {albums.map((album) => (
-        <li key={album.slug}>
-          <a
-            className="group block"
-            href={localizedPath(`/pictures/${album.slug}`, lang)}
-          >
-            <div className="bg-border overflow-hidden rounded-lg">
-              {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
-              <img
-                alt=""
-                className="aspect-[4/3] w-full object-cover motion-safe:transition motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]"
-                decoding="async"
-                loading="lazy"
-                src={photoUrl(album.coverId, 'thumb')}
-              />
-            </div>
-            <Heading className="group-hover:text-accent mt-2 font-medium">
-              {localized(album.title, lang)}
-            </Heading>
-            <p className="text-muted text-sm">
-              {[
-                photoCount(content, album.photos.length),
-                formatDateRange(
-                  album.photos.map((photo) => photo.exif?.takenAt),
-                  lang
-                ),
-              ]
-                .filter(Boolean)
-                .join(' · ')}
-            </p>
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export default async function PicturesPage({
   params,
 }: PageProps<'/[lang]/pictures'>) {
@@ -102,29 +47,7 @@ export default async function PicturesPage({
     albums: [],
     collections: [],
   }));
-  const grid = (list: Album[]) => (
-    <AlbumGrid albums={list} content={content} heading="h3" lang={lang} />
-  );
-  const slugs = new Set(collections.map((c) => c.slug));
-  const loose = albums.filter(
-    (a) => !(a.collection && slugs.has(a.collection))
-  );
-  const sections: Section[] = [
-    ...collections.map((c) => ({
-      slug: c.slug,
-      title: localized(c.title, lang),
-      content: grid(albums.filter((a) => a.collection === c.slug)),
-    })),
-    ...(loose.length > 0
-      ? [{ title: content.ui.picturesOther, content: grid(loose) }]
-      : []),
-  ];
-  const filter = {
-    label: content.ui.picturesCollections,
-    allLabel: content.ui.picturesAll,
-    href: localizedPath('/pictures', lang),
-    sections,
-  };
+  const loose = albumsIn(albums, collections);
 
   return (
     <>
@@ -139,9 +62,39 @@ export default async function PicturesPage({
         </div>
       )}
       {albums.length > 0 && collections.length > 0 && (
-        <Suspense fallback={<CollectionSections {...filter} />}>
-          <FilteredCollectionSections {...filter} />
-        </Suspense>
+        <>
+          <CollectionTabs
+            collections={collections}
+            content={content}
+            lang={lang}
+          />
+          <ul className="mt-4 grid gap-14">
+            {collections.map((collection, i) => (
+              <li key={collection.slug}>
+                <CollectionCard
+                  albums={albumsIn(albums, collections, collection.slug)}
+                  collection={collection}
+                  content={content}
+                  eager={i === 0}
+                  lang={lang}
+                />
+              </li>
+            ))}
+          </ul>
+          {loose.length > 0 && (
+            <section aria-labelledby="more-albums" className="mt-16">
+              <h2 className="mb-4 text-lg font-semibold" id="more-albums">
+                {content.ui.picturesMore}
+              </h2>
+              <AlbumGrid
+                albums={loose}
+                content={content}
+                heading="h3"
+                lang={lang}
+              />
+            </section>
+          )}
+        </>
       )}
     </>
   );

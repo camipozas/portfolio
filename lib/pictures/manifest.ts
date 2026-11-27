@@ -1,6 +1,6 @@
 import { CLOUDFRONT_BASE } from '@/lib/data';
 import type { Locale } from '@/lib/locale';
-import type { Album, Collection, Localized, Manifest } from './types';
+import type { Album, Collection, Localized, Manifest, Photo } from './types';
 
 export const PICTURES_TAG = 'pictures';
 
@@ -9,6 +9,17 @@ const PHOTOS_BASE =
 
 export const PHOTO_SIZES = ['thumb', '1200', '2048', 'full'] as const;
 export type PhotoSize = (typeof PHOTO_SIZES)[number];
+
+// The watermark fits in a bottom band 5% of the image width tall (scripts/photos/derive.sh).
+const WATERMARK_BAND = 0.05;
+
+/** Share of the height above the watermark: previews show only that; the viewer keeps it all. */
+export function aboveWatermark({
+  width,
+  height,
+}: Pick<Photo, 'width' | 'height'>): number {
+  return 1 - (WATERMARK_BAND * width) / height;
+}
 
 export function photoUrl(id: string, size: PhotoSize): string {
   return `${PHOTOS_BASE}/p/${id}/${size}.jpg`;
@@ -62,4 +73,34 @@ export async function getAlbums(): Promise<Album[]> {
 
 export async function getAlbum(slug: string): Promise<Album | undefined> {
   return (await getAlbums()).find((album) => album.slug === slug);
+}
+
+/** The albums of collection `slug`; without one, those outside every collection. */
+export function albumsIn(
+  albums: Album[],
+  collections: Collection[],
+  slug?: string
+): Album[] {
+  const known = new Set(collections.map((c) => c.slug));
+  return albums.filter(
+    (album) =>
+      (album.collection && known.has(album.collection)
+        ? album.collection
+        : undefined) === slug
+  );
+}
+
+/** Up to three photos: the lead album's cover, the next albums' covers, then more of the lead. */
+export function mosaicPhotos(albums: Album[], coverAlbum?: string): Photo[] {
+  const lead = albums.find((a) => a.slug === coverAlbum) ?? albums[0];
+  if (!lead) {
+    return [];
+  }
+  const covers = [lead, ...albums.filter((a) => a !== lead)].map(
+    (a) => a.photos.find((p) => p.id === a.coverId) ?? a.photos[0]
+  );
+  const unique = new Map(
+    [...covers, ...lead.photos].map((photo) => [photo.id, photo])
+  );
+  return [...unique.values()].slice(0, 3);
 }

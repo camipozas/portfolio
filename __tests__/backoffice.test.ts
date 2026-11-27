@@ -184,6 +184,30 @@ describe('buildManifest', () => {
     ]);
   });
 
+  it('should carry the description and keep a cover only if it is a published album of the collection', () => {
+    const state = syncState(catalog, { albums: [] });
+    const description = { en: 'Cities', es: 'Ciudades' };
+    state.collections = [
+      { slug: 'trips', title: { en: 'Trips' }, description, coverAlbum: 'b' },
+      { slug: 'dogs', title: { en: 'Dogs' }, coverAlbum: 'a' },
+    ];
+    state.albums = state.albums.map((album, i) => ({
+      ...album,
+      slug: ['a', 'b'][i],
+      visible: true,
+      collection: ['dogs', 'trips'][i],
+      photos: album.photos.map((p) => ({ ...p, visible: true })),
+    }));
+    expect(buildManifest(catalog, state, 'now').collections).toEqual([
+      { slug: 'trips', title: { en: 'Trips' }, description, coverAlbum: 'b' },
+      { slug: 'dogs', title: { en: 'Dogs' }, coverAlbum: 'a' },
+    ]);
+    state.collections[0].coverAlbum = 'a';
+    expect(
+      buildManifest(catalog, state, 'now').collections?.[0].coverAlbum
+    ).toBeUndefined();
+  });
+
   it('should leave out the collection of an album when it no longer exists', () => {
     const state = syncState(catalog, { albums: [] });
     state.albums[1] = {

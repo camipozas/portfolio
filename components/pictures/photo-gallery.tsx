@@ -14,7 +14,7 @@ import {
   formatSettings,
   formatTakenAt,
 } from '@/lib/pictures/exif';
-import { localized, photoUrl } from '@/lib/pictures/manifest';
+import { aboveWatermark, localized, photoUrl } from '@/lib/pictures/manifest';
 import type { Photo } from '@/lib/pictures/types';
 
 interface PhotoGalleryProps {
@@ -34,8 +34,6 @@ const SWIPE_PX = 50;
 // Row heights of the justified grid (keep in sync with --row below). Tiles grow up to
 // ~1.6x their base width to fill a row, so `sizes` asks for that much.
 const ROW_PX = { phone: 104 * 1.6, wide: 176 * 1.6 };
-// The grid trims the bottom strip where the watermark sits; the viewer and downloads keep it.
-const WATERMARK_CROP = 0.94;
 const EAGER = 6;
 
 // Images that finished loading before hydration never fire onLoad.
@@ -132,7 +130,7 @@ export function PhotoGallery({
     <>
       <ul className="flex flex-wrap gap-1.5 [--row:6.5rem] after:grow-[999] after:content-[''] sm:gap-2 sm:[--row:11rem]">
         {photos.map((photo, i) => {
-          const ratio = photo.width / (photo.height * WATERMARK_CROP);
+          const ratio = photo.width / (photo.height * aboveWatermark(photo));
           return (
             <li
               key={photo.id}

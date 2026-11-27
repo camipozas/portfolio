@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/data';
 import { localizedPath } from '@/lib/locale';
-import { getAlbums } from '@/lib/pictures/manifest';
+import { getManifest } from '@/lib/pictures/manifest';
 
 function entry(path: string): MetadataRoute.Sitemap {
   const languages = {
@@ -16,10 +16,14 @@ function entry(path: string): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const albums = await getAlbums().catch(() => []);
+  const { albums, collections } = await getManifest().catch(() => ({
+    albums: [],
+    collections: [],
+  }));
   return [
     '/',
     '/pictures',
+    ...collections.map((collection) => `/pictures/c/${collection.slug}`),
     ...albums.map((album) => `/pictures/${album.slug}`),
   ].flatMap(entry);
 }

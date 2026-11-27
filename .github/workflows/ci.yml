@@ -29,10 +29,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Validate PR commit messages
+        # Use the merge-base so commits merged in from the base branch aren't linted.
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+        run: |
+          git fetch --no-tags origin "$BASE_REF"
+          merge_base=$(git merge-base FETCH_HEAD "$HEAD_SHA")
+          pnpm exec commitlint --from "$merge_base" --to "$HEAD_SHA" --verbose
 
   ci:
     runs-on: ubuntu-latest

@@ -7,7 +7,7 @@ import '../globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Pictures backoffice',
+  title: 'Fotos · Administración',
   robots: { index: false, follow: false },
 };
 
@@ -21,7 +21,7 @@ export default function AdminLayout({
     notFound();
   }
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>

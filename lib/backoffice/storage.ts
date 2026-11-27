@@ -9,13 +9,14 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { awsCredentialsProvider } from '@vercel/functions/oidc';
+import { PHOTO_SIZES } from '@/lib/pictures/manifest';
 import type { Manifest } from '@/lib/pictures/types';
 import type { Catalog, CurationState } from './curation';
 
 const BACKUP =
   process.env.PHOTOS_BACKUP_BUCKET ?? 'camipg-photos-backup-326733328768';
 const ASSETS = process.env.PHOTOS_ASSETS_BUCKET ?? 'assets-portfolio';
-const SIZES = ['thumb', '2048', 'full'] as const;
+const SIZES = PHOTO_SIZES;
 // Local development points this elsewhere so testing never touches the real choices.
 const STATE_KEY = process.env.CURATION_STATE_KEY ?? 'curation/state.json';
 
@@ -75,10 +76,13 @@ export async function writeState(state: CurationState): Promise<void> {
   await putJson(STATE_KEY, state);
 }
 
-export function thumbUrl(path: string): Promise<string> {
+export function webUrl(
+  path: string,
+  size: 'thumb' | '2048' = 'thumb'
+): Promise<string> {
   return getSignedUrl(
     s3,
-    new GetObjectCommand({ Bucket: BACKUP, Key: `web/thumb/${path}.jpg` }),
+    new GetObjectCommand({ Bucket: BACKUP, Key: `web/${size}/${path}.jpg` }),
     { expiresIn: 3600 }
   );
 }

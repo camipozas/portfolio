@@ -1,5 +1,6 @@
 import type { CurationState } from './curation';
 import {
+  albumStatuses,
   buildManifest,
   catalogIndex,
   hasUnpublishedChanges,
@@ -15,11 +16,14 @@ export async function loadOverview() {
     readPublishedManifest(),
   ]);
   const state: CurationState = syncState(catalog, saved);
+  const next = buildManifest(catalog, state, '');
   return {
     state,
     photos: catalogIndex(catalog),
-    pending: hasUnpublishedChanges(
-      buildManifest(catalog, state, ''),
+    pending: hasUnpublishedChanges(next, published),
+    statuses: albumStatuses(
+      state.albums.map((album) => album.slug),
+      next,
       published
     ),
     publishedAt: published?.generatedAt,

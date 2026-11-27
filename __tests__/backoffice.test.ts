@@ -9,6 +9,7 @@ import {
 } from '@/lib/backoffice/auth';
 import type { Catalog, CurationState } from '@/lib/backoffice/curation';
 import {
+  albumStatuses,
   buildManifest,
   hasUnpublishedChanges,
   inBatches,
@@ -161,7 +162,7 @@ describe('planPublish', () => {
 
   it('should copy new photos and photos missing a size', () => {
     const published = new Map([
-      ['a', 3],
+      ['a', 4],
       ['b', 1],
     ]);
     expect(planPublish(manifestWith('a', 'b', 'c'), published).copy).toEqual([
@@ -172,9 +173,9 @@ describe('planPublish', () => {
 
   it('should keep photos of the previous manifest for one more publish', () => {
     const published = new Map([
-      ['a', 3],
-      ['b', 3],
-      ['c', 3],
+      ['a', 4],
+      ['b', 4],
+      ['c', 4],
     ]);
     const plan = planPublish(
       manifestWith('a'),
@@ -245,5 +246,33 @@ describe('inBatches', () => {
       Array.from({ length: 50 }, (_, i) => i)
     );
     expect(peak).toBeLessThanOrEqual(24);
+  });
+});
+
+describe('albumStatuses', () => {
+  it('should tell published, changed, new and hidden albums apart', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.albums[0] = {
+      ...state.albums[0],
+      visible: true,
+      photos: [{ id: 'a', visible: true }],
+    };
+    const published = buildManifest(catalog, state, 'then');
+    state.albums[0].photos.push({ id: 'b', visible: true });
+    state.albums[1] = {
+      ...state.albums[1],
+      visible: true,
+      photos: [{ id: 'd', visible: true }],
+    };
+    const statuses = albumStatuses(
+      [...state.albums.map((a) => a.slug), 'gone'],
+      buildManifest(catalog, state, 'now'),
+      published
+    );
+    expect(Object.fromEntries(statuses)).toEqual({
+      'croacia-mostar-25': 'changed',
+      'parque-guay-guay': 'new',
+      gone: 'hidden',
+    });
   });
 });

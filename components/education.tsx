@@ -1,11 +1,13 @@
 import Image from "next/image";
-import { education } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export function EducationSection() {
+export function EducationSection({ content }: { content: Content }) {
+  const { education } = content;
+
   return (
-    <Section id="education" heading="Education">
+    <Section id="education" heading={headingFor(content, "education")}>
       <div className="space-y-4">
         {education.map((edu, i) => (
           <AnimateOnScroll key={edu.school} delay={i * 100}>

@@ -12,13 +12,15 @@ import { useState } from 'react';
 import { saveAlbums } from '@/app/admin/actions';
 import type { AlbumState, AlbumStatus } from '@/lib/backoffice/curation';
 import { move } from '@/lib/backoffice/curation';
+import type { Collection } from '@/lib/pictures/types';
 import { cn } from '@/lib/utils';
+import { CollectionsPanel } from './collections-panel';
 import { PublishBar } from './publish-bar';
 import { useAutosave } from './use-autosave';
 
 export type AlbumCard = Pick<
   AlbumState,
-  'key' | 'slug' | 'title' | 'visible'
+  'key' | 'slug' | 'title' | 'visible' | 'collection'
 > & {
   status: AlbumStatus;
   total: number;
@@ -49,25 +51,36 @@ function editedStatus(
 
 interface AlbumsEditorProps {
   initial: AlbumCard[];
+  initialCollections: Collection[];
   initialPending: boolean;
   publishedAt?: string;
 }
 
 export function AlbumsEditor({
   initial,
+  initialCollections,
   initialPending,
   publishedAt,
 }: AlbumsEditorProps) {
   const [albums, setAlbums] = useState(initial);
+  const [collections, setCollections] = useState(initialCollections);
+  const [deleted, setDeleted] = useState<string[]>([]);
   const [pending, setPending] = useState(initialPending);
   const [open, setOpen] = useState<string | null>(null);
   const [dragged, setDragged] = useState<number | null>(null);
 
   const saveStatus = useAutosave(
-    albums,
-    (list) =>
+    { albums, collections, deleted },
+    (edits) =>
       saveAlbums(
-        list.map(({ key, title, visible }) => ({ key, title, visible }))
+        edits.albums.map(({ key, title, visible, collection }) => ({
+          key,
+          title,
+          visible,
+          collection,
+        })),
+        edits.collections,
+        edits.deleted
       ),
     () => setPending(true)
   );
@@ -81,6 +94,12 @@ export function AlbumsEditor({
     );
 
   const live = albums.filter((album) => album.visible && album.shown > 0);
+  const counts = new Map<string, number>();
+  for (const album of albums) {
+    if (album.collection) {
+      counts.set(album.collection, (counts.get(album.collection) ?? 0) + 1);
+    }
+  }
 
   return (
     <>
@@ -104,6 +123,25 @@ export function AlbumsEditor({
         {live.reduce((n, album) => n + album.shown, 0)} fotos. Los cambios se
         guardan solos; aparecen en camipg.com/pictures al publicar.
       </p>
+      <CollectionsPanel
+        canCreate={saveStatus !== 'saving'}
+        collections={collections}
+        counts={counts}
+        onChange={setCollections}
+        onCreated={(collection) => {
+          setCollections((list) => [...list, collection]);
+          setDeleted((list) => list.filter((s) => s !== collection.slug));
+        }}
+        onDelete={(slug) => {
+          setCollections((list) => list.filter((c) => c.slug !== slug));
+          setDeleted((list) => [...list, slug]);
+          for (const album of albums) {
+            if (album.collection === slug) {
+              update(album.key, { collection: undefined });
+            }
+          }
+        }}
+      />
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {albums.map((album, i) => {
           const empty = album.visible && album.shown === 0;
@@ -192,6 +230,27 @@ export function AlbumsEditor({
                     />
                   </button>
                 </label>
+                {collections.length > 0 && (
+                  <label className="flex items-center justify-between gap-2 text-sm">
+                    Colección
+                    <select
+                      className="border-border bg-background min-w-0 rounded-md border px-2 py-1"
+                      onChange={(e) =>
+                        update(album.key, {
+                          collection: e.target.value || undefined,
+                        })
+                      }
+                      value={album.collection ?? ''}
+                    >
+                      <option value="">Sin colección</option>
+                      {collections.map((c) => (
+                        <option key={c.slug} value={c.slug}>
+                          {c.title.es || c.title.en}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 <div className="flex items-center gap-1 text-sm">
                   <a
                     className="bg-foreground text-background mr-auto flex items-center gap-1 rounded-full px-3 py-1.5"

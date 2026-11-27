@@ -30,15 +30,24 @@ export interface Photo {
   exif?: PhotoExif;
 }
 
+export interface Collection {
+  slug: string;
+  title: Localized;
+}
+
 export interface Album {
   slug: string;
   title: Localized;
   coverId: string;
   photos: Photo[];
+  /** Slug of one of the manifest's collections. */
+  collection?: string;
 }
 
 export interface Manifest {
   version: 1;
   generatedAt: string;
   albums: Album[];
+  /** Display order; only those with a published album. */
+  collections?: Collection[];
 }

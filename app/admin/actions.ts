@@ -16,7 +16,9 @@ import {
   catalogIndex,
   inBatches,
   planPublish,
+  slugify,
   syncState,
+  uniqueSlug,
 } from '@/lib/backoffice/curation';
 import { requireSession } from '@/lib/backoffice/session';
 import {
@@ -32,6 +34,7 @@ import {
   writeState,
 } from '@/lib/backoffice/storage';
 import { SITE_URL } from '@/lib/data';
+import type { Collection, Localized } from '@/lib/pictures/types';
 
 const LOCK_WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES = 10;
@@ -79,25 +82,78 @@ async function currentState() {
   return syncState(await readCatalog(), await readState());
 }
 
-/** Order, titles and visibility from the page; slugs and photo choices stay server-side. */
+/**
+ * Order, titles, visibility and collection of the albums, and order and titles of the
+ * collections, from the page; slugs and photo choices stay server-side.
+ * Collections stay unless `deleted`: the page may not list one created moments ago.
+ */
 export async function saveAlbums(
-  albums: Pick<AlbumState, 'key' | 'title' | 'visible'>[]
+  albums: Pick<AlbumState, 'key' | 'title' | 'visible' | 'collection'>[],
+  collections: Collection[],
+  deleted: string[]
 ): Promise<void> {
   await requireSession();
   const state = await currentState();
+  const known = new Map(state.collections.map((c) => [c.slug, c]));
+  const listed = collections.flatMap((edit) => {
+    const found = known.get(edit.slug);
+    return found
+      ? [{ slug: found.slug, title: cleanTitle(edit.title) ?? found.title }]
+      : [];
+  });
+  const kept = [
+    ...listed,
+    ...state.collections.filter(
+      (c) =>
+        !(listed.some((l) => l.slug === c.slug) || deleted.includes(c.slug))
+    ),
+  ];
+  const slugs = new Set(kept.map((c) => c.slug));
   const edits = new Map(albums.map((album) => [album.key, album]));
   const ordered = albums.flatMap((edit) =>
     state.albums.filter((album) => album.key === edit.key)
   );
   const untouched = state.albums.filter((album) => !edits.has(album.key));
   await writeState({
+    collections: kept,
     albums: [...ordered, ...untouched].map((album) => {
       const edit = edits.get(album.key);
-      return edit
-        ? { ...album, title: edit.title, visible: edit.visible }
-        : album;
+      const collection = edit ? edit.collection : album.collection;
+      return {
+        ...album,
+        ...(edit && { title: edit.title, visible: edit.visible }),
+        collection:
+          collection && slugs.has(collection) ? collection : undefined,
+      };
     }),
   });
+}
+
+/** Undefined without an English title: the site always shows one. */
+function cleanTitle({ en, es }: Localized): Localized | undefined {
+  return en.trim() ? { en: en.trim(), es: es?.trim() || undefined } : undefined;
+}
+
+export async function createCollection(input: Localized): Promise<Collection> {
+  await requireSession();
+  const title = cleanTitle(input);
+  if (!title) {
+    throw new Error('a collection needs an English title');
+  }
+  const state = await currentState();
+  const collection = {
+    slug: uniqueSlug(
+      slugify(title.en),
+      new Set(state.collections.map((c) => c.slug)),
+      'collection'
+    ),
+    title,
+  };
+  await writeState({
+    ...state,
+    collections: [...state.collections, collection],
+  });
+  return collection;
 }
 
 export async function saveAlbumPhotos(
@@ -108,6 +164,7 @@ export async function saveAlbumPhotos(
   await requireSession();
   const state = await currentState();
   await writeState({
+    ...state,
     albums: state.albums.map((album) =>
       album.key === key ? { ...album, photos, coverId } : album
     ),

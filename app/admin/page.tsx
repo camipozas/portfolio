@@ -13,7 +13,15 @@ export default async function AdminPage() {
 
   const albums = await Promise.all(
     state.albums.map(
-      async ({ photos: albumPhotos, key, slug, title, visible, coverId }) => {
+      async ({
+        photos: albumPhotos,
+        key,
+        slug,
+        title,
+        visible,
+        coverId,
+        collection,
+      }) => {
         const cover = photos.get(
           coverId ??
             albumPhotos.find((p) => p.visible)?.id ??
@@ -25,6 +33,7 @@ export default async function AdminPage() {
           slug,
           title,
           visible,
+          collection,
           status: statuses.get(slug) ?? 'hidden',
           total: albumPhotos.length,
           shown: albumPhotos.filter((photo) => photo.visible).length,
@@ -37,6 +46,7 @@ export default async function AdminPage() {
   return (
     <AlbumsEditor
       initial={albums}
+      initialCollections={state.collections}
       initialPending={pending}
       publishedAt={publishedAt}
     />

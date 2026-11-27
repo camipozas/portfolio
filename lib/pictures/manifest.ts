@@ -1,6 +1,6 @@
 import { CLOUDFRONT_BASE } from '@/lib/data';
 import type { Locale } from '@/lib/locale';
-import type { Album, Localized, Manifest } from './types';
+import type { Album, Collection, Localized, Manifest } from './types';
 
 export const PICTURES_TAG = 'pictures';
 
@@ -31,19 +31,33 @@ export function parseAlbums(data: unknown): Album[] {
   );
 }
 
-export async function getAlbums(): Promise<Album[]> {
+/** Manifests published before collections have none. */
+export function parseCollections(data: unknown): Collection[] {
+  const collections = (data as Partial<Manifest> | null)?.collections;
+  return Array.isArray(collections) ? collections : [];
+}
+
+export async function getManifest(): Promise<{
+  albums: Album[];
+  collections: Collection[];
+}> {
   const response = await fetch(`${PHOTOS_BASE}/manifest.json`, {
     next: { revalidate: 3600, tags: [PICTURES_TAG] },
   });
   // CloudFront answers 403 for a missing key: nothing published yet.
   if (response.status === 403 || response.status === 404) {
-    return [];
+    return { albums: [], collections: [] };
   }
   // Any other failure throws, so ISR keeps serving the last good page.
   if (!response.ok) {
     throw new Error(`photos manifest: HTTP ${response.status}`);
   }
-  return parseAlbums(await response.json());
+  const data = await response.json();
+  return { albums: parseAlbums(data), collections: parseCollections(data) };
+}
+
+export async function getAlbums(): Promise<Album[]> {
+  return (await getManifest()).albums;
 }
 
 export async function getAlbum(slug: string): Promise<Album | undefined> {

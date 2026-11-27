@@ -7,7 +7,7 @@ import {
   sameText,
   verifyPassword,
 } from '@/lib/backoffice/auth';
-import type { Catalog, CurationState } from '@/lib/backoffice/curation';
+import type { Catalog, SavedState } from '@/lib/backoffice/curation';
 import {
   albumStatuses,
   buildManifest,
@@ -17,6 +17,7 @@ import {
   planPublish,
   slugify,
   syncState,
+  uniqueSlug,
 } from '@/lib/backoffice/curation';
 
 describe('password', () => {
@@ -91,7 +92,7 @@ describe('syncState', () => {
   });
 
   it('should keep existing choices and order, append new photos and drop missing ones', () => {
-    const previous: CurationState = {
+    const previous: SavedState = {
       albums: [
         {
           key: 'Croacia + Mostar ‘25',
@@ -113,6 +114,27 @@ describe('syncState', () => {
       { id: 'a', visible: false },
       { id: 'b', visible: false },
     ]);
+  });
+
+  it('should keep collections and drop references to a deleted one', () => {
+    const saved = syncState(catalog, { albums: [] });
+    saved.albums[0].collection = 'trips';
+    saved.albums[1].collection = 'gone';
+    const state = syncState(catalog, {
+      ...saved,
+      collections: [{ slug: 'trips', title: { en: 'Trips' } }],
+    });
+    expect(state.collections).toEqual([
+      { slug: 'trips', title: { en: 'Trips' } },
+    ]);
+    expect(state.albums.map((album) => album.collection)).toEqual([
+      'trips',
+      undefined,
+    ]);
+  });
+
+  it('should treat a state saved before collections as having none', () => {
+    expect(syncState(catalog, { albums: [] }).collections).toEqual([]);
   });
 });
 
@@ -140,6 +162,40 @@ describe('buildManifest', () => {
     state.albums[1].visible = true;
     expect(buildManifest(catalog, state, 'now').albums).toEqual([]);
   });
+
+  it('should publish, in order, only the collections with a published album', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.collections = [
+      { slug: 'empty', title: { en: 'Empty' } },
+      { slug: 'dogs', title: { en: 'Dogs' } },
+      { slug: 'trips', title: { en: 'Trips', es: 'Viajes' } },
+    ];
+    state.albums = state.albums.map((album, i) => ({
+      ...album,
+      visible: true,
+      collection: ['trips', 'dogs'][i],
+      photos: album.photos.map((p) => ({ ...p, visible: true })),
+    }));
+    const manifest = buildManifest(catalog, state, 'now');
+    expect(manifest.collections?.map((c) => c.slug)).toEqual(['dogs', 'trips']);
+    expect(manifest.albums.map((album) => album.collection)).toEqual([
+      'trips',
+      'dogs',
+    ]);
+  });
+
+  it('should leave out the collection of an album when it no longer exists', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.albums[1] = {
+      ...state.albums[1],
+      visible: true,
+      collection: 'gone',
+      photos: [{ id: 'd', visible: true }],
+    };
+    const manifest = buildManifest(catalog, state, 'now');
+    expect(manifest.albums[0].collection).toBeUndefined();
+    expect(manifest.collections).toEqual([]);
+  });
 });
 
 describe('planPublish', () => {
@@ -147,6 +203,7 @@ describe('planPublish', () => {
     buildManifest(
       catalog,
       {
+        collections: [],
         albums: [
           {
             key: 'Croacia + Mostar ‘25',
@@ -193,6 +250,13 @@ describe('helpers', () => {
     expect(slugify('日本')).toBe('');
   });
 
+  it('should number repeated slugs and use the fallback for an empty one', () => {
+    const taken = new Set(['trips']);
+    expect(uniqueSlug('trips', taken, 'collection')).toBe('trips-2');
+    expect(uniqueSlug('trips', taken, 'collection')).toBe('trips-3');
+    expect(uniqueSlug(slugify('日本'), taken, 'collection')).toBe('collection');
+  });
+
   it('should move an item and ignore moves out of range', () => {
     expect(move(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
     expect(move(['a', 'b'], 1, 2)).toEqual(['a', 'b']);
@@ -220,6 +284,33 @@ describe('hasUnpublishedChanges', () => {
       hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
     ).toBe(false);
     state.albums[0].photos.push({ id: 'b', visible: true });
+    expect(
+      hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
+    ).toBe(true);
+  });
+
+  it('should notice a renamed collection and not a manifest saved before collections', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.collections = [{ slug: 'trips', title: { en: 'Trips' } }];
+    state.albums[0] = {
+      ...state.albums[0],
+      visible: true,
+      photos: [{ id: 'a', visible: true }],
+    };
+    const { collections: _, ...beforeCollections } = buildManifest(
+      catalog,
+      state,
+      'then'
+    );
+    expect(
+      hasUnpublishedChanges(
+        buildManifest(catalog, state, 'now'),
+        beforeCollections
+      )
+    ).toBe(false);
+    state.albums[0].collection = 'trips';
+    const published = buildManifest(catalog, state, 'then');
+    state.collections = [{ slug: 'trips', title: { en: 'Travel' } }];
     expect(
       hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
     ).toBe(true);

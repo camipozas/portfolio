@@ -11,7 +11,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { awsCredentialsProvider } from '@vercel/functions/oidc';
 import { PHOTO_SIZES } from '@/lib/pictures/manifest';
 import type { Manifest } from '@/lib/pictures/types';
-import type { Catalog, CurationState } from './curation';
+import type { Catalog, CurationState, SavedState } from './curation';
 
 const BACKUP =
   process.env.PHOTOS_BACKUP_BUCKET ?? 'camipg-photos-backup-326733328768';
@@ -46,8 +46,7 @@ async function readJson<T>(key: string, fallback: T): Promise<T> {
 
 export const readCatalog = () =>
   readJson<Catalog>('curation/catalog.json', { generatedAt: '', albums: [] });
-export const readState = () =>
-  readJson<CurationState>(STATE_KEY, { albums: [] });
+export const readState = () => readJson<SavedState>(STATE_KEY, { albums: [] });
 
 export interface LoginAttempts {
   failures: number[];

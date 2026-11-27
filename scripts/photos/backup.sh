@@ -24,6 +24,8 @@ while IFS= read -r -d '' f; do
   sha=$(shasum -a 256 "$f" | cut -d' ' -f1)
 
   if first=$(grep -m1 "^$sha	" "$ROOT/index.tsv"); then
+    # Re-running the same album is not a duplicate.
+    [[ ${first#*	} == "$album/"* ]] && continue
     printf '%s\t%s\t%s\n' "$sha" "${first#*	}" "$album/$name" >> "$ROOT/duplicates.tsv"
     dup=$((dup + 1))
     continue

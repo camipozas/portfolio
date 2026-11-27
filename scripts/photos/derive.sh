@@ -21,10 +21,11 @@ mark() { # mark <in> <out> <resize|""> <quality>
 }
 
 one() { # one <album>/<name>
+  set -eo pipefail # runs under `bash -c`, which does not inherit set -e
   local src="$ROOT/edited/$1" base="${1%.*}"
   local meta="$ROOT/web/meta/$base.json" web="$ROOT/web"
   local stale=1
-  [[ -f $meta && $meta -nt $src ]] && stale=0
+  [[ -s $meta && $meta -nt $src ]] && stale=0
   if [[ $stale == 0 && -f $web/1200/$base.jpg ]] && jq -e .color "$meta" > /dev/null; then
     return 0
   fi
@@ -42,7 +43,8 @@ one() { # one <album>/<name>
   exif=$(exiftool -j -n -Make -Model -LensModel -FocalLength -FNumber -ExposureTime -ISO -DateTimeOriginal "$src" \
     | jq -c '.[0] | del(.SourceFile)')
   color=$(magick "$web/thumb/$base.jpg" -resize '1x1!' -format '#%[hex:p{0,0}]' info: | cut -c1-7)
-  jq -n -c --argjson d "$dims" --argjson e "$exif" --arg c "$color" '$d + {exif: $e, color: $c}' > "$meta"
+  jq -n -c --argjson d "$dims" --argjson e "$exif" --arg c "$color" '$d + {exif: $e, color: $c}' > "$meta.tmp"
+  mv "$meta.tmp" "$meta"
 }
 export -f mark one
 

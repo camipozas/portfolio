@@ -23,7 +23,9 @@ export function Certifications({ content }: { content: Content }) {
             >
               <div>
                 <p className="text-sm font-medium">
-                  {cert.emoji && <span className="mr-1">{cert.emoji}</span>}
+                  {Boolean(cert.emoji) && (
+                    <span className="mr-1">{cert.emoji}</span>
+                  )}
                   {cert.title}
                 </p>
                 <p className="text-muted text-sm">{cert.subtitle}</p>

@@ -6,8 +6,11 @@ describe('cn utility', () => {
     expect(cn('foo', 'bar')).toBe('foo bar');
   });
 
-  it('handles conditional classes', () => {
-    expect(cn('base', false, 'visible')).toBe('base visible');
+  it.each([
+    [false, 'base visible'],
+    [true, 'base hidden visible'],
+  ])('handles conditional classes (hidden=%s)', (hidden, expected) => {
+    expect(cn('base', hidden && 'hidden', 'visible')).toBe(expected);
   });
 
   it('deduplicates tailwind classes', () => {

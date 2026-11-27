@@ -22,7 +22,7 @@ export default async function LoginPage({
         required
         type="password"
       />
-      {error && (
+      {!!error && (
         <p className="text-sm text-red-500" role="alert">
           {error === 'locked'
             ? 'Too many failed attempts. Try again in 15 minutes.'

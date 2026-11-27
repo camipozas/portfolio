@@ -50,6 +50,8 @@ export function PhotosEditor({
       }
     });
 
+  const message = pending ? 'Saving…' : status;
+
   return (
     <>
       <div className="mb-4 flex gap-3 text-sm">
@@ -145,7 +147,7 @@ export function PhotosEditor({
           Save
         </button>
         <p className="text-muted text-sm" role="status">
-          {pending ? 'Saving…' : status}
+          {message}
         </p>
       </div>
     </>

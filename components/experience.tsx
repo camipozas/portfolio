@@ -14,7 +14,7 @@ export function Experience({ content }: { content: Content }) {
           <AnimateOnScroll delay={i * 100} key={exp.company}>
             <div className="gradient-border-hover p-4">
               <div className="flex gap-3">
-                {exp.logo && (
+                {!!exp.logo && (
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
                     <Image
                       alt={`${exp.company} logo`}

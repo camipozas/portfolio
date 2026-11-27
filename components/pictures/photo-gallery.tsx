@@ -95,7 +95,7 @@ export function PhotoGallery({
               width={current.width}
             />
             <figcaption className="text-center text-xs text-white/70">
-              {current.exif && (
+              {!!current.exif && (
                 <>
                   <p>
                     {[formatCamera(current.exif), current.exif.lens]

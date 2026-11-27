@@ -47,6 +47,8 @@ export function AlbumsEditor({ initial }: { initial: AlbumRow[] }) {
       return `Published ${result.albums} albums, ${result.photos} photos (${result.copied} new, ${result.removed} removed). The site updates within an hour.`;
     });
 
+  const message = pending ? 'Working…' : status;
+
   return (
     <>
       <ol className="flex flex-col gap-2">
@@ -151,7 +153,7 @@ export function AlbumsEditor({ initial }: { initial: AlbumRow[] }) {
           Save and publish
         </button>
         <p className="text-muted text-sm" role="status">
-          {pending ? 'Working…' : status}
+          {message}
         </p>
       </div>
     </>

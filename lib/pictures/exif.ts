@@ -1,6 +1,8 @@
 import type { Locale } from '@/lib/locale';
 import type { PhotoExif } from './types';
 
+const EXIF_DATE = /^(?<year>\d{4}):(?<month>\d{2}):(?<day>\d{2})/u;
+
 export function formatExposure(seconds: number): string {
   if (seconds >= 1) {
     return `${Number(seconds.toFixed(1))}s`;
@@ -22,11 +24,11 @@ export function formatTakenAt(
   takenAt: string,
   lang: Locale
 ): string | undefined {
-  const m = takenAt.match(/^(\d{4}):(\d{2}):(\d{2})/u);
-  if (!m) {
+  const groups = takenAt.match(EXIF_DATE)?.groups;
+  if (!groups) {
     return undefined;
   }
-  const date = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  const date = new Date(Date.UTC(+groups.year, +groups.month - 1, +groups.day));
   return date.toLocaleDateString(lang === 'es' ? 'es-CL' : 'en-US', {
     year: 'numeric',
     month: 'long',

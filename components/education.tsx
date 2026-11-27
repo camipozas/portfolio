@@ -14,7 +14,7 @@ export function EducationSection({ content }: { content: Content }) {
           <AnimateOnScroll delay={i * 100} key={edu.school}>
             <div className="gradient-border-hover p-4">
               <div className="flex gap-3">
-                {edu.logo && (
+                {!!edu.logo && (
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
                     <Image
                       alt={`${edu.school} logo`}

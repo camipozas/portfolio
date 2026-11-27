@@ -36,6 +36,7 @@ a {
   color: inherit;
 }
 
+/* biome-ignore lint/suspicious/useBaseline: cosmetic, unsupported browsers keep the default highlight */
 ::selection {
   color: var(--color-background);
   background-color: var(--color-foreground);
@@ -49,6 +50,7 @@ a {
     var(--color-accent)
   );
   -webkit-background-clip: text;
+  /* biome-ignore lint/suspicious/useBaseline: the -webkit- prefix above covers older browsers */
   background-clip: text;
 }
 

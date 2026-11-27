@@ -6,6 +6,8 @@ import { localizedPath } from '@/lib/locale';
 import es from '@/lib/translations/es.json';
 import { proxy } from '@/proxy';
 
+const TRANSLATED = /^\[/u;
+
 describe('localizedPath', () => {
   it('should keep English without a prefix', () => {
     expect(localizedPath('/', 'en')).toBe('/');
@@ -34,10 +36,10 @@ describe('getContent', () => {
 
   it('should leave proper names untouched', () => {
     const content = getContent('es', (text) => `[${text}]`);
-    expect(content.experiences[0].company).not.toMatch(/^\[/u);
-    expect(content.certifications[0].title).not.toMatch(/^\[/u);
-    expect(content.blogPosts[0].title).not.toMatch(/^\[/u);
-    expect(content.experiences[0].role).toMatch(/^\[/u);
+    expect(content.experiences[0].company).not.toMatch(TRANSLATED);
+    expect(content.certifications[0].title).not.toMatch(TRANSLATED);
+    expect(content.blogPosts[0].title).not.toMatch(TRANSLATED);
+    expect(content.experiences[0].role).toMatch(TRANSLATED);
   });
 
   it('should have a Spanish translation for every string, and no stale ones', () => {

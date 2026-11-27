@@ -46,7 +46,7 @@ export async function Projects({ content }: { content: Content }) {
                 {project.description}
               </p>
               <div className="text-muted mt-3 flex items-center gap-3 text-xs">
-                {project.language && <span>{project.language}</span>}
+                {Boolean(project.language) && <span>{project.language}</span>}
                 <span className="flex items-center gap-1">
                   <ExternalLink size={12} />
                   {ui.live}
@@ -67,13 +67,13 @@ export async function Projects({ content }: { content: Content }) {
               target="_blank"
             >
               <p className="text-sm font-medium">{repo.name}</p>
-              {repo.description && (
+              {Boolean(repo.description) && (
                 <p className="text-muted mt-1 line-clamp-2 text-sm">
                   {repo.description}
                 </p>
               )}
               <div className="text-muted mt-3 flex items-center gap-3 text-xs">
-                {repo.language && <span>{repo.language}</span>}
+                {Boolean(repo.language) && <span>{repo.language}</span>}
                 {repo.stars > 0 && (
                   <span className="flex items-center gap-1">
                     <Star size={12} />

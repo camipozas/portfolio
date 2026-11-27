@@ -16,7 +16,7 @@ export function isLocale(value: string | undefined): value is Locale {
   return locales.some((locale) => locale === value);
 }
 
-const LOCALE_PREFIX = new RegExp(`^/(${locales.join('|')})(?=/|$)`);
+const LOCALE_PREFIX = new RegExp(`^/(${locales.join('|')})(?=/|$)`, 'u');
 
 // English has no prefix ("/"), Spanish lives under "/es".
 export function localizedPath(pathname: string, lang: Locale): string {

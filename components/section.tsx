@@ -14,7 +14,7 @@ export function Section({ id, heading, children }: SectionProps) {
     <section className="py-12" id={id}>
       <AnimateOnScroll>
         <h2 className="mb-8 text-lg font-medium">
-          {emoji && <span className="mr-2">{emoji}</span>}
+          {Boolean(emoji) && <span className="mr-2">{emoji}</span>}
           {heading}
         </h2>
       </AnimateOnScroll>

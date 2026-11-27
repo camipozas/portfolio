@@ -20,6 +20,14 @@ import {
   title,
 } from '@/lib/data';
 
+const HTTPS_URL = /^https:\/\//u;
+const SVG_FILE = /\.svg$/u;
+const GITHUB_URL = /^https:\/\/github\.com\//u;
+const LINKEDIN_URL = /^https:\/\/www\.linkedin\.com\//u;
+const MEDIUM_URL = /^https:\/\/medium\.com\//u;
+const SECTION_ANCHOR = /^#/u;
+const CREDLY_URL = /^https:\/\/www\.credly\.com\//u;
+
 describe('data exports', () => {
   it('exports personal info', () => {
     expect(name).toBe('Camila Pozas');
@@ -29,33 +37,33 @@ describe('data exports', () => {
   });
 
   it('exports CloudFront base URL', () => {
-    expect(CLOUDFRONT_BASE).toMatch(/^https:\/\//u);
+    expect(CLOUDFRONT_BASE).toMatch(HTTPS_URL);
     expect(CLOUDFRONT_BASE).toContain('cloudfront.net');
   });
 
   it('exports hero data', () => {
     expect(heroEmoji).toBeTruthy();
-    expect(heroIllustration).toMatch(/\.svg$/u);
+    expect(heroIllustration).toMatch(SVG_FILE);
     expect(heroIllustration).toContain(CLOUDFRONT_BASE);
   });
 
   it('exports resume URL', () => {
-    expect(resumeUrl).toMatch(/^https:\/\//u);
+    expect(resumeUrl).toMatch(HTTPS_URL);
     expect(resumeUrl).toContain('.pdf');
   });
 
   it('exports social links with valid URLs', () => {
-    expect(socialLinks.github).toMatch(/^https:\/\/github\.com\//u);
-    expect(socialLinks.linkedin).toMatch(/^https:\/\/www\.linkedin\.com\//u);
+    expect(socialLinks.github).toMatch(GITHUB_URL);
+    expect(socialLinks.linkedin).toMatch(LINKEDIN_URL);
     expect(socialLinks.email).toContain('@');
-    expect(socialLinks.medium).toMatch(/^https:\/\/medium\.com\//u);
+    expect(socialLinks.medium).toMatch(MEDIUM_URL);
   });
 
   it('exports nav links matching section IDs', () => {
     expect(navLinks.length).toBeGreaterThanOrEqual(4);
     for (const link of navLinks) {
       expect(link.label).toBeTruthy();
-      expect(link.href).toMatch(/^#/u);
+      expect(link.href).toMatch(SECTION_ANCHOR);
     }
   });
 
@@ -134,7 +142,7 @@ describe('certifications', () => {
     for (const cert of certifications) {
       expect(cert.title).toBeTruthy();
       expect(cert.subtitle).toBeTruthy();
-      expect(cert.credlyUrl).toMatch(/^https:\/\/www\.credly\.com\//u);
+      expect(cert.credlyUrl).toMatch(CREDLY_URL);
       expect(cert.emoji).toBeTruthy();
     }
   });
@@ -149,7 +157,7 @@ describe('featured projects', () => {
     for (const project of featuredProjects) {
       expect(project.name).toBeTruthy();
       expect(project.description).toBeTruthy();
-      expect(project.url).toMatch(/^https:\/\//u);
+      expect(project.url).toMatch(HTTPS_URL);
       expect(project.language).toBeTruthy();
     }
   });
@@ -162,7 +170,7 @@ describe('blog posts', () => {
 
   it('each entry has url, title, and description', () => {
     for (const post of blogPosts) {
-      expect(post.url).toMatch(/^https:\/\//u);
+      expect(post.url).toMatch(HTTPS_URL);
       expect(post.title).toBeTruthy();
       expect(post.description).toBeTruthy();
     }

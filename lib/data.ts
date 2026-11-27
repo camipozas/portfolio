@@ -53,6 +53,10 @@ export const ui = {
   nextAlbum: 'Next album',
   nextIn: 'Next in',
   photoDetails: 'Photo details',
+  closeDetails: 'Hide details',
+  aperture: 'Aperture',
+  shutterSpeed: 'Shutter',
+  focalLength: 'Focal length',
 };
 
 export const heroEmoji = '👋';

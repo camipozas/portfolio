@@ -9,13 +9,10 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Locale } from '@/lib/locale';
-import {
-  formatCamera,
-  formatSettings,
-  formatTakenAt,
-} from '@/lib/pictures/exif';
 import { aboveWatermark, localized, photoUrl } from '@/lib/pictures/manifest';
 import type { Photo } from '@/lib/pictures/types';
+import type { PhotoInfoLabels } from './photo-info';
+import { PhotoInfo } from './photo-info';
 
 interface PhotoGalleryProps {
   photos: Photo[];
@@ -27,6 +24,8 @@ interface PhotoGalleryProps {
     next: string;
     openFullSize: string;
     details: string;
+    closeDetails: string;
+    specs: PhotoInfoLabels['specs'];
   };
 }
 
@@ -179,6 +178,9 @@ export function PhotoGallery({
           if (event.key === 'ArrowRight') {
             step(1);
           }
+          if (event.key === 'i' && current?.exif) {
+            setShowInfo((on) => !on);
+          }
         }}
         onTouchEnd={(event) => {
           const start = touchX.current;
@@ -217,7 +219,7 @@ export function PhotoGallery({
                   aria-pressed={showInfo}
                   className="rounded-full p-2 hover:bg-white/10 aria-pressed:bg-white/15"
                   onClick={() => setShowInfo((on) => !on)}
-                  title={labels.details}
+                  title={`${labels.details} (i)`}
                   type="button"
                 >
                   <Info aria-hidden="true" size={18} />
@@ -236,66 +238,63 @@ export function PhotoGallery({
               </a>
             </header>
 
-            <figure className="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-2 pb-4">
-              <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
-                {/* The thumbnail is already cached: show it blurred while the sharp one loads. */}
-                {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
-                <img
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute max-h-full max-w-full object-contain blur-md"
-                  height={current.height}
-                  key={`thumb-${current.id}`}
-                  src={photoUrl(current.id, 'thumb')}
-                  width={current.width}
-                />
-                {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
-                <img
-                  alt={altOf(current, index)}
-                  className="relative max-h-full max-w-full object-contain opacity-0 data-loaded:opacity-100 motion-safe:transition-opacity motion-safe:duration-300"
-                  height={current.height}
-                  key={current.id}
-                  onLoad={reveal}
-                  ref={revealWhenLoaded}
-                  src={photoUrl(current.id, '2048')}
-                  width={current.width}
-                />
-              </div>
+            <div className="relative flex min-h-0 flex-1">
+              <figure className="relative flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center px-2 pb-4">
+                <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
+                  {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
+                  <img
+                    alt={altOf(current, index)}
+                    className="peer relative z-10 max-h-full max-w-full object-contain opacity-0 data-loaded:opacity-100 motion-safe:transition-opacity motion-safe:duration-300"
+                    height={current.height}
+                    key={current.id}
+                    onLoad={reveal}
+                    ref={revealWhenLoaded}
+                    src={photoUrl(current.id, '2048')}
+                    width={current.width}
+                  />
+                  {/* The cached thumbnail stands in, blurred, until the sharp one loads; then it
+                    hides so its blur does not glow around the photo. */}
+                  {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
+                  <img
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute max-h-full max-w-full object-contain blur-md peer-data-loaded:invisible"
+                    height={current.height}
+                    key={`thumb-${current.id}`}
+                    src={photoUrl(current.id, 'thumb')}
+                    width={current.width}
+                  />
+                </div>
+                <button
+                  aria-label={labels.previous}
+                  className="absolute top-1/2 left-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
+                  onClick={() => step(-1)}
+                  type="button"
+                >
+                  <ChevronLeft aria-hidden="true" size={24} />
+                </button>
+                <button
+                  aria-label={labels.next}
+                  className="absolute top-1/2 right-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
+                  onClick={() => step(1)}
+                  type="button"
+                >
+                  <ChevronRight aria-hidden="true" size={24} />
+                </button>
+              </figure>
               {showInfo && current.exif ? (
-                <figcaption className="text-center text-xs text-white/60">
-                  <p>
-                    {[formatCamera(current.exif), current.exif.lens]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
-                  <p>
-                    {[
-                      formatSettings(current.exif),
-                      current.exif.takenAt &&
-                        formatTakenAt(current.exif.takenAt, lang),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
-                </figcaption>
+                <PhotoInfo
+                  labels={{
+                    details: labels.details,
+                    close: labels.closeDetails,
+                    specs: labels.specs,
+                  }}
+                  lang={lang}
+                  onClose={() => setShowInfo(false)}
+                  photo={current}
+                />
               ) : null}
-              <button
-                aria-label={labels.previous}
-                className="absolute top-1/2 left-2 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
-                onClick={() => step(-1)}
-                type="button"
-              >
-                <ChevronLeft aria-hidden="true" size={24} />
-              </button>
-              <button
-                aria-label={labels.next}
-                className="absolute top-1/2 right-2 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
-                onClick={() => step(1)}
-                type="button"
-              >
-                <ChevronRight aria-hidden="true" size={24} />
-              </button>
-            </figure>
+            </div>
           </div>
         )}
       </dialog>

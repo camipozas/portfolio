@@ -102,6 +102,7 @@ export function PhotoGallery({
   const close = () => dialog.current?.close();
   const onClose = () => {
     setIndex(null);
+    showCopied(false);
     if (pushed.current) {
       pushed.current = false;
       window.history.back();
@@ -118,19 +119,38 @@ export function PhotoGallery({
     }
     const next = (index + delta + photos.length) % photos.length;
     setIndex(next);
-    window.history.replaceState(window.history.state, '', urlOf(photos[next]));
+    // Fresh state, so Next records the new URL instead of restoring the first one later.
+    window.history.replaceState(null, '', urlOf(photos[next]));
   };
   const [copied, setCopied] = useState(false);
-  // Phones get the system share sheet; desktops copy the link.
+  const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const showCopied = (on: boolean) => {
+    clearTimeout(copiedTimer.current);
+    setCopied(on);
+    if (on) {
+      copiedTimer.current = setTimeout(() => setCopied(false), 2000);
+    }
+  };
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
+  // Touch screens get the system share sheet; elsewhere, or if it fails, copy the link.
   const share = async (photo: Photo) => {
     const url = new URL(urlOf(photo), window.location.origin).href;
-    if (navigator.share) {
-      await navigator.share({ title: albumTitle, url }).catch(() => undefined);
-      return;
+    if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+      try {
+        await navigator.share({ title: albumTitle, url });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+      }
     }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(url);
+      showCopied(true);
+    } catch {
+      // No clipboard access (insecure page, embedded browser): the URL bar has the link.
+    }
   };
 
   useEffect(() => {

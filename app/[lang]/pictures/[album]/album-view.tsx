@@ -28,7 +28,8 @@ export async function albumMetadata(
   if (!album || (photoId && !photo)) {
     notFound();
   }
-  const path = photo ? `/pictures/${slug}/${photo.id}` : `/pictures/${slug}`;
+  // A photo page shows the album, so search engines should index the album instead.
+  const albumPath = `/pictures/${slug}`;
   const title = `${localized(album.title, lang)} — Camila Pozas`;
   const image = photo
     ? {
@@ -36,20 +37,23 @@ export async function albumMetadata(
         ...previewSize(photo.width, photo.height),
       }
     : photoUrl(album.coverId, '2048');
-  const url = localizedPath(path, lang);
   return {
     title,
     alternates: {
-      canonical: url,
+      canonical: localizedPath(albumPath, lang),
       languages: {
-        en: localizedPath(path, 'en'),
-        es: localizedPath(path, 'es'),
-        'x-default': path,
+        en: localizedPath(albumPath, 'en'),
+        es: localizedPath(albumPath, 'es'),
+        'x-default': albumPath,
       },
     },
+    // Replaces the layout's openGraph as a whole, so it repeats description and locale.
     openGraph: {
       title,
-      url,
+      description: getContent(lang).ui.picturesIntro,
+      url: localizedPath(photo ? `${albumPath}/${photo.id}` : albumPath, lang),
+      locale: lang === 'es' ? 'es_CL' : 'en_US',
+      alternateLocale: lang === 'es' ? 'en_US' : 'es_CL',
       type: 'website',
       images: [image],
     },

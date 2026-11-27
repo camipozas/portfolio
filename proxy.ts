@@ -16,7 +16,7 @@ import {
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const PICTURES_PAGE = new RegExp(`^(/(${locales.join('|')}))?/pictures$`, 'u');
 const ALBUM_PAGE = new RegExp(
-  `^(/(${locales.join('|')}))?/pictures/(?!c/)[^/]+$`,
+  `^(/(${locales.join('|')}))?/pictures/(?!c(?:/|$))[^/]+$`,
   'u'
 );
 
@@ -57,7 +57,7 @@ export function proxy(request: NextRequest) {
   if (photo && ALBUM_PAGE.test(url.pathname)) {
     url.searchParams.delete('photo');
     url.pathname = `${url.pathname}/${encodeURIComponent(photo)}`;
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url);
   }
 
   // The language toggle links to "?lang=xx": remember the choice, like next-themes does for the theme.

@@ -108,7 +108,7 @@ describe('proxy', () => {
 
   it('should send an old ?photo= link to the photo page, keeping the language', () => {
     const response = proxy(request('/pictures/berlin?photo=2a56a0edc9837498'));
-    expect(response.status).toBe(308);
+    expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe(
       'https://www.camipg.com/pictures/berlin/2a56a0edc9837498'
     );
@@ -117,6 +117,9 @@ describe('proxy', () => {
     ).toBe('https://www.camipg.com/es/pictures/berlin/abc');
     expect(
       proxy(request('/pictures/c/trips?photo=abc')).headers.get('location')
+    ).toBeNull();
+    expect(
+      proxy(request('/pictures/c?photo=abc')).headers.get('location')
     ).toBeNull();
   });
 

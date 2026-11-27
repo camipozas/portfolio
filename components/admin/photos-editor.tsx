@@ -3,6 +3,7 @@
 import {
   ArrowDownWideNarrow,
   ArrowLeft,
+  Check,
   Eye,
   EyeOff,
   Maximize2,
@@ -41,7 +42,6 @@ export function PhotosEditor(props: PhotosEditorProps) {
     coverId: props.initialCoverId,
   });
   const [pending, setPending] = useState(props.initialPending);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [anchor, setAnchor] = useState<number | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [dragged, setDragged] = useState<number | null>(null);
@@ -70,27 +70,18 @@ export function PhotosEditor(props: PhotosEditorProps) {
       list.map((p) => (ids.has(p.id) ? { ...p, visible } : p))
     );
 
-  const select = (index: number, range: boolean) => {
+  // One state per photo: on the site or not. Shift+click applies it to the range.
+  const toggle = (index: number, range: boolean) => {
+    const visible = !view[index].visible;
     const ids =
       range && anchor !== null
-        ? view
-            .slice(Math.min(anchor, index), Math.max(anchor, index) + 1)
-            .map((p) => p.id)
-        : [view[index].id];
-    setSelected((current) => {
-      const next = new Set(current);
-      const on = range || !current.has(view[index].id);
-      for (const id of ids) {
-        if (on) {
-          next.add(id);
-        } else {
-          next.delete(id);
-        }
-      }
-      return next;
-    });
+        ? view.slice(Math.min(anchor, index), Math.max(anchor, index) + 1)
+        : [view[index]];
+    setVisible(new Set(ids.map((p) => p.id)), visible);
     setAnchor(index);
   };
+  const hiddenInView = view.filter((p) => !p.visible);
+  const shownInView = view.filter((p) => p.visible);
 
   const filters: [Filter, string, number][] = [
     ['all', 'Todas', photos.length],
@@ -137,7 +128,10 @@ export function PhotosEditor(props: PhotosEditorProps) {
                 filter === value && 'bg-foreground text-background'
               )}
               key={value}
-              onClick={() => setFilter(value)}
+              onClick={() => {
+                setFilter(value);
+                setAnchor(null);
+              }}
               type="button"
             >
               {label} <span className="opacity-60">{count}</span>
@@ -146,49 +140,25 @@ export function PhotosEditor(props: PhotosEditorProps) {
         </fieldset>
         <span className="bg-border mx-1 h-5 w-px" />
         <button
-          className="hover:bg-border rounded-full px-2 py-1"
-          onClick={() => setSelected(new Set(view.map((p) => p.id)))}
-          type="button"
-        >
-          Seleccionar todas
-        </button>
-        <button
-          className="hover:bg-border rounded-full px-2 py-1"
-          onClick={() => setSelected(new Set())}
-          type="button"
-        >
-          Ninguna
-        </button>
-        <button
-          className="hover:bg-border rounded-full px-2 py-1"
+          className="bg-accent flex items-center gap-1 rounded-full px-3 py-1 text-white disabled:opacity-40"
+          disabled={hiddenInView.length === 0}
           onClick={() =>
-            setSelected(
-              new Set(view.filter((p) => !selected.has(p.id)).map((p) => p.id))
-            )
+            setVisible(new Set(hiddenInView.map((p) => p.id)), true)
           }
           type="button"
         >
-          Invertir
+          <Eye size={14} /> Mostrar {hiddenInView.length}
         </button>
-        {selected.size > 0 && (
-          <div className="bg-accent/10 flex items-center gap-2 rounded-full py-0.5 pr-0.5 pl-3">
-            <span className="font-medium">{selected.size} seleccionadas</span>
-            <button
-              className="bg-accent flex items-center gap-1 rounded-full px-3 py-1 text-white"
-              onClick={() => setVisible(selected, true)}
-              type="button"
-            >
-              <Eye size={14} /> Mostrar
-            </button>
-            <button
-              className="bg-foreground text-background flex items-center gap-1 rounded-full px-3 py-1"
-              onClick={() => setVisible(selected, false)}
-              type="button"
-            >
-              <EyeOff size={14} /> Ocultar
-            </button>
-          </div>
-        )}
+        <button
+          className="bg-foreground text-background flex items-center gap-1 rounded-full px-3 py-1 disabled:opacity-40"
+          disabled={shownInView.length === 0}
+          onClick={() =>
+            setVisible(new Set(shownInView.map((p) => p.id)), false)
+          }
+          type="button"
+        >
+          <EyeOff size={14} /> Ocultar {shownInView.length}
+        </button>
         <button
           className="text-muted hover:bg-border ml-auto flex items-center gap-1 rounded-full px-2 py-1"
           onClick={() =>
@@ -205,14 +175,14 @@ export function PhotosEditor(props: PhotosEditorProps) {
       </div>
 
       <p className="text-muted mb-3 text-xs">
-        Clic en una foto para seleccionarla, Shift+clic para un rango. El ojo la
-        muestra u oculta, la estrella la deja de portada. Arrastra para cambiar
-        el orden.
+        Clic en una foto para mostrarla u ocultarla en el sitio (Shift+clic para
+        un rango). Las de color con ✓ se ven; las apagadas no. La estrella la
+        deja de portada, la lupa la abre en grande. Arrastra para cambiar el
+        orden.
       </p>
 
       <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         {view.map((photo, i) => {
-          const isSelected = selected.has(photo.id);
           const index = photos.indexOf(photo);
           return (
             <li
@@ -230,15 +200,18 @@ export function PhotosEditor(props: PhotosEditorProps) {
               }
             >
               <button
-                aria-label={`Foto ${index + 1}${photo.visible ? '' : ', oculta'}${isSelected ? ', seleccionada' : ''}`}
-                aria-pressed={isSelected}
+                aria-label={`Foto ${index + 1}: ${photo.visible ? 'visible en el sitio' : 'oculta'}`}
+                aria-pressed={photo.visible}
                 className={cn(
                   'ring-offset-background block w-full overflow-hidden rounded-lg ring-offset-2 transition',
-                  isSelected
-                    ? 'ring-accent ring-3'
+                  photo.visible
+                    ? 'ring-accent ring-2'
                     : 'hover:ring-border hover:ring-2'
                 )}
-                onClick={(event) => select(i, event.shiftKey)}
+                onClick={(event) => toggle(i, event.shiftKey)}
+                title={
+                  photo.visible ? 'Clic para ocultar' : 'Clic para mostrar'
+                }
                 type="button"
               >
                 {/* biome-ignore lint/performance/noImgElement: short-lived presigned S3 URL */}
@@ -255,27 +228,12 @@ export function PhotosEditor(props: PhotosEditorProps) {
               <span
                 aria-hidden="true"
                 className={cn(
-                  'pointer-events-none absolute top-1.5 left-1.5 size-5 rounded-full border-2 border-white shadow',
-                  isSelected ? 'bg-accent' : 'bg-black/30'
+                  'pointer-events-none absolute top-1.5 left-1.5 flex size-6 items-center justify-center rounded-full border-2 border-white shadow',
+                  photo.visible ? 'bg-accent text-white' : 'bg-black/30'
                 )}
-              />
-              <button
-                aria-label={
-                  photo.visible
-                    ? `Ocultar foto ${index + 1}`
-                    : `Mostrar foto ${index + 1}`
-                }
-                className={cn(
-                  'absolute top-1 right-1 rounded-full p-1.5 shadow',
-                  photo.visible
-                    ? 'bg-accent text-white'
-                    : 'bg-black/60 text-white'
-                )}
-                onClick={() => setVisible(new Set([photo.id]), !photo.visible)}
-                type="button"
               >
-                {photo.visible ? <Eye size={14} /> : <EyeOff size={14} />}
-              </button>
+                {photo.visible ? <Check size={14} strokeWidth={3} /> : null}
+              </span>
               <button
                 aria-label={`Usar foto ${index + 1} como portada`}
                 aria-pressed={coverId === photo.id}

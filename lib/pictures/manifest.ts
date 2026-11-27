@@ -7,7 +7,8 @@ export const PICTURES_TAG = 'pictures';
 const PHOTOS_BASE =
   process.env.NEXT_PUBLIC_PICTURES_BASE_URL || `${CLOUDFRONT_BASE}/photos`;
 
-export type PhotoSize = 'thumb' | '2048' | 'full';
+export const PHOTO_SIZES = ['thumb', '1200', '2048', 'full'] as const;
+export type PhotoSize = (typeof PHOTO_SIZES)[number];
 
 export function photoUrl(id: string, size: PhotoSize): string {
   return `${PHOTOS_BASE}/p/${id}/${size}.jpg`;

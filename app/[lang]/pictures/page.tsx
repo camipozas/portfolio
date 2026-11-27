@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getContent, photoCount } from '@/lib/content';
 import { isLocale, localizedPath } from '@/lib/locale';
+import { formatDateRange } from '@/lib/pictures/exif';
 import { getAlbums, localized, photoUrl } from '@/lib/pictures/manifest';
 
 export async function generateMetadata({
@@ -54,19 +55,31 @@ export default async function PicturesPage({
                 className="group block"
                 href={localizedPath(`/pictures/${album.slug}`, lang)}
               >
-                {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
-                <img
-                  alt=""
-                  className="aspect-[4/3] w-full rounded-md object-cover transition-opacity group-hover:opacity-90"
-                  decoding="async"
-                  loading="lazy"
-                  src={photoUrl(album.coverId, 'thumb')}
-                />
+                <div className="bg-border overflow-hidden rounded-lg">
+                  {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
+                  <img
+                    alt=""
+                    className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    decoding="async"
+                    loading="lazy"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    src={photoUrl(album.coverId, 'thumb')}
+                    srcSet={`${photoUrl(album.coverId, 'thumb')} 600w, ${photoUrl(album.coverId, '1200')} 1200w`}
+                  />
+                </div>
                 <h2 className="group-hover:text-accent mt-2 font-medium">
                   {localized(album.title, lang)}
                 </h2>
                 <p className="text-muted text-sm">
-                  {photoCount(content, album.photos.length)}
+                  {[
+                    photoCount(content, album.photos.length),
+                    formatDateRange(
+                      album.photos.map((photo) => photo.exif?.takenAt),
+                      lang
+                    ),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </p>
               </a>
             </li>

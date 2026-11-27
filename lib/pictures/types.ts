@@ -24,6 +24,8 @@ export interface Photo {
   /** Of the full image; reserves the space before it loads. */
   width: number;
   height: number;
+  /** Dominant colour, shown while the image loads. */
+  color?: string;
   alt?: Localized;
   exif?: PhotoExif;
 }

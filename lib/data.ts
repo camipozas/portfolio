@@ -46,6 +46,8 @@ export const ui = {
   previousPhoto: 'Previous photo',
   nextPhoto: 'Next photo',
   openFullSize: 'Open full size',
+  nextAlbum: 'Next album',
+  photoDetails: 'Photo details',
 };
 
 export const heroEmoji = '👋';

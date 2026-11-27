@@ -247,10 +247,23 @@ describe('justifyRows', () => {
     expect(rows.at(-1)?.height).toBe(240);
   });
 
-  it('should cover every photo once and handle an empty album', () => {
-    const rows = justifyRows([1, 2, 0.5, 1.5, 1], 400, 150, 4);
+  it('should cover every photo once, in order, and handle an empty album', () => {
+    const rows = justifyRows([1, 2, 0.5, 1.5, 1, 0.7, 2.4], 400, 150, 4);
     expect(rows[0].start).toBe(0);
-    expect(rows.at(-1)?.end).toBe(5);
+    for (const [i, row] of rows.entries()) {
+      expect(row.end).toBeGreaterThan(row.start);
+      expect(row.start).toBe(i === 0 ? 0 : rows[i - 1].end);
+    }
+    expect(rows.at(-1)?.end).toBe(7);
     expect(justifyRows([], 400, 150, 4)).toEqual([]);
+  });
+
+  it('should mark only a short last row as not filling the width', () => {
+    expect(
+      justifyRows([1.95, 1.95, 1.95, 1.95], 326, 120, 6).map((r) => r.fills)
+    ).toEqual([true, true]);
+    expect(justifyRows([1.5, 1.5, 1.5, 0.67], 1100, 240, 8).at(-1)?.fills).toBe(
+      false
+    );
   });
 });

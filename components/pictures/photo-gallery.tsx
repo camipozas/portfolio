@@ -68,7 +68,7 @@ const ROW_PX = { phone: 104 * 1.6, wide: 176 * 1.6 };
 const EAGER = 6;
 // Target row heights once the grid's width is known (below that, the CSS rows above).
 const TARGET_ROW = { phone: 120, wide: 230 };
-const PHONE_GRID = 600;
+const SM = 640; // Tailwind's sm, where the CSS rows and gaps switch too.
 
 // Images that finished loading before hydration never fire onLoad.
 const revealWhenLoaded = (img: HTMLImageElement | null) => {
@@ -254,12 +254,12 @@ export function PhotoGallery({
     if (width === 0) {
       return;
     }
-    const target = width < PHONE_GRID ? TARGET_ROW.phone : TARGET_ROW.wide;
+    const target = window.innerWidth < SM ? TARGET_ROW.phone : TARGET_ROW.wide;
     const rows = justifyRows(ratios, width, target, gap);
-    return rows.flatMap((row, r) =>
+    return rows.flatMap((row) =>
       ratios.slice(row.start, row.end).map((ratio, k) => ({
         width: Math.floor(ratio * row.height),
-        grow: r < rows.length - 1 && row.start + k === row.end - 1,
+        grow: row.fills && row.start + k === row.end - 1,
       }))
     );
   }, [ratios, gridSize]);
@@ -273,9 +273,6 @@ export function PhotoGallery({
         {photos.map((photo, i) => {
           const ratio = ratios[i];
           const tile = tiles?.[i];
-          const sizes = tile
-            ? `${tile.width}px`
-            : `(min-width: 640px) ${Math.round(ROW_PX.wide * ratio)}px, ${Math.round(ROW_PX.phone * ratio)}px`;
           return (
             <li
               key={photo.id}
@@ -306,7 +303,8 @@ export function PhotoGallery({
                   loading={i < EAGER ? 'eager' : 'lazy'}
                   onLoad={reveal}
                   ref={revealWhenLoaded}
-                  sizes={sizes}
+                  // Stays the CSS estimate after layout, so eager images are not fetched twice.
+                  sizes={`(min-width: 640px) ${Math.round(ROW_PX.wide * ratio)}px, ${Math.round(ROW_PX.phone * ratio)}px`}
                   src={photoUrl(photo.id, 'thumb')}
                   srcSet={`${photoUrl(photo.id, 'thumb')} 600w, ${photoUrl(photo.id, '1200')} 1200w`}
                   width={photo.width}

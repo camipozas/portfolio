@@ -4,6 +4,8 @@ export interface Row {
   /** Index after the row's last photo. */
   end: number;
   height: number;
+  /** False for a short last row, which keeps the target height and does not fill. */
+  fills: boolean;
 }
 
 /**
@@ -39,8 +41,13 @@ export function justifyRows(
     ) {
       end--;
     }
-    const last = end === ratios.length && heightOf(start, end) > target;
-    rows.push({ start, end, height: last ? target : heightOf(start, end) });
+    const short = end === ratios.length && heightOf(start, end) > target;
+    rows.push({
+      start,
+      end,
+      height: short ? target : heightOf(start, end),
+      fills: !short,
+    });
     start = end;
   }
   return rows;

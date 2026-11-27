@@ -10,6 +10,8 @@ import {
 import type { Catalog, CurationState } from '@/lib/backoffice/curation';
 import {
   buildManifest,
+  hasUnpublishedChanges,
+  inBatches,
   move,
   planPublish,
   slugify,
@@ -193,5 +195,55 @@ describe('helpers', () => {
   it('should move an item and ignore moves out of range', () => {
     expect(move(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
     expect(move(['a', 'b'], 1, 2)).toEqual(['a', 'b']);
+  });
+});
+
+describe('hasUnpublishedChanges', () => {
+  it('should be clean when nothing is shown and nothing was published', () => {
+    expect(
+      hasUnpublishedChanges(
+        buildManifest(catalog, syncState(catalog, { albums: [] }), 'now')
+      )
+    ).toBe(false);
+  });
+
+  it('should ignore the publish time and notice a different selection', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.albums[0] = {
+      ...state.albums[0],
+      visible: true,
+      photos: [{ id: 'a', visible: true }],
+    };
+    const published = buildManifest(catalog, state, 'yesterday');
+    expect(
+      hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
+    ).toBe(false);
+    state.albums[0].photos.push({ id: 'b', visible: true });
+    expect(
+      hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
+    ).toBe(true);
+  });
+});
+
+describe('inBatches', () => {
+  it('should run the task for every item, never more than size at once', async () => {
+    const seen: number[] = [];
+    let running = 0;
+    let peak = 0;
+    await inBatches(
+      Array.from({ length: 50 }, (_, i) => i),
+      24,
+      async (item) => {
+        running += 1;
+        peak = Math.max(peak, running);
+        await Promise.resolve();
+        seen.push(item);
+        running -= 1;
+      }
+    );
+    expect(seen.toSorted((a, b) => a - b)).toEqual(
+      Array.from({ length: 50 }, (_, i) => i)
+    );
+    expect(peak).toBeLessThanOrEqual(24);
   });
 });

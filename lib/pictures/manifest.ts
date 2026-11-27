@@ -2,6 +2,8 @@ import { CLOUDFRONT_BASE } from '@/lib/data';
 import type { Locale } from '@/lib/locale';
 import type { Album, Localized, Manifest } from './types';
 
+export const PICTURES_TAG = 'pictures';
+
 const PHOTOS_BASE =
   process.env.NEXT_PUBLIC_PICTURES_BASE_URL || `${CLOUDFRONT_BASE}/photos`;
 
@@ -30,7 +32,7 @@ export function parseAlbums(data: unknown): Album[] {
 
 export async function getAlbums(): Promise<Album[]> {
   const response = await fetch(`${PHOTOS_BASE}/manifest.json`, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 3600, tags: [PICTURES_TAG] },
   });
   // CloudFront answers 403 for a missing key: nothing published yet.
   if (response.status === 403 || response.status === 404) {

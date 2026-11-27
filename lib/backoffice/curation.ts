@@ -174,3 +174,23 @@ export function planPublish(
     ),
   };
 }
+
+export function hasUnpublishedChanges(
+  next: Manifest,
+  published?: Manifest
+): boolean {
+  return (
+    JSON.stringify(next.albums) !== JSON.stringify(published?.albums ?? [])
+  );
+}
+
+/** Runs `task` over every item, `size` at a time. */
+export async function inBatches<T>(
+  items: T[],
+  size: number,
+  task: (item: T) => Promise<void>
+): Promise<void> {
+  for (let start = 0; start < items.length; start += size) {
+    await Promise.all(items.slice(start, start + size).map(task));
+  }
+}

@@ -11,6 +11,9 @@ import { Writing } from '@/components/writing';
 import { getContent } from '@/lib/content';
 import { isLocale } from '@/lib/locale';
 
+// Only `lang` varies here: other first segments 404 without a render.
+export const dynamicParams = false;
+
 export default async function Home({ params }: PageProps<'/[lang]'>) {
   const { lang } = await params;
   if (!isLocale(lang)) {

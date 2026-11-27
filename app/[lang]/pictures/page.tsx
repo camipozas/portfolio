@@ -9,6 +9,9 @@ import { getContent } from '@/lib/content';
 import { isLocale, localizedPath } from '@/lib/locale';
 import { albumsIn, getManifest } from '@/lib/pictures/manifest';
 
+// Only `lang` varies here: other first segments 404 without a render.
+export const dynamicParams = false;
+
 export async function generateMetadata({
   params,
 }: PageProps<'/[lang]/pictures'>): Promise<Metadata> {

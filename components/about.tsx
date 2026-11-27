@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { bio, skillCategories } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export function About() {
+export function About({ content }: { content: Content }) {
+  const { bio, skillCategories } = content;
+
   return (
-    <Section id="about" heading="About">
+    <Section id="about" heading={headingFor(content, "about")}>
       <p className="mb-6 text-muted leading-relaxed">{bio}</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {skillCategories.map((category, i) => (

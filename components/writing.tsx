@@ -1,14 +1,14 @@
 import { ExternalLink } from "lucide-react";
-import { blogPosts } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export function Writing() {
+export function Writing({ content }: { content: Content }) {
+  const { blogPosts, ui } = content;
+
   return (
-    <Section id="writing" heading="Writing">
-      <p className="mb-6 text-muted leading-relaxed">
-        Sometimes I like to write and share some things that I&apos;ve learned.
-      </p>
+    <Section id="writing" heading={headingFor(content, "writing")}>
+      <p className="mb-6 text-muted leading-relaxed">{ui.writingIntro}</p>
       <div className="space-y-4">
         {blogPosts.map((post, i) => (
           <AnimateOnScroll key={post.url} delay={i * 100}>

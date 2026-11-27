@@ -14,6 +14,8 @@ export function useAutosave<T>(
   const saved = useRef(JSON.stringify(value));
   const latest = useRef({ save, onSaved });
   latest.current = { save, onSaved };
+  // One save at a time, in order: a slow earlier save can never land after a newer one.
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
 
   useEffect(() => {
     const snapshot = JSON.stringify(value);
@@ -22,8 +24,8 @@ export function useAutosave<T>(
     }
     setStatus('saving');
     const timer = setTimeout(() => {
-      latest.current
-        .save(value)
+      queue.current = queue.current
+        .then(() => latest.current.save(value))
         .then(() => {
           saved.current = snapshot;
           setStatus('saved');

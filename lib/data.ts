@@ -56,6 +56,7 @@ export const ui = {
   closeDetails: 'Hide details',
   sharePhoto: 'Share photo',
   linkCopied: 'Link copied',
+  swipeHint: 'Swipe to see more',
   aperture: 'Aperture',
   shutterSpeed: 'Shutter',
   focalLength: 'Focal length',

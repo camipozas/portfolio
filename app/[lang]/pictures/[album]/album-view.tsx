@@ -142,6 +142,7 @@ export async function AlbumView({
           closeDetails: ui.closeDetails,
           share: ui.sharePhoto,
           linkCopied: ui.linkCopied,
+          swipeHint: ui.swipeHint,
           specs: {
             aperture: ui.aperture,
             shutter: ui.shutterSpeed,

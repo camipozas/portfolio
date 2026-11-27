@@ -4,7 +4,17 @@ Local scripts that back up the Lightroom library to S3 and Google Drive and buil
 the web versions and the catalog for the backoffice. Run them by hand
 on a Mac; nothing here runs in CI or on Vercel.
 
-## Order
+## New album
+
+1. In Lightroom web, open the album, select all and download as **Full Size**.
+2. `scripts/photos/add-album.sh ~/Downloads/<album>.zip "<album>"` runs steps 2–5
+   below in order, with progress, and stops at the first failure.
+3. In the backoffice, open the album, choose what to show and press Publicar.
+
+Run it on the Mac that holds `~/Pictures/lightroom-backup`: the catalog is
+rebuilt from its `index.tsv`.
+
+## Order (what add-album.sh runs)
 
 1. In Lightroom web, download each album as **Full Size** (edits applied, zip).
 2. `AWS_PROFILE=photos scripts/photos/backup.sh <zip> "<folder/album>"`: stores the

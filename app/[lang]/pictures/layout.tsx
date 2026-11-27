@@ -21,7 +21,7 @@ export default async function PicturesLayout({
         navLinks={content.menuLinks}
         toggleThemeLabel={content.ui.toggleTheme}
       />
-      <main className="mx-auto max-w-5xl px-6 pt-24 pb-16">{children}</main>
+      <main className="mx-auto max-w-6xl px-6 pt-24 pb-16">{children}</main>
       <div className="mx-auto max-w-2xl px-6 pb-16">
         <Footer content={content} />
       </div>

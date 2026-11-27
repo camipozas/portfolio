@@ -33,7 +33,9 @@ interface PhotoGalleryProps {
 const SWIPE_PX = 50;
 // Row heights of the justified grid (keep in sync with --row below). Tiles grow up to
 // ~1.6x their base width to fill a row, so `sizes` asks for that much.
-const ROW_PX = { phone: 144 * 1.6, wide: 224 * 1.6 };
+const ROW_PX = { phone: 104 * 1.6, wide: 176 * 1.6 };
+// The grid trims the bottom strip where the watermark sits; the viewer and downloads keep it.
+const WATERMARK_CROP = 0.94;
 const EAGER = 6;
 
 // Images that finished loading before hydration never fire onLoad.
@@ -128,9 +130,9 @@ export function PhotoGallery({
 
   return (
     <>
-      <ul className="flex flex-wrap gap-1.5 [--row:9rem] after:grow-[999] after:content-[''] sm:gap-2 sm:[--row:14rem]">
+      <ul className="flex flex-wrap gap-1.5 [--row:6.5rem] after:grow-[999] after:content-[''] sm:gap-2 sm:[--row:11rem]">
         {photos.map((photo, i) => {
-          const ratio = photo.width / photo.height;
+          const ratio = photo.width / (photo.height * WATERMARK_CROP);
           return (
             <li
               key={photo.id}
@@ -140,10 +142,10 @@ export function PhotoGallery({
               }}
             >
               <button
-                className="group bg-border focus-visible:outline-accent relative block w-full overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="group bg-border focus-visible:outline-accent relative block w-full cursor-zoom-in overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-offset-2"
                 onClick={() => open(i)}
                 style={{
-                  aspectRatio: `${photo.width} / ${photo.height}`,
+                  aspectRatio: `${ratio}`,
                   backgroundColor: photo.color,
                 }}
                 type="button"
@@ -151,7 +153,7 @@ export function PhotoGallery({
                 {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
                 <img
                   alt={altOf(photo, i)}
-                  className="absolute inset-0 size-full object-cover opacity-0 data-loaded:opacity-100 motion-safe:transition motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]"
+                  className="absolute inset-0 size-full object-cover object-top opacity-0 data-loaded:opacity-100 motion-safe:transition motion-safe:duration-500 motion-safe:group-hover:scale-[1.03]"
                   decoding="async"
                   height={photo.height}
                   loading={i < EAGER ? 'eager' : 'lazy'}

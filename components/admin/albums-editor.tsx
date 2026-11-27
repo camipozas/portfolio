@@ -94,12 +94,6 @@ export function AlbumsEditor({
     );
 
   const live = albums.filter((album) => album.visible && album.shown > 0);
-  const counts = new Map<string, number>();
-  for (const album of albums) {
-    if (album.collection) {
-      counts.set(album.collection, (counts.get(album.collection) ?? 0) + 1);
-    }
-  }
 
   return (
     <>
@@ -124,9 +118,9 @@ export function AlbumsEditor({
         guardan solos; aparecen en camipg.com/pictures al publicar.
       </p>
       <CollectionsPanel
+        albums={albums}
         canCreate={saveStatus !== 'saving'}
         collections={collections}
-        counts={counts}
         onChange={setCollections}
         onCreated={(collection) => {
           setCollections((list) => [...list, collection]);

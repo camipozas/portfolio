@@ -3,13 +3,13 @@
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { createCollection } from '@/app/admin/actions';
+import type { AlbumState } from '@/lib/backoffice/curation';
 import { move } from '@/lib/backoffice/curation';
 import type { Collection, Localized } from '@/lib/pictures/types';
 
 interface CollectionsPanelProps {
   collections: Collection[];
-  /** Albums per collection slug. */
-  counts: Map<string, number>;
+  albums: Pick<AlbumState, 'slug' | 'title' | 'collection'>[];
   canCreate: boolean;
   onChange: (collections: Collection[]) => void;
   onCreated: (collection: Collection) => void;
@@ -21,7 +21,7 @@ const input =
 
 export function CollectionsPanel({
   collections,
-  counts,
+  albums: allAlbums,
   canCreate,
   onChange,
   onCreated,
@@ -32,8 +32,19 @@ export function CollectionsPanel({
   const [error, setError] = useState('');
   const [creating, startCreating] = useTransition();
 
-  const rename = (slug: string, title: Localized) =>
-    onChange(collections.map((c) => (c.slug === slug ? { ...c, title } : c)));
+  const edit = (slug: string, patch: Partial<Collection>) =>
+    onChange(
+      collections.map((c) => (c.slug === slug ? { ...c, ...patch } : c))
+    );
+  const setDescription = (
+    collection: Collection,
+    patch: Partial<Localized>
+  ) => {
+    const description = { en: '', ...collection.description, ...patch };
+    edit(collection.slug, {
+      description: description.en || description.es ? description : undefined,
+    });
+  };
 
   const create = () =>
     startCreating(async () => {
@@ -56,12 +67,16 @@ export function CollectionsPanel({
       </h2>
       <p className="text-muted mb-4 text-xs">
         Agrupan los álbumes en el sitio (por ejemplo Viajes o Perros). Solo se
-        ven las que tienen algún álbum publicado.
+        ven las que tienen algún álbum publicado. La portada es el álbum cuya
+        foto de portada encabeza el mosaico.
       </p>
       {collections.length > 0 && (
-        <ol className="mb-4 grid gap-2">
+        <ol className="mb-4 grid gap-4">
           {collections.map((collection, i) => {
-            const albums = counts.get(collection.slug) ?? 0;
+            const members = allAlbums.filter(
+              (a) => a.collection === collection.slug
+            );
+            const albums = members.length;
             return (
               <li
                 className="flex flex-wrap items-center gap-2"
@@ -71,9 +86,8 @@ export function CollectionsPanel({
                   aria-label="Título en inglés"
                   className={input}
                   onChange={(e) =>
-                    rename(collection.slug, {
-                      ...collection.title,
-                      en: e.target.value,
+                    edit(collection.slug, {
+                      title: { ...collection.title, en: e.target.value },
                     })
                   }
                   value={collection.title.en}
@@ -82,9 +96,11 @@ export function CollectionsPanel({
                   aria-label="Título en español"
                   className={input}
                   onChange={(e) =>
-                    rename(collection.slug, {
-                      ...collection.title,
-                      es: e.target.value || undefined,
+                    edit(collection.slug, {
+                      title: {
+                        ...collection.title,
+                        es: e.target.value || undefined,
+                      },
                     })
                   }
                   placeholder="En español (opcional)"
@@ -121,6 +137,56 @@ export function CollectionsPanel({
                     <Trash2 size={14} />
                   </button>
                 </span>
+                <div className="grid w-full gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                  <textarea
+                    aria-label={`Descripción de ${collection.title.en} en inglés`}
+                    className={input}
+                    maxLength={160}
+                    onChange={(e) =>
+                      setDescription(collection, { en: e.target.value })
+                    }
+                    placeholder="Descripción (opcional), ej. European cities, 2023–2025"
+                    rows={2}
+                    value={collection.description?.en ?? ''}
+                  />
+                  <textarea
+                    aria-label={`Descripción de ${collection.title.en} en español`}
+                    className={input}
+                    maxLength={160}
+                    onChange={(e) =>
+                      setDescription(collection, {
+                        es: e.target.value || undefined,
+                      })
+                    }
+                    placeholder="En español, ej. Ciudades de Europa, 2023–2025"
+                    rows={2}
+                    value={collection.description?.es ?? ''}
+                  />
+                  <label className="flex items-center gap-2 text-sm sm:flex-col sm:items-start sm:gap-1">
+                    Portada
+                    <select
+                      className={input}
+                      disabled={albums === 0}
+                      onChange={(e) =>
+                        edit(collection.slug, {
+                          coverAlbum: e.target.value || undefined,
+                        })
+                      }
+                      value={collection.coverAlbum ?? ''}
+                    >
+                      <option value="">
+                        {members[0]
+                          ? `Primer álbum (${members[0].title.es || members[0].title.en})`
+                          : 'Sin álbumes'}
+                      </option>
+                      {members.map((a) => (
+                        <option key={a.slug} value={a.slug}>
+                          {a.title.es || a.title.en}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
                 {confirming === collection.slug && (
                   <div
                     className="flex w-full flex-wrap items-center gap-2 rounded-md bg-red-500/10 px-3 py-2 text-sm"

@@ -83,8 +83,8 @@ async function currentState() {
 }
 
 /**
- * Order, titles, visibility and collection of the albums, and order and titles of the
- * collections, from the page; slugs and photo choices stay server-side.
+ * Order, titles, visibility and collection of the albums, and order, titles, descriptions
+ * and covers of the collections, from the page; slugs and photo choices stay server-side.
  * Collections stay unless `deleted`: the page may not list one created moments ago.
  */
 export async function saveAlbums(
@@ -95,10 +95,20 @@ export async function saveAlbums(
   await requireSession();
   const state = await currentState();
   const known = new Map(state.collections.map((c) => [c.slug, c]));
-  const listed = collections.flatMap((edit) => {
+  const albumSlugs = new Set(state.albums.map((album) => album.slug));
+  const listed = collections.flatMap((edit): Collection[] => {
     const found = known.get(edit.slug);
     return found
-      ? [{ slug: found.slug, title: cleanTitle(edit.title) ?? found.title }]
+      ? [
+          {
+            slug: found.slug,
+            title: cleanTitle(edit.title) ?? found.title,
+            description: edit.description && cleanText(edit.description),
+            coverAlbum: albumSlugs.has(edit.coverAlbum ?? '')
+              ? edit.coverAlbum
+              : undefined,
+          },
+        ]
       : [];
   });
   const kept = [
@@ -129,9 +139,16 @@ export async function saveAlbums(
   });
 }
 
+/** Undefined when both languages are blank. */
+function cleanText({ en, es }: Localized): Localized | undefined {
+  return en.trim() || es?.trim()
+    ? { en: en.trim(), es: es?.trim() || undefined }
+    : undefined;
+}
+
 /** Undefined without an English title: the site always shows one. */
-function cleanTitle({ en, es }: Localized): Localized | undefined {
-  return en.trim() ? { en: en.trim(), es: es?.trim() || undefined } : undefined;
+function cleanTitle(title: Localized): Localized | undefined {
+  return title.en.trim() ? cleanText(title) : undefined;
 }
 
 export async function createCollection(input: Localized): Promise<Collection> {

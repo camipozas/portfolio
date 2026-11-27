@@ -172,7 +172,16 @@ export function buildManifest(
     ];
   });
   const used = new Set(albums.map((album) => album.collection));
-  const collections = state.collections.filter((c) => used.has(c.slug));
+  const collections = state.collections
+    .filter((c) => used.has(c.slug))
+    .map((c) => ({
+      ...c,
+      coverAlbum: albums.some(
+        (a) => a.slug === c.coverAlbum && a.collection === c.slug
+      )
+        ? c.coverAlbum
+        : undefined,
+    }));
   return { version: 1, generatedAt, albums, collections };
 }
 

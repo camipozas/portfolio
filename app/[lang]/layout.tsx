@@ -11,8 +11,6 @@ const inter = Inter({ subsets: ['latin'] });
 
 const CLOUDFRONT = 'https://d3j0xmrk71qrvn.cloudfront.net/public';
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }

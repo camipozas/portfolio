@@ -91,6 +91,14 @@ describe('syncState', () => {
     expect(state.albums[0].photos.every((p) => !p.visible)).toBe(true);
   });
 
+  it('should not give an album the slug "c", which the collection pages use', () => {
+    const state = syncState(
+      { generatedAt: '', albums: [{ key: 'C', photos: [] }] },
+      { albums: [] }
+    );
+    expect(state.albums[0].slug).toBe('c-2');
+  });
+
   it('should keep existing choices and order, append new photos and drop missing ones', () => {
     const previous: SavedState = {
       albums: [

@@ -29,7 +29,7 @@ export interface AlbumState {
   visible: boolean;
   coverId?: string;
   collection?: string;
-  photos: { id: string; visible: boolean }[];
+  photos: { id: string; visible: boolean; caption?: Localized }[];
 }
 
 /** Album order is display order; so is each album's photo order and the collections'. */
@@ -41,6 +41,29 @@ export interface CurationState {
 /** As stored: states saved before collections existed lack them. */
 export type SavedState = Omit<CurationState, 'collections'> &
   Partial<Pick<CurationState, 'collections'>>;
+
+/** Undefined when both languages are blank. */
+export function cleanText({ en, es }: Localized): Localized | undefined {
+  return en.trim() || es?.trim()
+    ? { en: en.trim(), es: es?.trim() || undefined }
+    : undefined;
+}
+
+export const CAPTION_MAX = 140;
+
+/** For input from the page: anything but text is refused, not stored. */
+export function cleanCaption({
+  en,
+  es = '',
+}: Localized): Localized | undefined {
+  if (typeof en !== 'string' || typeof es !== 'string') {
+    throw new Error('a caption must be text');
+  }
+  return cleanText({
+    en: en.trim().slice(0, CAPTION_MAX),
+    es: es.trim().slice(0, CAPTION_MAX),
+  });
+}
 
 export function slugify(text: string): string {
   return text
@@ -148,6 +171,10 @@ export function buildManifest(
                 width: found.width,
                 height: found.height,
                 color: found.color,
+                caption:
+                  photo.caption?.en || photo.caption?.es
+                    ? photo.caption
+                    : undefined,
                 exif: found.exif,
               },
             ]

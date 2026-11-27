@@ -14,6 +14,8 @@ import type { AlbumState } from '@/lib/backoffice/curation';
 import {
   buildManifest,
   catalogIndex,
+  cleanCaption,
+  cleanText,
   inBatches,
   planPublish,
   slugify,
@@ -139,13 +141,6 @@ export async function saveAlbums(
   });
 }
 
-/** Undefined when both languages are blank. */
-function cleanText({ en, es }: Localized): Localized | undefined {
-  return en.trim() || es?.trim()
-    ? { en: en.trim(), es: es?.trim() || undefined }
-    : undefined;
-}
-
 /** Undefined without an English title: the site always shows one. */
 function cleanTitle(title: Localized): Localized | undefined {
   return title.en.trim() ? cleanText(title) : undefined;
@@ -183,7 +178,17 @@ export async function saveAlbumPhotos(
   await writeState({
     ...state,
     albums: state.albums.map((album) =>
-      album.key === key ? { ...album, photos, coverId } : album
+      album.key === key
+        ? {
+            ...album,
+            coverId,
+            photos: photos.map(({ id, visible, caption }) => ({
+              id,
+              visible,
+              caption: caption && cleanCaption(caption),
+            })),
+          }
+        : album
     ),
   });
 }

@@ -27,6 +27,8 @@ export interface Photo {
   /** Dominant colour, shown while the image loads. */
   color?: string;
   alt?: Localized;
+  /** Short title chosen in the backoffice; absent when it has none. */
+  caption?: Localized;
   exif?: PhotoExif;
 }
 

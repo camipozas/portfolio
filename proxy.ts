@@ -15,6 +15,10 @@ import {
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const PICTURES_PAGE = new RegExp(`^(/(${locales.join('|')}))?/pictures$`, 'u');
+const ALBUM_PAGE = new RegExp(
+  `^(/(${locales.join('|')}))?/pictures/(?!c(?:/|$))[^/]+$`,
+  'u'
+);
 
 function adminGate(request: NextRequest) {
   // The public site renders /admin as 404 (see app/admin/layout.tsx).
@@ -45,6 +49,14 @@ export function proxy(request: NextRequest) {
   if (legacy && PICTURES_PAGE.test(url.pathname)) {
     url.searchParams.delete('c');
     url.pathname = `${url.pathname}/c/${encodeURIComponent(legacy)}`;
+    return NextResponse.redirect(url);
+  }
+
+  // Photos used to open at "<album>?photo=<id>"; their own page previews the photo when shared.
+  const photo = url.searchParams.get('photo');
+  if (photo && ALBUM_PAGE.test(url.pathname)) {
+    url.searchParams.delete('photo');
+    url.pathname = `${url.pathname}/${encodeURIComponent(photo)}`;
     return NextResponse.redirect(url);
   }
 

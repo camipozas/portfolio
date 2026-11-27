@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  exposureSpecs,
   formatCamera,
   formatDateRange,
   formatExposure,
-  formatSettings,
+  formatLens,
   formatTakenAt,
 } from '@/lib/pictures/exif';
 import {
@@ -18,39 +19,78 @@ import type { Album } from '@/lib/pictures/types';
 
 describe('exif formatting', () => {
   it('should show fast shutter speeds as fractions and slow ones in seconds', () => {
-    expect(formatExposure(0.001_052_631_579)).toBe('1/950s');
-    expect(formatExposure(1 / 250)).toBe('1/250s');
-    expect(formatExposure(2.5)).toBe('2.5s');
+    expect(formatExposure(0.001_052_631_579)).toBe('1/950 s');
+    expect(formatExposure(1 / 250)).toBe('1/250 s');
+    expect(formatExposure(2.5)).toBe('2.5 s');
   });
 
-  it('should not repeat the brand already in the model', () => {
+  it('should name cameras the way people know them', () => {
+    expect(formatCamera({ make: 'SONY', model: 'ILCE-6400' })).toBe(
+      'Sony α6400'
+    );
+    expect(formatCamera({ make: 'SONY', model: 'ILCE-7RM5' })).toBe(
+      'Sony α7R V'
+    );
+    expect(formatCamera({ make: 'SONY', model: 'ILCE-7M3' })).toBe(
+      'Sony α7 III'
+    );
+    expect(
+      formatCamera({ make: 'NIKON CORPORATION', model: 'NIKON D5100' })
+    ).toBe('Nikon D5100');
     expect(formatCamera({ make: 'Canon', model: 'Canon EOS R6' })).toBe(
       'Canon EOS R6'
     );
-    expect(formatCamera({ make: 'SONY', model: 'ILCE-7M4' })).toBe(
-      'SONY ILCE-7M4'
+    expect(formatCamera({ make: 'Apple', model: 'iPhone 16 Pro' })).toBe(
+      'iPhone 16 Pro'
     );
-    expect(formatCamera({ model: 'iPhone 13 Pro' })).toBe('iPhone 13 Pro');
+    expect(formatCamera({ make: 'Google', model: 'Pixel 7' })).toBe('Pixel 7');
+    expect(formatCamera({ make: 'DJI', model: 'AC004' })).toBe('DJI AC004');
+    expect(formatCamera({})).toBeUndefined();
   });
 
-  it('should join only the settings the photo has', () => {
+  it('should drop a phone lens that only repeats the model and tidy the rest', () => {
     expect(
-      formatSettings({
-        fNumber: 1.8,
-        exposureTime: 1 / 950,
-        iso: 32,
-        focalLength: 1.57,
+      formatLens({
+        model: 'iPhone 16 Pro',
+        lens: 'iPhone 16 Pro back triple camera 6.765mm f/1.78',
       })
-    ).toBe('ƒ/1.8 · 1/950s · ISO 32 · 1.6mm');
-    expect(formatSettings({ iso: 100 })).toBe('ISO 100');
-    expect(formatSettings({})).toBe('');
+    ).toBeUndefined();
+    expect(
+      formatLens({ model: 'ILCE-6400', lens: 'E 55-210mm F4.5-6.3 OSS' })
+    ).toBe('E 55-210mm F4.5-6.3 OSS');
+    expect(
+      formatLens({ model: 'NIKON D5100', lens: '70.0-300.0 mm f/4.5-5.6' })
+    ).toBe('70-300 mm f/4.5-5.6');
   });
 
-  it('should format the capture date in the page language, ignoring the time zone', () => {
-    expect(formatTakenAt('2023:08:05 15:36:24', 'en')).toBe('August 5, 2023');
-    expect(formatTakenAt('2023:08:05 15:36:24', 'es')).toBe(
-      '5 de agosto de 2023'
+  it('should list only the exposure settings the photo has, in order', () => {
+    expect(
+      exposureSpecs({
+        focalLength: 94,
+        iso: 400,
+        exposureTime: 1 / 160,
+        fNumber: 5.6,
+      })
+    ).toEqual([
+      { spec: 'aperture', value: 'ƒ/5.6' },
+      { spec: 'shutter', value: '1/160 s' },
+      { spec: 'iso', value: '400' },
+      { spec: 'focalLength', value: '94 mm' },
+    ]);
+    expect(exposureSpecs({ iso: 100 })).toEqual([
+      { spec: 'iso', value: '100' },
+    ]);
+    expect(exposureSpecs({})).toEqual([]);
+  });
+
+  it('should format the capture date and time in the page language, ignoring the time zone', () => {
+    expect(formatTakenAt('2023:08:05 15:36:24', 'en')).toBe(
+      'August 5, 2023 at 3:36 PM'
     );
+    expect(formatTakenAt('2023:08:05 15:36:24', 'es')).toBe(
+      '5 de agosto de 2023 a las 15:36'
+    );
+    expect(formatTakenAt('2023:08:05', 'en')).toBe('August 5, 2023');
     expect(formatTakenAt('not a date', 'en')).toBeUndefined();
   });
 });

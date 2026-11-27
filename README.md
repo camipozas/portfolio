@@ -10,13 +10,6 @@
 [![pnpm](https://img.shields.io/badge/pnpm-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
 [![Deployed on Vercel](https://img.shields.io/badge/Vercel-000?logo=vercel&logoColor=white)](https://vercel.com/)
 
-<br />
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/screenshot-dark.png" />
-  <img src=".github/assets/screenshot-light.png" alt="Portfolio home page" width="600" />
-</picture>
-
 > _Inspired by [leerob.io](https://leerob.io) and [rauno.me](https://rauno.me)_
 
 </div>

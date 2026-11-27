@@ -4,7 +4,7 @@ import type {
   Manifest,
   Photo,
   PhotoExif,
-} from "@/lib/pictures/types";
+} from '@/lib/pictures/types';
 
 export interface CatalogPhoto {
   id: string;
@@ -35,15 +35,17 @@ export interface CurationState {
 
 export function slugify(text: string): string {
   return text
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-|-$/gu, '');
 }
 
 export function move<T>(list: T[], from: number, to: number): T[] {
-  if (to < 0 || to >= list.length || from === to) return list;
+  if (to < 0 || to >= list.length || from === to) {
+    return list;
+  }
   const next = [...list];
   const [item] = next.splice(from, 1);
   next.splice(to, 0, item);
@@ -51,9 +53,11 @@ export function move<T>(list: T[], from: number, to: number): T[] {
 }
 
 function uniqueSlug(base: string, taken: Set<string>): string {
-  const root = base || "album";
+  const root = base || 'album';
   let slug = root;
-  for (let n = 2; taken.has(slug); n++) slug = `${root}-${n}`;
+  for (let n = 2; taken.has(slug); n++) {
+    slug = `${root}-${n}`;
+  }
   taken.add(slug);
   return slug;
 }
@@ -61,17 +65,17 @@ function uniqueSlug(base: string, taken: Set<string>): string {
 /** New albums and photos join hidden, at the end; those gone from the catalog drop out. */
 export function syncState(
   catalog: Catalog,
-  state: CurationState,
+  state: CurationState
 ): CurationState {
   const catalogAlbums = new Map(
-    catalog.albums.map((album) => [album.key, album]),
+    catalog.albums.map((album) => [album.key, album])
   );
   const kept = state.albums.filter((album) => catalogAlbums.has(album.key));
   const taken = new Set(kept.map((album) => album.slug));
   const added = catalog.albums
     .filter((album) => !kept.some((known) => known.key === album.key))
     .map((album): AlbumState => {
-      const name = album.key.split("/").at(-1) ?? album.key;
+      const name = album.key.split('/').at(-1) ?? album.key;
       return {
         key: album.key,
         slug: uniqueSlug(slugify(name), taken),
@@ -84,7 +88,7 @@ export function syncState(
   return {
     albums: [...kept, ...added].map((album) => {
       const ids = new Set(
-        catalogAlbums.get(album.key)?.photos.map((photo) => photo.id),
+        catalogAlbums.get(album.key)?.photos.map((photo) => photo.id)
       );
       const photos = album.photos.filter((photo) => ids.has(photo.id));
       const known = new Set(photos.map((photo) => photo.id));
@@ -100,18 +104,20 @@ export function catalogIndex(catalog: Catalog): Map<string, CatalogPhoto> {
   return new Map(
     catalog.albums
       .flatMap((album) => album.photos)
-      .map((photo) => [photo.id, photo]),
+      .map((photo) => [photo.id, photo])
   );
 }
 
 export function buildManifest(
   catalog: Catalog,
   state: CurationState,
-  generatedAt: string,
+  generatedAt: string
 ): Manifest {
   const photos = catalogIndex(catalog);
   const albums = state.albums.flatMap((album): Album[] => {
-    if (!album.visible) return [];
+    if (!album.visible) {
+      return [];
+    }
     const shown = album.photos
       .filter((photo) => photo.visible)
       .flatMap((photo): Photo[] => {
@@ -127,7 +133,9 @@ export function buildManifest(
             ]
           : [];
       });
-    if (shown.length === 0) return [];
+    if (shown.length === 0) {
+      return [];
+    }
     const coverId = shown.some((photo) => photo.id === album.coverId)
       ? album.coverId
       : shown[0].id;
@@ -145,7 +153,7 @@ export function buildManifest(
 
 const photoIds = (manifest: Manifest | undefined) =>
   new Set(
-    manifest?.albums.flatMap((album) => album.photos.map((photo) => photo.id)),
+    manifest?.albums.flatMap((album) => album.photos.map((photo) => photo.id))
   );
 
 /**
@@ -155,14 +163,14 @@ const photoIds = (manifest: Manifest | undefined) =>
 export function planPublish(
   manifest: Manifest,
   published: Map<string, number>,
-  previous?: Manifest,
+  previous?: Manifest
 ) {
   const wanted = photoIds(manifest);
   const recent = photoIds(previous);
   return {
     copy: [...wanted].filter((id) => (published.get(id) ?? 0) < 3),
     remove: [...published.keys()].filter(
-      (id) => !wanted.has(id) && !recent.has(id),
+      (id) => !(wanted.has(id) || recent.has(id))
     ),
   };
 }

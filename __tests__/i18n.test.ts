@@ -1,48 +1,48 @@
-import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
-import { getContent, headingFor, translator } from "@/lib/content";
-import { subtitle } from "@/lib/data";
-import { localizedPath } from "@/lib/locale";
-import es from "@/lib/translations/es.json";
-import { proxy } from "@/proxy";
+import { NextRequest } from 'next/server';
+import { describe, expect, it } from 'vitest';
+import { getContent, headingFor, translator } from '@/lib/content';
+import { subtitle } from '@/lib/data';
+import { localizedPath } from '@/lib/locale';
+import es from '@/lib/translations/es.json';
+import { proxy } from '@/proxy';
 
-describe("localizedPath", () => {
-  it("should keep English without a prefix", () => {
-    expect(localizedPath("/", "en")).toBe("/");
-    expect(localizedPath("/es", "en")).toBe("/");
-    expect(localizedPath("/es/pictures", "en")).toBe("/pictures");
+describe('localizedPath', () => {
+  it('should keep English without a prefix', () => {
+    expect(localizedPath('/', 'en')).toBe('/');
+    expect(localizedPath('/es', 'en')).toBe('/');
+    expect(localizedPath('/es/pictures', 'en')).toBe('/pictures');
   });
 
-  it("should prefix Spanish with /es", () => {
-    expect(localizedPath("/", "es")).toBe("/es");
-    expect(localizedPath("/pictures", "es")).toBe("/es/pictures");
-    expect(localizedPath("/es/pictures", "es")).toBe("/es/pictures");
+  it('should prefix Spanish with /es', () => {
+    expect(localizedPath('/', 'es')).toBe('/es');
+    expect(localizedPath('/pictures', 'es')).toBe('/es/pictures');
+    expect(localizedPath('/es/pictures', 'es')).toBe('/es/pictures');
   });
 
-  it("should not treat paths that only start with es as Spanish", () => {
-    expect(localizedPath("/escape", "en")).toBe("/escape");
+  it('should not treat paths that only start with es as Spanish', () => {
+    expect(localizedPath('/escape', 'en')).toBe('/escape');
   });
 });
 
-describe("getContent", () => {
-  it("should fall back to English when a translation is missing", () => {
-    expect(translator("es")("Not in the dictionary")).toBe(
-      "Not in the dictionary",
+describe('getContent', () => {
+  it('should fall back to English when a translation is missing', () => {
+    expect(translator('es')('Not in the dictionary')).toBe(
+      'Not in the dictionary'
     );
-    expect(getContent("en").subtitle).toBe(subtitle);
+    expect(getContent('en').subtitle).toBe(subtitle);
   });
 
-  it("should leave proper names untouched", () => {
-    const content = getContent("es", (text) => `[${text}]`);
-    expect(content.experiences[0].company).not.toMatch(/^\[/);
-    expect(content.certifications[0].title).not.toMatch(/^\[/);
-    expect(content.blogPosts[0].title).not.toMatch(/^\[/);
-    expect(content.experiences[0].role).toMatch(/^\[/);
+  it('should leave proper names untouched', () => {
+    const content = getContent('es', (text) => `[${text}]`);
+    expect(content.experiences[0].company).not.toMatch(/^\[/u);
+    expect(content.certifications[0].title).not.toMatch(/^\[/u);
+    expect(content.blogPosts[0].title).not.toMatch(/^\[/u);
+    expect(content.experiences[0].role).toMatch(/^\[/u);
   });
 
-  it("should have a Spanish translation for every string, and no stale ones", () => {
+  it('should have a Spanish translation for every string, and no stale ones', () => {
     const sources = new Set<string>();
-    getContent("es", (text) => {
+    getContent('es', (text) => {
       sources.add(text);
       return text;
     });
@@ -51,8 +51,8 @@ describe("getContent", () => {
     expect(Object.keys(es).filter((text) => !sources.has(text))).toEqual([]);
   });
 
-  it("should take section headings from the nav labels", () => {
-    expect(headingFor(getContent("en"), "about")).toBe("About");
+  it('should take section headings from the nav labels', () => {
+    expect(headingFor(getContent('en'), 'about')).toBe('About');
   });
 });
 
@@ -62,38 +62,38 @@ function request(path: string, lang?: string) {
   });
 }
 
-describe("proxy", () => {
-  it("should serve English at / when there is no cookie", () => {
-    const response = proxy(request("/"));
-    expect(response.headers.get("x-middleware-rewrite")).toBe(
-      "https://www.camipg.com/en",
+describe('proxy', () => {
+  it('should serve English at / when there is no cookie', () => {
+    const response = proxy(request('/'));
+    expect(response.headers.get('x-middleware-rewrite')).toBe(
+      'https://www.camipg.com/en'
     );
   });
 
-  it("should send a visitor who chose Spanish to /es", () => {
-    const response = proxy(request("/", "es"));
-    expect(response.headers.get("location")).toBe("https://www.camipg.com/es");
+  it('should send a visitor who chose Spanish to /es', () => {
+    const response = proxy(request('/', 'es'));
+    expect(response.headers.get('location')).toBe('https://www.camipg.com/es');
   });
 
-  it("should keep /es even when the cookie says English", () => {
-    const response = proxy(request("/es", "en"));
-    expect(response.headers.get("location")).toBeNull();
-    expect(response.headers.get("x-middleware-rewrite")).toBeNull();
+  it('should keep /es even when the cookie says English', () => {
+    const response = proxy(request('/es', 'en'));
+    expect(response.headers.get('location')).toBeNull();
+    expect(response.headers.get('x-middleware-rewrite')).toBeNull();
   });
 
-  it("should redirect /en to the unprefixed path", () => {
-    const response = proxy(request("/en"));
-    expect(response.headers.get("location")).toBe("https://www.camipg.com/");
+  it('should redirect /en to the unprefixed path', () => {
+    const response = proxy(request('/en'));
+    expect(response.headers.get('location')).toBe('https://www.camipg.com/');
   });
 
-  it("should store the language picked with ?lang= and drop the param", () => {
-    const response = proxy(request("/es?lang=en"));
-    expect(response.headers.get("location")).toBe("https://www.camipg.com/");
-    expect(response.cookies.get("lang")?.value).toBe("en");
+  it('should store the language picked with ?lang= and drop the param', () => {
+    const response = proxy(request('/es?lang=en'));
+    expect(response.headers.get('location')).toBe('https://www.camipg.com/');
+    expect(response.cookies.get('lang')?.value).toBe('en');
   });
 
-  it("should ignore an unknown ?lang= value", () => {
-    const response = proxy(request("/?lang=fr"));
-    expect(response.cookies.get("lang")).toBeUndefined();
+  it('should ignore an unknown ?lang= value', () => {
+    const response = proxy(request('/?lang=fr'));
+    expect(response.cookies.get('lang')).toBeUndefined();
   });
 });

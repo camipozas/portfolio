@@ -1,25 +1,26 @@
-import { ExternalLink, GitFork, Star } from "lucide-react";
-import { type Content, headingFor } from "@/lib/content";
-import { fetchPinnedRepos } from "@/lib/github";
-import { AnimateOnScroll } from "./animate-on-scroll";
-import { Section } from "./section";
+import { ExternalLink, GitFork, Star } from 'lucide-react';
+import type { Content } from '@/lib/content';
+import { headingFor } from '@/lib/content';
+import { fetchPinnedRepos } from '@/lib/github';
+import { AnimateOnScroll } from './animate-on-scroll';
+import { Section } from './section';
 
 export async function Projects({ content }: { content: Content }) {
   const { featuredProjects, ui } = content;
-  const heading = headingFor(content, "projects");
+  const heading = headingFor(content, 'projects');
 
   const repos = await fetchPinnedRepos();
 
   if (repos.length === 0 && featuredProjects.length === 0) {
     return (
-      <Section id="projects" heading={heading}>
-        <p className="text-sm text-muted">
-          {ui.projectsFallback}{" "}
+      <Section heading={heading} id="projects">
+        <p className="text-muted text-sm">
+          {ui.projectsFallback}{' '}
           <a
-            href="https://github.com/camipozas"
-            target="_blank"
-            rel="noopener noreferrer"
             className="accent-link"
+            href="https://github.com/camipozas"
+            rel="noopener noreferrer"
+            target="_blank"
           >
             GitHub
           </a>
@@ -30,21 +31,21 @@ export async function Projects({ content }: { content: Content }) {
   }
 
   return (
-    <Section id="projects" heading={heading}>
+    <Section heading={heading} id="projects">
       <div className="grid gap-4 sm:grid-cols-2">
         {featuredProjects.map((project, i) => (
-          <AnimateOnScroll key={project.name} delay={i * 100}>
+          <AnimateOnScroll delay={i * 100} key={project.name}>
             <a
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
               className="gradient-border-hover block p-4"
+              href={project.url}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <p className="text-sm font-medium">{project.name}</p>
-              <p className="mt-1 text-sm text-muted line-clamp-2">
+              <p className="text-muted mt-1 line-clamp-2 text-sm">
                 {project.description}
               </p>
-              <div className="mt-3 flex items-center gap-3 text-xs text-muted">
+              <div className="text-muted mt-3 flex items-center gap-3 text-xs">
                 {project.language && <span>{project.language}</span>}
                 <span className="flex items-center gap-1">
                   <ExternalLink size={12} />
@@ -56,22 +57,22 @@ export async function Projects({ content }: { content: Content }) {
         ))}
         {repos.map((repo, i) => (
           <AnimateOnScroll
-            key={repo.name}
             delay={(featuredProjects.length + i) * 100}
+            key={repo.name}
           >
             <a
-              href={repo.url}
-              target="_blank"
-              rel="noopener noreferrer"
               className="gradient-border-hover block p-4"
+              href={repo.url}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <p className="text-sm font-medium">{repo.name}</p>
               {repo.description && (
-                <p className="mt-1 text-sm text-muted line-clamp-2">
+                <p className="text-muted mt-1 line-clamp-2 text-sm">
                   {repo.description}
                 </p>
               )}
-              <div className="mt-3 flex items-center gap-3 text-xs text-muted">
+              <div className="text-muted mt-3 flex items-center gap-3 text-xs">
                 {repo.language && <span>{repo.language}</span>}
                 {repo.stars > 0 && (
                   <span className="flex items-center gap-1">

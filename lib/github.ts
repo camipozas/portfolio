@@ -1,6 +1,6 @@
-import type { GitHubRepo } from "./types";
+import type { GitHubRepo } from './types';
 
-const GITHUB_GRAPHQL = "https://api.github.com/graphql";
+const GITHUB_GRAPHQL = 'https://api.github.com/graphql';
 
 const query = `
   query {
@@ -31,10 +31,10 @@ export async function fetchPinnedRepos(): Promise<GitHubRepo[]> {
 
   try {
     const res = await fetch(GITHUB_GRAPHQL, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query }),
       next: { revalidate: 3600 },
@@ -62,7 +62,7 @@ export async function fetchPinnedRepos(): Promise<GitHubRepo[]> {
         stars: repo.stargazerCount,
         forks: repo.forkCount,
         language: repo.primaryLanguage?.name ?? null,
-      }),
+      })
     );
   } catch {
     return [];

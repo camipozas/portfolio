@@ -1,6 +1,6 @@
-import type { Content } from "@/lib/content";
-import { heroEmoji, heroIllustration, resumeUrl } from "@/lib/data";
-import { SocialLinks } from "./social-links";
+import type { Content } from '@/lib/content';
+import { heroEmoji, heroIllustration, resumeUrl } from '@/lib/data';
+import { SocialLinks } from './social-links';
 
 export function Hero({ content }: { content: Content }) {
   const { title, subtitle, ui } = content;
@@ -14,14 +14,14 @@ export function Hero({ content }: { content: Content }) {
         <h1 className="gradient-text mb-3 text-3xl font-semibold tracking-tight">
           {title}
         </h1>
-        <p className="mb-6 text-muted">{subtitle}</p>
+        <p className="text-muted mb-6">{subtitle}</p>
         <div className="flex items-center gap-6">
           <SocialLinks />
           <a
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
             className="accent-link text-sm"
+            href={resumeUrl}
+            rel="noopener noreferrer"
+            target="_blank"
           >
             {ui.resume}
           </a>
@@ -29,11 +29,11 @@ export function Hero({ content }: { content: Content }) {
       </div>
       {/* biome-ignore lint/performance/noImgElement: remote SVG not supported by next/image */}
       <img
-        src={heroIllustration}
         alt=""
-        width={200}
+        className="hidden shrink-0 md:block"
         height={200}
-        className="hidden md:block shrink-0"
+        src={heroIllustration}
+        width={200}
       />
     </section>
   );

@@ -1,20 +1,21 @@
-import { Badge } from "@/components/ui/badge";
-import { type Content, headingFor } from "@/lib/content";
-import { AnimateOnScroll } from "./animate-on-scroll";
-import { Section } from "./section";
+import { Badge } from '@/components/ui/badge';
+import type { Content } from '@/lib/content';
+import { headingFor } from '@/lib/content';
+import { AnimateOnScroll } from './animate-on-scroll';
+import { Section } from './section';
 
 export function About({ content }: { content: Content }) {
   const { bio, skillCategories } = content;
 
   return (
-    <Section id="about" heading={headingFor(content, "about")}>
-      <p className="mb-6 text-muted leading-relaxed">{bio}</p>
+    <Section heading={headingFor(content, 'about')} id="about">
+      <p className="text-muted mb-6 leading-relaxed">{bio}</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {skillCategories.map((category, i) => (
           <AnimateOnScroll
-            key={category.label}
+            className={category.size === 'large' ? 'sm:col-span-2' : ''}
             delay={i * 100}
-            className={category.size === "large" ? "sm:col-span-2" : ""}
+            key={category.label}
           >
             <div className="gradient-border-hover p-4">
               <p className="mb-2 text-sm font-medium">

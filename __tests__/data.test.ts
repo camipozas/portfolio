@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 import {
   bio,
   blogPosts,
@@ -18,80 +18,80 @@ import {
   socialLinks,
   subtitle,
   title,
-} from "@/lib/data";
+} from '@/lib/data';
 
-describe("data exports", () => {
-  it("exports personal info", () => {
-    expect(name).toBe("Camila Pozas");
-    expect(title).toContain("Camila");
+describe('data exports', () => {
+  it('exports personal info', () => {
+    expect(name).toBe('Camila Pozas');
+    expect(title).toContain('Camila');
     expect(subtitle).toBeTruthy();
     expect(bio).toBeTruthy();
   });
 
-  it("exports CloudFront base URL", () => {
-    expect(CLOUDFRONT_BASE).toMatch(/^https:\/\//);
-    expect(CLOUDFRONT_BASE).toContain("cloudfront.net");
+  it('exports CloudFront base URL', () => {
+    expect(CLOUDFRONT_BASE).toMatch(/^https:\/\//u);
+    expect(CLOUDFRONT_BASE).toContain('cloudfront.net');
   });
 
-  it("exports hero data", () => {
+  it('exports hero data', () => {
     expect(heroEmoji).toBeTruthy();
-    expect(heroIllustration).toMatch(/\.svg$/);
+    expect(heroIllustration).toMatch(/\.svg$/u);
     expect(heroIllustration).toContain(CLOUDFRONT_BASE);
   });
 
-  it("exports resume URL", () => {
-    expect(resumeUrl).toMatch(/^https:\/\//);
-    expect(resumeUrl).toContain(".pdf");
+  it('exports resume URL', () => {
+    expect(resumeUrl).toMatch(/^https:\/\//u);
+    expect(resumeUrl).toContain('.pdf');
   });
 
-  it("exports social links with valid URLs", () => {
-    expect(socialLinks.github).toMatch(/^https:\/\/github\.com\//);
-    expect(socialLinks.linkedin).toMatch(/^https:\/\/www\.linkedin\.com\//);
-    expect(socialLinks.email).toContain("@");
-    expect(socialLinks.medium).toMatch(/^https:\/\/medium\.com\//);
+  it('exports social links with valid URLs', () => {
+    expect(socialLinks.github).toMatch(/^https:\/\/github\.com\//u);
+    expect(socialLinks.linkedin).toMatch(/^https:\/\/www\.linkedin\.com\//u);
+    expect(socialLinks.email).toContain('@');
+    expect(socialLinks.medium).toMatch(/^https:\/\/medium\.com\//u);
   });
 
-  it("exports nav links matching section IDs", () => {
+  it('exports nav links matching section IDs', () => {
     expect(navLinks.length).toBeGreaterThanOrEqual(4);
     for (const link of navLinks) {
       expect(link.label).toBeTruthy();
-      expect(link.href).toMatch(/^#/);
+      expect(link.href).toMatch(/^#/u);
     }
   });
 
-  it("exports section emojis for all nav sections", () => {
+  it('exports section emojis for all nav sections', () => {
     for (const link of navLinks) {
-      const id = link.href.replace("#", "");
+      const id = link.href.replace('#', '');
       expect(sectionEmojis[id]).toBeTruthy();
     }
   });
 });
 
-describe("skills", () => {
-  it("exports skills array with entries", () => {
+describe('skills', () => {
+  it('exports skills array with entries', () => {
     expect(skills.length).toBeGreaterThan(0);
     for (const skill of skills) {
       expect(skill.name).toBeTruthy();
     }
   });
 
-  it("exports skill categories with valid structure", () => {
+  it('exports skill categories with valid structure', () => {
     expect(skillCategories.length).toBeGreaterThan(0);
     for (const cat of skillCategories) {
       expect(cat.label).toBeTruthy();
       expect(cat.emoji).toBeTruthy();
       expect(cat.skills.length).toBeGreaterThan(0);
-      expect(["large", "small"]).toContain(cat.size);
+      expect(['large', 'small']).toContain(cat.size);
     }
   });
 });
 
-describe("experiences", () => {
-  it("has at least one entry", () => {
+describe('experiences', () => {
+  it('has at least one entry', () => {
     expect(experiences.length).toBeGreaterThan(0);
   });
 
-  it("each entry has required fields", () => {
+  it('each entry has required fields', () => {
     for (const exp of experiences) {
       expect(exp.role).toBeTruthy();
       expect(exp.company).toBeTruthy();
@@ -101,7 +101,7 @@ describe("experiences", () => {
     }
   });
 
-  it("each entry has a logo URL pointing to CloudFront", () => {
+  it('each entry has a logo URL pointing to CloudFront', () => {
     for (const exp of experiences) {
       expect(exp.logo).toBeTruthy();
       expect(exp.logo).toContain(CLOUDFRONT_BASE);
@@ -109,12 +109,12 @@ describe("experiences", () => {
   });
 });
 
-describe("education", () => {
-  it("has at least one entry", () => {
+describe('education', () => {
+  it('has at least one entry', () => {
     expect(education.length).toBeGreaterThan(0);
   });
 
-  it("each entry has required fields and logo", () => {
+  it('each entry has required fields and logo', () => {
     for (const edu of education) {
       expect(edu.school).toBeTruthy();
       expect(edu.degree).toBeTruthy();
@@ -125,44 +125,44 @@ describe("education", () => {
   });
 });
 
-describe("certifications", () => {
-  it("has at least one entry", () => {
+describe('certifications', () => {
+  it('has at least one entry', () => {
     expect(certifications.length).toBeGreaterThan(0);
   });
 
-  it("each entry has title, subtitle, credlyUrl, and emoji", () => {
+  it('each entry has title, subtitle, credlyUrl, and emoji', () => {
     for (const cert of certifications) {
       expect(cert.title).toBeTruthy();
       expect(cert.subtitle).toBeTruthy();
-      expect(cert.credlyUrl).toMatch(/^https:\/\/www\.credly\.com\//);
+      expect(cert.credlyUrl).toMatch(/^https:\/\/www\.credly\.com\//u);
       expect(cert.emoji).toBeTruthy();
     }
   });
 });
 
-describe("featured projects", () => {
-  it("has at least one entry", () => {
+describe('featured projects', () => {
+  it('has at least one entry', () => {
     expect(featuredProjects.length).toBeGreaterThan(0);
   });
 
-  it("each entry has name, description, url, and language", () => {
+  it('each entry has name, description, url, and language', () => {
     for (const project of featuredProjects) {
       expect(project.name).toBeTruthy();
       expect(project.description).toBeTruthy();
-      expect(project.url).toMatch(/^https:\/\//);
+      expect(project.url).toMatch(/^https:\/\//u);
       expect(project.language).toBeTruthy();
     }
   });
 });
 
-describe("blog posts", () => {
-  it("has at least one entry", () => {
+describe('blog posts', () => {
+  it('has at least one entry', () => {
     expect(blogPosts.length).toBeGreaterThan(0);
   });
 
-  it("each entry has url, title, and description", () => {
+  it('each entry has url, title, and description', () => {
     for (const post of blogPosts) {
-      expect(post.url).toMatch(/^https:\/\//);
+      expect(post.url).toMatch(/^https:\/\//u);
       expect(post.title).toBeTruthy();
       expect(post.description).toBeTruthy();
     }

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
-import { useRef, useState } from "react";
-import type { Locale } from "@/lib/locale";
+import { ChevronLeft, ChevronRight, Download, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import type { Locale } from '@/lib/locale';
 import {
   formatCamera,
   formatSettings,
   formatTakenAt,
-} from "@/lib/pictures/exif";
-import { localized, photoUrl } from "@/lib/pictures/manifest";
-import type { Photo } from "@/lib/pictures/types";
+} from '@/lib/pictures/exif';
+import { localized, photoUrl } from '@/lib/pictures/manifest';
+import type { Photo } from '@/lib/pictures/types';
 
 interface PhotoGalleryProps {
   photos: Photo[];
@@ -41,28 +41,28 @@ export function PhotoGallery({
   };
   const step = (delta: number) =>
     setIndex((i) =>
-      i === null ? i : (i + delta + photos.length) % photos.length,
+      i === null ? i : (i + delta + photos.length) % photos.length
     );
 
   return (
     <>
       <ul className="columns-2 gap-3 sm:columns-3">
         {photos.map((photo, i) => (
-          <li key={photo.id} className="mb-3 break-inside-avoid">
+          <li className="mb-3 break-inside-avoid" key={photo.id}>
             <button
-              type="button"
+              className="focus-visible:outline-accent block w-full overflow-hidden rounded-md focus-visible:outline-2"
               onClick={() => open(i)}
-              className="block w-full overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-accent"
+              type="button"
             >
               {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
               <img
-                src={photoUrl(photo.id, "thumb")}
                 alt={altOf(photo, i)}
-                width={photo.width}
+                className="h-auto w-full transition-opacity hover:opacity-90"
+                decoding="async"
                 height={photo.height}
                 loading="lazy"
-                decoding="async"
-                className="h-auto w-full transition-opacity hover:opacity-90"
+                src={photoUrl(photo.id, 'thumb')}
+                width={photo.width}
               />
             </button>
           </li>
@@ -70,25 +70,29 @@ export function PhotoGallery({
       </ul>
 
       <dialog
-        ref={dialog}
         aria-label={albumTitle}
+        className="m-0 h-dvh max-h-none w-screen max-w-none bg-black/95 p-0 text-white backdrop:bg-black/90"
         onClose={() => setIndex(null)}
         onKeyDown={(event) => {
-          if (event.key === "ArrowLeft") step(-1);
-          if (event.key === "ArrowRight") step(1);
+          if (event.key === 'ArrowLeft') {
+            step(-1);
+          }
+          if (event.key === 'ArrowRight') {
+            step(1);
+          }
         }}
-        className="m-0 h-dvh max-h-none w-screen max-w-none bg-black/95 p-0 text-white backdrop:bg-black/90"
+        ref={dialog}
       >
         {current && index !== null && (
           <figure className="flex h-full flex-col items-center justify-center gap-3 p-4">
             {/* biome-ignore lint/performance/noImgElement: pre-sized on S3; next/image would re-optimize them on Vercel */}
             <img
-              key={current.id}
-              src={photoUrl(current.id, "2048")}
               alt={altOf(current, index)}
-              width={current.width}
-              height={current.height}
               className="max-h-[80dvh] w-auto max-w-full object-contain"
+              height={current.height}
+              key={current.id}
+              src={photoUrl(current.id, '2048')}
+              width={current.width}
             />
             <figcaption className="text-center text-xs text-white/70">
               {current.exif && (
@@ -96,7 +100,7 @@ export function PhotoGallery({
                   <p>
                     {[formatCamera(current.exif), current.exif.lens]
                       .filter(Boolean)
-                      .join(" · ")}
+                      .join(' · ')}
                   </p>
                   <p>
                     {[
@@ -105,45 +109,45 @@ export function PhotoGallery({
                         formatTakenAt(current.exif.takenAt, lang),
                     ]
                       .filter(Boolean)
-                      .join(" · ")}
+                      .join(' · ')}
                   </p>
                 </>
               )}
             </figcaption>
             <div className="flex items-center gap-2">
               <button
-                type="button"
-                onClick={() => step(-1)}
                 aria-label={labels.previous}
                 className="rounded-full p-2 hover:bg-white/10"
+                onClick={() => step(-1)}
+                type="button"
               >
-                <ChevronLeft size={20} aria-hidden="true" />
+                <ChevronLeft aria-hidden="true" size={20} />
               </button>
               <a
-                href={photoUrl(current.id, "full")}
-                target="_blank"
-                rel="noopener"
                 className="flex items-center gap-1 rounded-full px-3 py-2 text-sm hover:bg-white/10"
+                href={photoUrl(current.id, 'full')}
+                rel="noopener"
+                target="_blank"
               >
-                <Download size={16} aria-hidden="true" />
+                <Download aria-hidden="true" size={16} />
                 {labels.openFullSize}
               </a>
               <button
-                type="button"
-                onClick={() => step(1)}
                 aria-label={labels.next}
                 className="rounded-full p-2 hover:bg-white/10"
+                onClick={() => step(1)}
+                type="button"
               >
-                <ChevronRight size={20} aria-hidden="true" />
+                <ChevronRight aria-hidden="true" size={20} />
               </button>
             </div>
             <button
-              type="button"
-              onClick={() => dialog.current?.close()}
               aria-label={labels.close}
               className="absolute top-4 right-4 rounded-full p-2 hover:bg-white/10"
+              onClick={() => dialog.current?.close()}
+              type="button"
             >
-              <X size={20} aria-hidden="true" />
+              <X aria-hidden="true" size={20} />
             </button>
           </figure>
         )}

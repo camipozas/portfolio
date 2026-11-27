@@ -1,21 +1,22 @@
-import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
-import { cn } from "@/lib/utils";
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
+import type * as React from 'react';
+import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  "inline-flex items-center border px-2.5 py-0.5 text-xs font-medium transition-colors",
+  'inline-flex items-center border px-2.5 py-0.5 text-xs font-medium transition-colors',
   {
     variants: {
       variant: {
-        default: "border-transparent bg-foreground text-background",
-        secondary: "border-border text-muted",
-        outline: "border-border text-foreground",
+        default: 'bg-foreground text-background border-transparent',
+        secondary: 'border-border text-muted',
+        outline: 'border-border text-foreground',
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: 'default',
     },
-  },
+  }
 );
 
 export interface BadgeProps

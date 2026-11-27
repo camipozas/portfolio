@@ -2,16 +2,15 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.29.3",
   "scripts": {
-    "dev": "next dev",
+    "admin:hash": "node --no-warnings -e \"import('./lib/backoffice/auth.ts').then((m) => console.log(m.hashPassword(process.env.PW)))\"",
     "build": "next build",
-    "start": "next start",
+    "dev": "next dev",
+    "format": "ultracite fix",
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
-    "format": "ultracite fix",
-    "test": "vitest run",
-    "admin:hash": "node --no-warnings -e \"import('./lib/backoffice/auth.ts').then((m) => console.log(m.hashPassword(process.env.PW)))\""
+    "start": "next start",
+    "test": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1178.0",
@@ -45,5 +44,6 @@
     "ultracite": "8.3.1",
     "vite": "^7.3.8",
     "vitest": "^4.1.12"
-  }
+  },
+  "packageManager": "pnpm@10.29.3"
 }

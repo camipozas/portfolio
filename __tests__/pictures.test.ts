@@ -94,6 +94,45 @@ describe('exif formatting', () => {
     expect(exposureSpecs({})).toEqual([]);
   });
 
+  it('should show a phone its 35 mm-equivalent focal length when it has one', () => {
+    const iphone = {
+      make: 'Apple',
+      model: 'iPhone 16 Pro',
+      focalLength: 6.765,
+    };
+    expect(exposureSpecs({ ...iphone, focalLength35: 24 })).toEqual([
+      { spec: 'focalLength', value: '24 mm eq.' },
+    ]);
+    expect(exposureSpecs(iphone)).toEqual([
+      { spec: 'focalLength', value: '6.8 mm' },
+    ]);
+    // No lens model and a code for a model, as many Android phones write.
+    expect(
+      exposureSpecs({
+        make: 'Xiaomi',
+        model: '2201123G',
+        focalLength: 5.4,
+        focalLength35: 26,
+      })
+    ).toEqual([{ spec: 'focalLength', value: '26 mm eq.' }]);
+  });
+
+  it('should keep the real focal length for cameras', () => {
+    expect(
+      exposureSpecs({
+        make: 'SONY',
+        model: 'ILCE-6400',
+        lens: 'E 55-210mm F4.5-6.3 OSS',
+        focalLength: 55,
+        focalLength35: 82,
+      })
+    ).toEqual([{ spec: 'focalLength', value: '55 mm' }]);
+    // A 1" compact (crop 2.7) is not a phone either.
+    expect(
+      exposureSpecs({ model: 'DSC-RX100M7', focalLength: 9, focalLength35: 24 })
+    ).toEqual([{ spec: 'focalLength', value: '9 mm' }]);
+  });
+
   it('should format the capture date and time in the page language, ignoring the time zone', () => {
     expect(formatTakenAt('2023:08:05 15:36:24', 'en')).toBe(
       'August 5, 2023 at 3:36 PM'

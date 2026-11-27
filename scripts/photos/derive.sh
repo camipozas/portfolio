@@ -40,7 +40,7 @@ one() { # one <album>/<name>
 
   local dims exif color
   dims=$(magick "$web/full/$base.jpg" -format '{"width":%w,"height":%h}' info:)
-  exif=$(exiftool -j -n -Make -Model -LensModel -FocalLength -FNumber -ExposureTime -ISO -DateTimeOriginal "$src" \
+  exif=$(exiftool -j -n -Make -Model -LensModel -FocalLength -FocalLengthIn35mmFormat -FNumber -ExposureTime -ISO -DateTimeOriginal "$src" \
     | jq -c '.[0] | del(.SourceFile)')
   color=$(magick "$web/thumb/$base.jpg" -resize '1x1!' -format '#%[hex:p{0,0}]' info: | cut -c1-7)
   jq -n -c --argjson d "$dims" --argjson e "$exif" --arg c "$color" '$d + {exif: $e, color: $c}' > "$meta.tmp"

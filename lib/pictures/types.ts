@@ -12,6 +12,8 @@ export interface PhotoExif {
   model?: string;
   lens?: string;
   focalLength?: number;
+  /** 35 mm-equivalent focal length; what phone photos are known by. */
+  focalLength35?: number;
   fNumber?: number;
   exposureTime?: number;
   iso?: number;

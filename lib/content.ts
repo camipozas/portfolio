@@ -6,6 +6,7 @@ import {
   experiences,
   featuredProjects,
   navLinks,
+  picturesLink,
   siteDescription,
   siteTitle,
   skillCategories,
@@ -41,6 +42,11 @@ export function getContent(lang: Locale, t: Translate = translator(lang)) {
       Object.entries(ui).map(([key, text]) => [key, t(text)]),
     ) as typeof ui,
     navLinks: navLinks.map((link) => ({ ...link, label: t(link.label) })),
+    picturesLabel: t(picturesLink.label),
+    menuLinks: [...navLinks, picturesLink].map((link) => ({
+      ...link,
+      label: t(link.label),
+    })),
     skillCategories: skillCategories.map((category) => ({
       ...category,
       label: t(category.label),
@@ -75,4 +81,8 @@ export type Content = ReturnType<typeof getContent>;
 
 export function headingFor(content: Content, id: string): string {
   return content.navLinks.find((link) => link.href === `#${id}`)?.label ?? id;
+}
+
+export function photoCount(content: Content, count: number): string {
+  return `${count} ${count === 1 ? content.ui.photo : content.ui.photos}`;
 }

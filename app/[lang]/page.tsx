@@ -19,10 +19,10 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const content = getContent(lang);
 
   return (
-    <>
+    <main className="mx-auto max-w-2xl px-6 py-16">
       <Nav
         lang={lang}
-        navLinks={content.navLinks}
+        navLinks={content.menuLinks}
         toggleThemeLabel={content.ui.toggleTheme}
       />
       <Hero content={content} />
@@ -33,6 +33,6 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <Projects content={content} />
       <Writing content={content} />
       <Footer content={content} />
-    </>
+    </main>
   );
 }

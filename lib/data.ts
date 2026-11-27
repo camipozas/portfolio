@@ -37,6 +37,15 @@ export const ui = {
   live: "Live",
   chat: "Want to chat?",
   sendEmail: "Send me an email",
+  picturesIntro: "Places and moments, edited by me.",
+  picturesEmpty: "Photos are coming soon.",
+  allAlbums: "All albums",
+  photo: "photo",
+  photos: "photos",
+  close: "Close",
+  previousPhoto: "Previous photo",
+  nextPhoto: "Next photo",
+  openFullSize: "Open full size",
 };
 
 export const heroEmoji = "👋";
@@ -70,6 +79,8 @@ export const navLinks: NavLink[] = [
   { label: "Projects", href: "#projects" },
   { label: "Writing", href: "#writing" },
 ];
+
+export const picturesLink: NavLink = { label: "Pictures", href: "/pictures" };
 
 export const bio =
   "I build tools and applications with impact around the world, like the ones I develop at Ria for its operations in many countries, and automate workflows to eliminate manual processes. I focus on robust, scalable backend systems with Node.js and TypeScript, on AWS cloud infrastructure.";

@@ -36,7 +36,7 @@ export interface CurationState {
 export function slugify(text: string): string {
   return text
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -51,8 +51,9 @@ export function move<T>(list: T[], from: number, to: number): T[] {
 }
 
 function uniqueSlug(base: string, taken: Set<string>): string {
-  let slug = base || "album";
-  for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
+  const root = base || "album";
+  let slug = root;
+  for (let n = 2; taken.has(slug); n++) slug = `${root}-${n}`;
   taken.add(slug);
   return slug;
 }
@@ -142,13 +143,26 @@ export function buildManifest(
   return { version: 1, generatedAt, albums };
 }
 
-export function planPublish(manifest: Manifest, publishedIds: string[]) {
-  const wanted = new Set(
-    manifest.albums.flatMap((album) => album.photos.map((photo) => photo.id)),
+const photoIds = (manifest: Manifest | undefined) =>
+  new Set(
+    manifest?.albums.flatMap((album) => album.photos.map((photo) => photo.id)),
   );
-  const published = new Set(publishedIds);
+
+/**
+ * `published` maps each id to how many of its 3 sizes exist. Photos of the previous
+ * manifest stay one more publish: the site may still render it for up to an hour.
+ */
+export function planPublish(
+  manifest: Manifest,
+  published: Map<string, number>,
+  previous?: Manifest,
+) {
+  const wanted = photoIds(manifest);
+  const recent = photoIds(previous);
   return {
-    copy: [...wanted].filter((id) => !published.has(id)),
-    remove: publishedIds.filter((id) => !wanted.has(id)),
+    copy: [...wanted].filter((id) => (published.get(id) ?? 0) < 3),
+    remove: [...published.keys()].filter(
+      (id) => !wanted.has(id) && !recent.has(id),
+    ),
   };
 }

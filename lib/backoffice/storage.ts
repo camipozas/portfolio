@@ -44,15 +44,31 @@ export const readCatalog = () =>
 export const readState = () =>
   readJson<CurationState>("curation/state.json", { albums: [] });
 
-export async function writeState(state: CurationState): Promise<void> {
-  await s3.send(
+export interface LoginAttempts {
+  failures: number[];
+}
+
+export const readLoginAttempts = () =>
+  readJson<LoginAttempts>("curation/login-attempts.json", { failures: [] });
+
+const putJson = (key: string, value: unknown) =>
+  s3.send(
     new PutObjectCommand({
       Bucket: BACKUP,
-      Key: "curation/state.json",
-      Body: JSON.stringify(state),
+      Key: key,
+      Body: JSON.stringify(value),
       ContentType: "application/json",
     }),
   );
+
+export async function writeLoginAttempts(
+  attempts: LoginAttempts,
+): Promise<void> {
+  await putJson("curation/login-attempts.json", attempts);
+}
+
+export async function writeState(state: CurationState): Promise<void> {
+  await putJson("curation/state.json", state);
 }
 
 export function thumbUrl(path: string): Promise<string> {
@@ -63,24 +79,40 @@ export function thumbUrl(path: string): Promise<string> {
   );
 }
 
-export async function listPublishedIds(): Promise<string[]> {
-  const ids: string[] = [];
+/** Published photo ids and how many of their 3 sizes exist. */
+export async function listPublished(): Promise<Map<string, number>> {
+  const sizes = new Map<string, number>();
   let token: string | undefined;
   do {
     const page = await s3.send(
       new ListObjectsV2Command({
         Bucket: ASSETS,
         Prefix: "photos/p/",
-        Delimiter: "/",
         ContinuationToken: token,
       }),
     );
-    for (const prefix of page.CommonPrefixes ?? []) {
-      ids.push(prefix.Prefix?.split("/")[2] ?? "");
+    for (const { Key } of page.Contents ?? []) {
+      const id = Key?.split("/")[2];
+      if (id) sizes.set(id, (sizes.get(id) ?? 0) + 1);
     }
     token = page.NextContinuationToken;
   } while (token);
-  return ids.filter(Boolean);
+  return sizes;
+}
+
+export async function readPublishedManifest(): Promise<Manifest | undefined> {
+  try {
+    const object = await s3.send(
+      new GetObjectCommand({ Bucket: ASSETS, Key: "photos/manifest.json" }),
+    );
+    return (
+      JSON.parse((await object.Body?.transformToString()) ?? "null") ??
+      undefined
+    );
+  } catch (error) {
+    if (error instanceof NoSuchKey) return undefined;
+    throw error;
+  }
 }
 
 const copySource = (key: string) =>
@@ -110,12 +142,17 @@ export async function unpublishPhotos(ids: string[]): Promise<void> {
     SIZES.map((size) => ({ Key: `photos/p/${id}/${size}.jpg` })),
   );
   for (let i = 0; i < keys.length; i += 1000) {
-    await s3.send(
+    const result = await s3.send(
       new DeleteObjectsCommand({
         Bucket: ASSETS,
         Delete: { Objects: keys.slice(i, i + 1000) },
       }),
     );
+    if (result.Errors?.length) {
+      throw new Error(
+        `could not unpublish ${result.Errors.length} files: ${result.Errors[0].Message}`,
+      );
+    }
   }
 }
 

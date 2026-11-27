@@ -22,26 +22,28 @@ export function AlbumsEditor({ initial }: { initial: AlbumRow[] }) {
       list.map((album, j) => (j === i ? { ...album, ...patch } : album)),
     );
   const toState = () =>
-    albums.map(({ key, slug, title, visible, coverId }) => ({
-      key,
-      slug,
-      title,
-      visible,
-      coverId,
-    }));
+    albums.map(({ key, title, visible }) => ({ key, title, visible }));
+  const run = (task: () => Promise<string>) =>
+    startTransition(async () => {
+      try {
+        setStatus(await task());
+      } catch (error) {
+        setStatus(
+          `Error: ${(error as Error).message}. Nothing was lost; try again.`,
+        );
+      }
+    });
 
   const save = () =>
-    startTransition(async () => {
+    run(async () => {
       await saveAlbums(toState());
-      setStatus("Saved.");
+      return "Saved.";
     });
   const saveAndPublish = () =>
-    startTransition(async () => {
+    run(async () => {
       await saveAlbums(toState());
       const result = await publish();
-      setStatus(
-        `Published ${result.albums} albums, ${result.photos} photos (${result.copied} new, ${result.removed} removed). The site updates within an hour.`,
-      );
+      return `Published ${result.albums} albums, ${result.photos} photos (${result.copied} new, ${result.removed} removed). The site updates within an hour.`;
     });
 
   return (
@@ -51,7 +53,10 @@ export function AlbumsEditor({ initial }: { initial: AlbumRow[] }) {
           <li
             key={album.key}
             draggable
-            onDragStart={() => setDragged(i)}
+            onDragStart={(event) => {
+              event.dataTransfer.setData("text/plain", album.key);
+              setDragged(i);
+            }}
             onDragOver={(event) => event.preventDefault()}
             onDrop={() =>
               dragged !== null && setAlbums((list) => move(list, dragged, i))

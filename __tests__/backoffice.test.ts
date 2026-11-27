@@ -28,8 +28,9 @@ describe("password", () => {
     expect(hashPassword("x")).not.toContain("$");
   });
 
-  it("should reject a malformed stored hash", () => {
+  it("should reject a malformed stored hash, including one with an empty digest", () => {
     expect(verifyPassword("x", "plain-text")).toBe(false);
+    expect(verifyPassword("anything", "scrypt:abc:A")).toBe(false);
   });
 
   it("should compare usernames of different lengths without throwing", () => {
@@ -140,27 +141,46 @@ describe("buildManifest", () => {
 });
 
 describe("planPublish", () => {
-  it("should copy what is new and remove what is no longer shown", () => {
-    const manifest = buildManifest(
+  const manifestWith = (...ids: string[]) =>
+    buildManifest(
       catalog,
       {
         albums: [
           {
-            key: "BKT/parque guay guay",
-            slug: "p",
-            title: { en: "P" },
+            key: "Croacia + Mostar ‘25",
+            slug: "c",
+            title: { en: "C" },
             visible: true,
-            photos: [{ id: "d", visible: true }],
+            photos: ids.map((id) => ({ id, visible: true })),
           },
         ],
       },
       "now",
     );
-    expect(planPublish(manifest, ["x", "d"])).toEqual({
-      copy: [],
-      remove: ["x"],
-    });
-    expect(planPublish(manifest, [])).toEqual({ copy: ["d"], remove: [] });
+
+  it("should copy new photos and photos missing a size", () => {
+    const published = new Map([
+      ["a", 3],
+      ["b", 1],
+    ]);
+    expect(planPublish(manifestWith("a", "b", "c"), published).copy).toEqual([
+      "b",
+      "c",
+    ]);
+  });
+
+  it("should keep photos of the previous manifest for one more publish", () => {
+    const published = new Map([
+      ["a", 3],
+      ["b", 3],
+      ["c", 3],
+    ]);
+    const plan = planPublish(
+      manifestWith("a"),
+      published,
+      manifestWith("a", "b"),
+    );
+    expect(plan.remove).toEqual(["c"]);
   });
 });
 
@@ -168,6 +188,7 @@ describe("helpers", () => {
   it("should slugify accents, quotes and symbols", () => {
     expect(slugify("España ‘25")).toBe("espana-25");
     expect(slugify("Bélgica")).toBe("belgica");
+    expect(slugify("日本")).toBe("");
   });
 
   it("should move an item and ignore moves out of range", () => {

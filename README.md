@@ -94,6 +94,8 @@ GITHUB_TOKEN=ghp_your_token_here
 
 Locally: the same variables in `.env.local` (without `AWS_ROLE_ARN`) and `AWS_PROFILE=photos pnpm dev`.
 
+Sessions are stateless (12 h): signing out or changing the password does not end a stolen session; rotating `SESSION_SECRET` does. Ten failed logins in 15 minutes lock the form for 15 minutes.
+
 ## 📁 Project Structure
 
 ```

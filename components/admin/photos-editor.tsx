@@ -36,12 +36,18 @@ export function PhotosEditor({
     );
   const save = () =>
     startTransition(async () => {
-      await saveAlbumPhotos(
-        albumKey,
-        photos.map(({ id, visible }) => ({ id, visible })),
-        coverId,
-      );
-      setStatus("Saved. Publish from the albums page.");
+      try {
+        await saveAlbumPhotos(
+          albumKey,
+          photos.map(({ id, visible }) => ({ id, visible })),
+          coverId,
+        );
+        setStatus("Saved. Publish from the albums page.");
+      } catch (error) {
+        setStatus(
+          `Error: ${(error as Error).message}. Nothing was lost; try again.`,
+        );
+      }
     });
 
   return (
@@ -71,7 +77,10 @@ export function PhotosEditor({
           <li
             key={photo.id}
             draggable
-            onDragStart={() => setDragged(i)}
+            onDragStart={(event) => {
+              event.dataTransfer.setData("text/plain", photo.id);
+              setDragged(i);
+            }}
             onDragOver={(event) => event.preventDefault()}
             onDrop={() =>
               dragged !== null && setPhotos((list) => move(list, dragged, i))

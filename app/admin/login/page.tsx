@@ -24,7 +24,9 @@ export default async function LoginPage({
       />
       {error && (
         <p role="alert" className="text-sm text-red-500">
-          Wrong username or password.
+          {error === "locked"
+            ? "Too many failed attempts. Try again in 15 minutes."
+            : "Wrong username or password."}
         </p>
       )}
       <button

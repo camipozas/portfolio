@@ -19,26 +19,43 @@ import {
 } from "@/lib/backoffice/curation";
 import { requireSession } from "@/lib/backoffice/session";
 import {
-  listPublishedIds,
+  listPublished,
   publishPhoto,
   readCatalog,
+  readLoginAttempts,
+  readPublishedManifest,
   readState,
   unpublishPhotos,
+  writeLoginAttempts,
   writeManifest,
   writeState,
 } from "@/lib/backoffice/storage";
 
+const LOCK_WINDOW_MS = 15 * 60 * 1000;
+const MAX_FAILURES = 10;
+
 export async function login(formData: FormData): Promise<void> {
-  const username = String(formData.get("username") ?? "");
-  const password = String(formData.get("password") ?? "");
-  const ok =
-    sameText(username, process.env.ADMIN_USERNAME ?? "") &&
-    verifyPassword(password, process.env.ADMIN_PASSWORD_HASH ?? "");
-  if (!ok) {
-    // Slows down guessing; Vercel's firewall rate limit is the real barrier.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const now = Date.now();
+  const recent = (await readLoginAttempts()).failures.filter(
+    (t) => now - t < LOCK_WINDOW_MS,
+  );
+  if (recent.length >= MAX_FAILURES) redirect("/admin/login?error=locked");
+
+  // Both checks always run, so timing does not reveal whether the username was right.
+  const userOk = sameText(
+    String(formData.get("username") ?? ""),
+    process.env.ADMIN_USERNAME ?? "",
+  );
+  const passwordOk = verifyPassword(
+    String(formData.get("password") ?? ""),
+    process.env.ADMIN_PASSWORD_HASH ?? "",
+  );
+  if (!userOk || !passwordOk) {
+    await writeLoginAttempts({ failures: [...recent, now] });
     redirect("/admin/login?error=1");
   }
+
+  await writeLoginAttempts({ failures: [] });
   (await cookies()).set(SESSION_COOKIE, createSession(sessionSecret()), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -58,25 +75,23 @@ async function currentState() {
   return syncState(await readCatalog(), await readState());
 }
 
+/** Order, titles and visibility from the page; slugs and photo choices stay server-side. */
 export async function saveAlbums(
-  albums: Omit<AlbumState, "photos">[],
+  albums: Pick<AlbumState, "key" | "title" | "visible">[],
 ): Promise<void> {
   await requireSession();
   const state = await currentState();
-  const byKey = new Map(state.albums.map((album) => [album.key, album]));
+  const edits = new Map(albums.map((album) => [album.key, album]));
+  const ordered = albums.flatMap((edit) =>
+    state.albums.filter((album) => album.key === edit.key),
+  );
+  const untouched = state.albums.filter((album) => !edits.has(album.key));
   await writeState({
-    albums: albums.flatMap((album) => {
-      const known = byKey.get(album.key);
-      return known
-        ? [
-            {
-              ...known,
-              title: album.title,
-              slug: album.slug,
-              visible: album.visible,
-            },
-          ]
-        : [];
+    albums: [...ordered, ...untouched].map((album) => {
+      const edit = edits.get(album.key);
+      return edit
+        ? { ...album, title: edit.title, visible: edit.visible }
+        : album;
     }),
   });
 }
@@ -95,12 +110,7 @@ export async function saveAlbumPhotos(
   });
 }
 
-export async function publish(): Promise<{
-  albums: number;
-  photos: number;
-  copied: number;
-  removed: number;
-}> {
+export async function publish() {
   await requireSession();
   const catalog = await readCatalog();
   const manifest = buildManifest(
@@ -108,7 +118,11 @@ export async function publish(): Promise<{
     syncState(catalog, await readState()),
     new Date().toISOString(),
   );
-  const { copy, remove } = planPublish(manifest, await listPublishedIds());
+  const { copy, remove } = planPublish(
+    manifest,
+    await listPublished(),
+    await readPublishedManifest(),
+  );
   const paths = catalogIndex(catalog);
   for (let i = 0; i < copy.length; i += 8) {
     await Promise.all(
@@ -117,7 +131,6 @@ export async function publish(): Promise<{
         .map((id) => publishPhoto(id, paths.get(id)?.path as string)),
     );
   }
-  // Manifest before deletes: the site never points at a photo that is already gone.
   await writeManifest(manifest);
   await unpublishPhotos(remove);
   return {

@@ -2,6 +2,7 @@ import { Languages } from "lucide-react";
 import { name } from "@/lib/data";
 import { type Locale, languageNames, localizedPath } from "@/lib/locale";
 import type { NavLink } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 
 interface NavProps {
@@ -27,12 +28,16 @@ export function Nav({ lang, navLinks, toggleThemeLabel }: NavProps) {
           {name}
         </a>
         <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-4 whitespace-nowrap md:flex">
+          <div className="flex items-center gap-4 whitespace-nowrap">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={hrefOf(link.href)}
-                className="text-sm text-muted transition-colors hover:text-accent"
+                // Section anchors only fit on wide screens; whole pages stay reachable on phones.
+                className={cn(
+                  "text-sm text-muted transition-colors hover:text-accent",
+                  link.href.startsWith("#") && "hidden md:inline",
+                )}
               >
                 {link.label}
               </a>

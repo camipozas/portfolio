@@ -1,14 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Footer } from "@/components/footer";
-import { Nav } from "@/components/nav";
 import { PhotoGallery } from "@/components/pictures/photo-gallery";
-import { getContent } from "@/lib/content";
+import { getContent, photoCount } from "@/lib/content";
 import { isLocale, localizedPath } from "@/lib/locale";
 import { getAlbum, localized, photoUrl } from "@/lib/pictures/manifest";
-
-export const revalidate = 3600;
 
 export async function generateMetadata({
   params,
@@ -18,17 +14,24 @@ export async function generateMetadata({
   const album = await getAlbum(slug);
   if (!album) notFound();
   const path = `/pictures/${slug}`;
+  const title = `${localized(album.title, lang)} — Camila Pozas`;
+  const url = localizedPath(path, lang);
   return {
-    title: `${localized(album.title, lang)} — Camila Pozas`,
+    title,
     alternates: {
-      canonical: localizedPath(path, lang),
+      canonical: url,
       languages: {
         en: localizedPath(path, "en"),
         es: localizedPath(path, "es"),
         "x-default": path,
       },
     },
-    openGraph: { images: [photoUrl(album.coverId, "2048")] },
+    openGraph: {
+      title,
+      url,
+      type: "website",
+      images: [photoUrl(album.coverId, "2048")],
+    },
   };
 }
 
@@ -42,42 +45,31 @@ export default async function AlbumPage({
   const content = getContent(lang);
   const { ui } = content;
   const title = localized(album.title, lang);
-  const count = album.photos.length;
 
   return (
     <>
-      <Nav
+      <a
+        href={localizedPath("/pictures", lang)}
+        className="inline-flex items-center gap-1 text-sm text-muted hover:text-accent"
+      >
+        <ArrowLeft size={14} aria-hidden="true" />
+        {ui.allAlbums}
+      </a>
+      <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
+      <p className="mt-1 mb-8 text-sm text-muted">
+        {photoCount(content, album.photos.length)}
+      </p>
+      <PhotoGallery
+        photos={album.photos}
+        albumTitle={title}
         lang={lang}
-        navLinks={content.menuLinks}
-        toggleThemeLabel={ui.toggleTheme}
+        labels={{
+          close: ui.close,
+          previous: ui.previousPhoto,
+          next: ui.nextPhoto,
+          openFullSize: ui.openFullSize,
+        }}
       />
-      <main className="mx-auto max-w-5xl px-6 pt-24 pb-16">
-        <a
-          href={localizedPath("/pictures", lang)}
-          className="inline-flex items-center gap-1 text-sm text-muted hover:text-accent"
-        >
-          <ArrowLeft size={14} aria-hidden="true" />
-          {ui.allAlbums}
-        </a>
-        <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
-        <p className="mt-1 mb-8 text-sm text-muted">
-          {count} {count === 1 ? ui.photo : ui.photos}
-        </p>
-        <PhotoGallery
-          photos={album.photos}
-          albumTitle={title}
-          lang={lang}
-          labels={{
-            close: ui.close,
-            previous: ui.previousPhoto,
-            next: ui.nextPhoto,
-            openFullSize: ui.openFullSize,
-          }}
-        />
-      </main>
-      <div className="mx-auto max-w-2xl px-6 pb-16">
-        <Footer content={content} />
-      </div>
     </>
   );
 }

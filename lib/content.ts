@@ -82,3 +82,7 @@ export type Content = ReturnType<typeof getContent>;
 export function headingFor(content: Content, id: string): string {
   return content.navLinks.find((link) => link.href === `#${id}`)?.label ?? id;
 }
+
+export function photoCount(content: Content, count: number): string {
+  return `${count} ${count === 1 ? content.ui.photo : content.ui.photos}`;
+}

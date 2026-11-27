@@ -71,10 +71,8 @@ export function PhotoGallery({
 
       <dialog
         ref={dialog}
+        aria-label={albumTitle}
         onClose={() => setIndex(null)}
-        onClick={(event) =>
-          event.target === event.currentTarget && dialog.current?.close()
-        }
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft") step(-1);
           if (event.key === "ArrowRight") step(1);
@@ -87,8 +85,6 @@ export function PhotoGallery({
             <img
               key={current.id}
               src={photoUrl(current.id, "2048")}
-              srcSet={`${photoUrl(current.id, "2048")} 2048w, ${photoUrl(current.id, "full")} ${current.width}w`}
-              sizes="100vw"
               alt={altOf(current, index)}
               width={current.width}
               height={current.height}

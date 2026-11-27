@@ -3,7 +3,7 @@ import type { Locale } from "@/lib/locale";
 import type { Album, Localized, Manifest } from "./types";
 
 const PHOTOS_BASE =
-  process.env.NEXT_PUBLIC_PICTURES_BASE_URL ?? `${CLOUDFRONT_BASE}/photos`;
+  process.env.NEXT_PUBLIC_PICTURES_BASE_URL || `${CLOUDFRONT_BASE}/photos`;
 
 export type PhotoSize = "thumb" | "2048" | "full";
 
@@ -19,7 +19,9 @@ export function localized(text: Localized | undefined, lang: Locale): string {
 export function parseAlbums(data: unknown): Album[] {
   const albums = (data as Partial<Manifest> | null)?.albums;
   if (!Array.isArray(albums)) return [];
-  return albums.filter((album) => album.photos?.length > 0);
+  return albums.filter(
+    (album) => Array.isArray(album?.photos) && album.photos.length > 0,
+  );
 }
 
 export async function getAlbums(): Promise<Album[]> {

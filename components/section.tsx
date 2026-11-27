@@ -1,5 +1,5 @@
-import { sectionEmojis } from "@/lib/data";
-import { AnimateOnScroll } from "./animate-on-scroll";
+import { sectionEmojis } from '@/lib/data';
+import { AnimateOnScroll } from './animate-on-scroll';
 
 interface SectionProps {
   id: string;
@@ -11,10 +11,10 @@ export function Section({ id, heading, children }: SectionProps) {
   const emoji = sectionEmojis[id];
 
   return (
-    <section id={id} className="py-12">
+    <section className="py-12" id={id}>
       <AnimateOnScroll>
         <h2 className="mb-8 text-lg font-medium">
-          {emoji && <span className="mr-2">{emoji}</span>}
+          {Boolean(emoji) && <span className="mr-2">{emoji}</span>}
           {heading}
         </h2>
       </AnimateOnScroll>

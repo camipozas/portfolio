@@ -1,15 +1,17 @@
-import { notFound } from "next/navigation";
-import { Footer } from "@/components/footer";
-import { Nav } from "@/components/nav";
-import { getContent } from "@/lib/content";
-import { isLocale } from "@/lib/locale";
+import { notFound } from 'next/navigation';
+import { Footer } from '@/components/footer';
+import { Nav } from '@/components/nav';
+import { getContent } from '@/lib/content';
+import { isLocale } from '@/lib/locale';
 
 export default async function PicturesLayout({
   children,
   params,
-}: LayoutProps<"/[lang]/pictures">) {
+}: LayoutProps<'/[lang]/pictures'>) {
   const { lang } = await params;
-  if (!isLocale(lang)) notFound();
+  if (!isLocale(lang)) {
+    notFound();
+  }
   const content = getContent(lang);
 
   return (

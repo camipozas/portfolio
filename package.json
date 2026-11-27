@@ -2,16 +2,16 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.29.3",
   "scripts": {
-    "dev": "next dev",
+    "admin:hash": "node --no-warnings -e \"import('./lib/backoffice/auth.ts').then((m) => console.log(m.hashPassword(process.env.PW)))\"",
     "build": "next build",
+    "dev": "next dev",
+    "format": "ultracite fix",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "prepare": "husky",
     "start": "next start",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "test": "vitest run",
-    "admin:hash": "node --no-warnings -e \"import('./lib/backoffice/auth.ts').then((m) => console.log(m.hashPassword(process.env.PW)))\""
+    "test": "vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1178.0",
@@ -38,11 +38,14 @@
     "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.7.0",
     "conventional-changelog-conventionalcommits": "^9.3.1",
+    "husky": "^9.1.7",
     "postcss": "^8.5.33",
     "semantic-release": "^25.0.9",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.3",
+    "ultracite": "8.3.1",
     "vite": "^7.3.8",
     "vitest": "^4.1.12"
-  }
+  },
+  "packageManager": "pnpm@10.29.3"
 }

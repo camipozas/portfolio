@@ -25,30 +25,32 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-foreground);
+  background-color: var(--color-background);
 }
 
 a {
   color: inherit;
 }
 
+/* biome-ignore lint/suspicious/useBaseline: cosmetic, unsupported browsers keep the default highlight */
 ::selection {
-  background-color: var(--color-foreground);
   color: var(--color-background);
+  background-color: var(--color-foreground);
 }
 
 .gradient-text {
+  -webkit-text-fill-color: transparent;
   background: linear-gradient(
     135deg,
     var(--color-foreground) 40%,
     var(--color-accent)
   );
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* biome-ignore lint/suspicious/useBaseline: the -webkit- prefix above covers older browsers */
   background-clip: text;
 }
 
@@ -63,9 +65,9 @@ a {
 
 .gradient-border-hover:hover {
   border-color: var(--color-accent);
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px
     color-mix(in srgb, var(--color-accent) 15%, transparent);
+  transform: translateY(-2px);
 }
 
 .accent-link {

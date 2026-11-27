@@ -1,27 +1,28 @@
-import Image from "next/image";
-import { type Content, headingFor } from "@/lib/content";
-import { AnimateOnScroll } from "./animate-on-scroll";
-import { Section } from "./section";
+import Image from 'next/image';
+import type { Content } from '@/lib/content';
+import { headingFor } from '@/lib/content';
+import { AnimateOnScroll } from './animate-on-scroll';
+import { Section } from './section';
 
 export function EducationSection({ content }: { content: Content }) {
   const { education } = content;
 
   return (
-    <Section id="education" heading={headingFor(content, "education")}>
+    <Section heading={headingFor(content, 'education')} id="education">
       <div className="space-y-4">
         {education.map((edu, i) => (
-          <AnimateOnScroll key={edu.school} delay={i * 100}>
+          <AnimateOnScroll delay={i * 100} key={edu.school}>
             <div className="gradient-border-hover p-4">
               <div className="flex gap-3">
-                {edu.logo && (
+                {!!edu.logo && (
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
                     <Image
-                      src={edu.logo}
                       alt={`${edu.school} logo`}
-                      width={40}
-                      height={40}
-                      unoptimized
                       className="h-full w-full object-cover"
+                      height={40}
+                      src={edu.logo}
+                      unoptimized
+                      width={40}
                     />
                   </div>
                 )}
@@ -29,19 +30,19 @@ export function EducationSection({ content }: { content: Content }) {
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-sm font-medium">{edu.degree}</p>
-                      <p className="text-sm text-muted">{edu.school}</p>
+                      <p className="text-muted text-sm">{edu.school}</p>
                     </div>
-                    <p className="text-sm text-muted shrink-0">
+                    <p className="text-muted shrink-0 text-sm">
                       {edu.duration}
                     </p>
                   </div>
-                  <p className="mt-2 text-sm text-muted leading-relaxed">
+                  <p className="text-muted mt-2 text-sm leading-relaxed">
                     {edu.description}
                   </p>
                   {edu.bullets.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {edu.bullets.map((bullet) => (
-                        <li key={bullet} className="text-sm text-muted">
+                        <li className="text-muted text-sm" key={bullet}>
                           — {bullet}
                         </li>
                       ))}

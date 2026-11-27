@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { notFound } from "next/navigation";
-import { ThemeProvider } from "next-themes";
-import "../globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { notFound } from 'next/navigation';
+import { ThemeProvider } from 'next-themes';
+import '../globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Pictures backoffice",
+  title: 'Pictures backoffice',
   robots: { index: false, follow: false },
 };
 
@@ -17,7 +17,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (process.env.BACKOFFICE !== "1") notFound();
+  if (process.env.BACKOFFICE !== '1') {
+    notFound();
+  }
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>

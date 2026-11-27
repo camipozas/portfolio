@@ -1,14 +1,20 @@
-import type { Locale } from "@/lib/locale";
-import type { PhotoExif } from "./types";
+import type { Locale } from '@/lib/locale';
+import type { PhotoExif } from './types';
+
+const EXIF_DATE = /^(?<year>\d{4}):(?<month>\d{2}):(?<day>\d{2})/u;
 
 export function formatExposure(seconds: number): string {
-  if (seconds >= 1) return `${Number(seconds.toFixed(1))}s`;
+  if (seconds >= 1) {
+    return `${Number(seconds.toFixed(1))}s`;
+  }
   return `1/${Math.round(1 / seconds)}s`;
 }
 
 export function formatCamera(exif: PhotoExif): string | undefined {
   const { make, model } = exif;
-  if (!make || !model) return model ?? make;
+  if (!(make && model)) {
+    return model ?? make;
+  }
   return model.toLowerCase().startsWith(make.toLowerCase())
     ? model
     : `${make} ${model}`;
@@ -16,16 +22,18 @@ export function formatCamera(exif: PhotoExif): string | undefined {
 
 export function formatTakenAt(
   takenAt: string,
-  lang: Locale,
+  lang: Locale
 ): string | undefined {
-  const m = takenAt.match(/^(\d{4}):(\d{2}):(\d{2})/);
-  if (!m) return undefined;
-  const date = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
-  return date.toLocaleDateString(lang === "es" ? "es-CL" : "en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
+  const groups = takenAt.match(EXIF_DATE)?.groups;
+  if (!groups) {
+    return undefined;
+  }
+  const date = new Date(Date.UTC(+groups.year, +groups.month - 1, +groups.day));
+  return date.toLocaleDateString(lang === 'es' ? 'es-CL' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
   });
 }
 
@@ -37,5 +45,5 @@ export function formatSettings(exif: PhotoExif): string {
     exif.focalLength ? `${Number(exif.focalLength.toFixed(1))}mm` : undefined,
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(' · ');
 }

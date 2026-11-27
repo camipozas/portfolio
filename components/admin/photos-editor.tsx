@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { ArrowLeft, ArrowRight, Star } from "lucide-react";
-import { useState, useTransition } from "react";
-import { saveAlbumPhotos } from "@/app/admin/actions";
-import { move } from "@/lib/backoffice/curation";
+import { ArrowLeft, ArrowRight, Star } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { saveAlbumPhotos } from '@/app/admin/actions';
+import { move } from '@/lib/backoffice/curation';
 
 interface PhotoItem {
   id: string;
@@ -25,14 +25,14 @@ export function PhotosEditor({
   const [photos, setPhotos] = useState(initial);
   const [coverId, setCoverId] = useState(initialCoverId);
   const [dragged, setDragged] = useState<number | null>(null);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState('');
   const [pending, startTransition] = useTransition();
 
   const setAll = (visible: boolean) =>
     setPhotos((list) => list.map((p) => ({ ...p, visible })));
   const toggle = (i: number) =>
     setPhotos((list) =>
-      list.map((p, j) => (j === i ? { ...p, visible: !p.visible } : p)),
+      list.map((p, j) => (j === i ? { ...p, visible: !p.visible } : p))
     );
   const save = () =>
     startTransition(async () => {
@@ -40,30 +40,32 @@ export function PhotosEditor({
         await saveAlbumPhotos(
           albumKey,
           photos.map(({ id, visible }) => ({ id, visible })),
-          coverId,
+          coverId
         );
-        setStatus("Saved. Publish from the albums page.");
+        setStatus('Saved. Publish from the albums page.');
       } catch (error) {
         setStatus(
-          `Error: ${(error as Error).message}. Nothing was lost; try again.`,
+          `Error: ${(error as Error).message}. Nothing was lost; try again.`
         );
       }
     });
+
+  const message = pending ? 'Saving…' : status;
 
   return (
     <>
       <div className="mb-4 flex gap-3 text-sm">
         <button
-          type="button"
-          onClick={() => setAll(true)}
           className="text-accent hover:underline"
+          onClick={() => setAll(true)}
+          type="button"
         >
           Show all
         </button>
         <button
-          type="button"
-          onClick={() => setAll(false)}
           className="text-accent hover:underline"
+          onClick={() => setAll(false)}
+          type="button"
         >
           Hide all
         </button>
@@ -75,59 +77,59 @@ export function PhotosEditor({
       <ol className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
         {photos.map((photo, i) => (
           <li
-            key={photo.id}
+            className="group relative"
             draggable
+            key={photo.id}
+            onDragOver={(event) => event.preventDefault()}
             onDragStart={(event) => {
-              event.dataTransfer.setData("text/plain", photo.id);
+              event.dataTransfer.setData('text/plain', photo.id);
               setDragged(i);
             }}
-            onDragOver={(event) => event.preventDefault()}
             onDrop={() =>
               dragged !== null && setPhotos((list) => move(list, dragged, i))
             }
-            className="group relative"
           >
             <button
-              type="button"
-              onClick={() => toggle(i)}
+              aria-label={`Photo ${i + 1}: ${photo.visible ? 'shown, click to hide' : 'hidden, click to show'}`}
               aria-pressed={photo.visible}
-              aria-label={`Photo ${i + 1}: ${photo.visible ? "shown, click to hide" : "hidden, click to show"}`}
-              className={`block w-full overflow-hidden rounded ring-accent focus-visible:ring-2 ${photo.visible ? "" : "opacity-30 grayscale"}`}
+              className={`ring-accent block w-full overflow-hidden rounded focus-visible:ring-2 ${photo.visible ? '' : 'opacity-30 grayscale'}`}
+              onClick={() => toggle(i)}
+              type="button"
             >
               {/* biome-ignore lint/performance/noImgElement: short-lived presigned S3 URL */}
               <img
-                src={photo.thumbUrl}
                 alt=""
-                loading="lazy"
                 className="aspect-square w-full object-cover"
+                loading="lazy"
+                src={photo.thumbUrl}
               />
             </button>
             <div className="absolute inset-x-1 bottom-1 flex justify-between">
               <button
-                type="button"
-                onClick={() => setPhotos((l) => move(l, i, i - 1))}
                 aria-label={`Move photo ${i + 1} earlier`}
                 className="rounded bg-black/60 p-1 text-white"
+                onClick={() => setPhotos((l) => move(l, i, i - 1))}
+                type="button"
               >
                 <ArrowLeft size={12} />
               </button>
               <button
-                type="button"
-                onClick={() => setCoverId(photo.id)}
                 aria-label={`Use photo ${i + 1} as album cover`}
                 aria-pressed={coverId === photo.id}
                 className="rounded bg-black/60 p-1 text-white"
+                onClick={() => setCoverId(photo.id)}
+                type="button"
               >
                 <Star
+                  fill={coverId === photo.id ? 'currentColor' : 'none'}
                   size={12}
-                  fill={coverId === photo.id ? "currentColor" : "none"}
                 />
               </button>
               <button
-                type="button"
-                onClick={() => setPhotos((l) => move(l, i, i + 1))}
                 aria-label={`Move photo ${i + 1} later`}
                 className="rounded bg-black/60 p-1 text-white"
+                onClick={() => setPhotos((l) => move(l, i, i + 1))}
+                type="button"
               >
                 <ArrowRight size={12} />
               </button>
@@ -135,17 +137,17 @@ export function PhotosEditor({
           </li>
         ))}
       </ol>
-      <div className="sticky bottom-0 mt-6 flex items-center gap-3 bg-background py-4">
+      <div className="bg-background sticky bottom-0 mt-6 flex items-center gap-3 py-4">
         <button
-          type="button"
+          className="bg-foreground text-background rounded-md px-4 py-2 disabled:opacity-50"
           disabled={pending}
           onClick={save}
-          className="rounded-md bg-foreground px-4 py-2 text-background disabled:opacity-50"
+          type="button"
         >
           Save
         </button>
-        <p role="status" className="text-sm text-muted">
-          {pending ? "Saving…" : status}
+        <p className="text-muted text-sm" role="status">
+          {message}
         </p>
       </div>
     </>

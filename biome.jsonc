@@ -1,0 +1,99 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite/biome/core",
+    "ultracite/biome/react",
+    "ultracite/biome/next"
+  ],
+  "assist": {
+    "actions": {
+      "source": {
+        "useSortedInterfaceMembers": "off",
+        "useSortedKeys": "off"
+      }
+    }
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        "noNonNullAssertion": "off",
+        "useFilenamingConvention": "off",
+        "noEnum": "off",
+        "useDestructuring": "off",
+        "noIncrementDecrement": "off",
+        "useConsistentArrowReturn": "off"
+      },
+      "suspicious": {
+        "noConsole": {
+          "level": "off",
+          "options": {
+            "allow": ["error"]
+          }
+        },
+        "useAwait": "off",
+        "noExplicitAny": "off",
+        // Unreliable: Biome cannot see mutation or RegExp.exec null
+        "noUnnecessaryConditions": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "correctness": {
+        "useImageSize": "off"
+      },
+      "performance": {
+        "noBarrelFile": "off",
+        "noAwaitInLoops": "off",
+        "noJsxPropsBind": "off"
+      },
+      "a11y": "off"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "overrides": [
+    {
+      // The a11y group stays off above, because the preset turns on every
+      // rule in it one by one. These three go back on, for everything.
+      "includes": ["**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useButtonType": "error",
+            "noLabelWithoutControl": "error",
+            "useKeyWithClickEvents": "error"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedInstantiation": "off"
+          },
+          "suspicious": {
+            "useArraySortCompare": "off"
+          }
+        }
+      },
+      "javascript": {
+        "globals": [
+          "afterEach",
+          "afterAll",
+          "beforeEach",
+          "beforeAll",
+          "describe",
+          "it",
+          "test",
+          "expect",
+          "vi"
+        ]
+      }
+    }
+  ]
+}

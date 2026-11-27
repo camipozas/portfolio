@@ -31,7 +31,7 @@ export interface SkillCategory {
   label: string;
   emoji: string;
   skills: string[];
-  size: "large" | "small";
+  size: 'large' | 'small';
 }
 
 export interface BlogPost {

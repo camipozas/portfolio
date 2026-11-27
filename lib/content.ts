@@ -13,9 +13,9 @@ import {
   subtitle,
   title,
   ui,
-} from "./data";
-import type { Locale } from "./locale";
-import es from "./translations/es.json";
+} from './data';
+import type { Locale } from './locale';
+import es from './translations/es.json';
 
 export type Translate = (text: string) => string;
 
@@ -39,7 +39,7 @@ export function getContent(lang: Locale, t: Translate = translator(lang)) {
     subtitle: t(subtitle),
     bio: t(bio),
     ui: Object.fromEntries(
-      Object.entries(ui).map(([key, text]) => [key, t(text)]),
+      Object.entries(ui).map(([key, text]) => [key, t(text)])
     ) as typeof ui,
     navLinks: navLinks.map((link) => ({ ...link, label: t(link.label) })),
     picturesLabel: t(picturesLink.label),

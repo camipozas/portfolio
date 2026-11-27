@@ -30,6 +30,7 @@ interface PhotoGalleryProps {
     closeDetails: string;
     share: string;
     linkCopied: string;
+    swipeHint: string;
     specs: PhotoInfoLabels['specs'];
   };
 }
@@ -43,6 +44,23 @@ const photoIdIn = (basePath: string) => {
 };
 
 const SWIPE_PX = 50;
+const HINT_SEEN = 'pictures:swipe-hint-seen';
+const HINT_MS = 3500;
+// Storage can be blocked (private mode): then the hint shows every time rather than never.
+const hintSeen = () => {
+  try {
+    return localStorage.getItem(HINT_SEEN) !== null;
+  } catch {
+    return false;
+  }
+};
+const markHintSeen = () => {
+  try {
+    localStorage.setItem(HINT_SEEN, '1');
+  } catch {
+    // Nothing to remember it in.
+  }
+};
 // Row heights of the justified grid (keep in sync with --row below). Tiles grow up to
 // ~1.6x their base width to fill a row, so `sizes` asks for that much.
 const ROW_PX = { phone: 104 * 1.6, wide: 176 * 1.6 };
@@ -69,6 +87,7 @@ export function PhotoGallery({
   const touchX = useRef<number | null>(null);
   const [index, setIndex] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [hint, setHint] = useState(false);
   const infoButton = useRef<HTMLButtonElement>(null);
   // Closing the panel unmounts its close button: keep focus inside the dialog so
   // the arrow keys and "i" keep working.
@@ -119,10 +138,33 @@ export function PhotoGallery({
     }
     const next = (index + delta + photos.length) % photos.length;
     setIndex(next);
+    if (hint) {
+      setHint(false);
+      markHintSeen();
+    }
     // Fresh state, so Next records the new URL instead of restoring the first one later.
     window.history.replaceState(null, '', urlOf(photos[next]));
   };
   const [copied, setCopied] = useState(false);
+  const viewerOpen = index !== null;
+  // Phones can only swipe between photos, which nothing on screen says: tell them once,
+  // and count it as seen only once it has had time to be read (or they swiped).
+  const swipeable = photos.length > 1;
+  useEffect(() => {
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    if (!(viewerOpen && swipeable && coarse) || hintSeen()) {
+      return;
+    }
+    setHint(true);
+    const timer = setTimeout(() => {
+      setHint(false);
+      markHintSeen();
+    }, HINT_MS);
+    return () => {
+      clearTimeout(timer);
+      setHint(false);
+    };
+  }, [viewerOpen, swipeable]);
   const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const showCopied = (on: boolean) => {
     clearTimeout(copiedTimer.current);
@@ -352,6 +394,18 @@ export function PhotoGallery({
                 >
                   <ChevronRight aria-hidden="true" size={24} />
                 </button>
+                <p
+                  className={`pointer-events-none absolute bottom-8 left-1/2 z-20 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-sm whitespace-nowrap motion-safe:animate-pulse ${hint ? '' : 'hidden'}`}
+                  role="status"
+                >
+                  {hint ? (
+                    <>
+                      <span aria-hidden="true">← </span>
+                      {labels.swipeHint}
+                      <span aria-hidden="true"> →</span>
+                    </>
+                  ) : null}
+                </p>
               </figure>
               {showInfo && current.exif ? (
                 <PhotoInfo

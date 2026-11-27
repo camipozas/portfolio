@@ -48,7 +48,7 @@
 English is the default and lives at `/`; Spanish lives at `/es`. Both pages are prerendered at build time.
 
 - **Content** — `lib/data.ts` holds every text in English. `lib/content.ts` (`getContent(lang)`) picks the strings that get translated; names, companies, schools, certification and post titles stay in English.
-- **Translations** — `lib/translations/es.json` maps each English string to its Spanish version. Keying by the English text means adding or reordering entries in `data.ts` never puts a translation on the wrong item. A missing translation shows the English text.
+- **Translations** — `lib/translations/es.json` maps each English string to its Spanish version. Keying by the English text means adding or reordering entries in `data.ts` never puts a translation on the wrong item. A missing translation shows the English text. Pinned GitHub repo descriptions come from the GitHub API and stay in English.
 - **First translation** — done with Claude Haiku, then reviewed by hand. The file is plain JSON: edit it directly.
 - **Remembering the choice** — the toggle links to `?lang=es` or `?lang=en`. `proxy.ts` saves it in a `lang` cookie (one year) and redirects, so the language survives reloads the same way `next-themes` keeps the theme in `localStorage`. With no cookie, `/` serves English; a shared `/es` link always opens in Spanish.
 
@@ -94,8 +94,9 @@ portfolio/
 ├── 📂 app/
 │   ├── 📂 [lang]/        # en | es, prerendered
 │   │   ├── layout.tsx    # Root layout (Inter font, ThemeProvider, localized metadata)
-│   │   ├── page.tsx      # Home page (all sections)
-│   │   └── globals.css   # Tailwind + monochrome CSS vars
+│   │   └── page.tsx      # Home page (all sections)
+│   ├── globals.css       # Tailwind + monochrome CSS vars
+│   ├── global-not-found.tsx # 404 for unmatched URLs (the root layout lives under [lang])
 │   ├── robots.ts
 │   └── sitemap.ts        # Both languages, with hreflang alternates
 ├── 📂 components/

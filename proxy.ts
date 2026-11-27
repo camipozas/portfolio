@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { isLocale, LOCALE_COOKIE, localizedPath } from "@/lib/locale";
+import {
+  defaultLocale,
+  isLocale,
+  LOCALE_COOKIE,
+  localizedPath,
+} from "@/lib/locale";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
@@ -21,19 +26,22 @@ export function proxy(request: NextRequest) {
   }
 
   const segment = url.pathname.split("/")[1];
-  if (segment === "es") {
+  if (isLocale(segment) && segment !== defaultLocale) {
     return NextResponse.next();
   }
 
-  const preferred =
-    request.cookies.get(LOCALE_COOKIE)?.value === "es" ? "es" : "en";
-  if (segment === "en" || preferred === "es") {
+  const cookie = request.cookies.get(LOCALE_COOKIE)?.value;
+  const preferred = isLocale(cookie) ? cookie : defaultLocale;
+  if (segment === defaultLocale || preferred !== defaultLocale) {
     url.pathname = localizedPath(url.pathname, preferred);
     return NextResponse.redirect(url);
   }
 
   // English is served from "/" without a prefix.
-  url.pathname = url.pathname === "/" ? "/en" : `/en${url.pathname}`;
+  url.pathname =
+    url.pathname === "/"
+      ? `/${defaultLocale}`
+      : `/${defaultLocale}${url.pathname}`;
   return NextResponse.rewrite(url);
 }
 

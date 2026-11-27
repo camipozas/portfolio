@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { getContent } from "@/lib/content";
 import { SITE_URL } from "@/lib/data";
 import { isLocale, locales, localizedPath } from "@/lib/locale";
-import "./globals.css";
+import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,6 +41,8 @@ export async function generateMetadata({
       title: siteTitle,
       description: siteDescription,
       url: localizedPath("/", lang),
+      locale: lang === "es" ? "es_CL" : "en_US",
+      alternateLocale: lang === "es" ? "en_US" : "es_CL",
       type: "website",
     },
     icons,

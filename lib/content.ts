@@ -27,7 +27,7 @@ export function translator(lang: Locale): Translate {
   return (text) => dictionary[text] ?? text;
 }
 
-// Every string passed to `t` here is what `pnpm translate` sends to Haiku.
+// Every string passed to `t` needs an entry in translations/es.json (the i18n test checks it).
 // Names, companies, schools, certification and post titles stay in English.
 export function getContent(lang: Locale, t: Translate = translator(lang)) {
   return {

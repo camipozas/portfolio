@@ -100,20 +100,20 @@ describe('exif formatting', () => {
       focalLength: 6.765,
     };
     expect(exposureSpecs({ ...iphone, focalLength35: 24 })).toEqual([
-      { spec: 'focalLength', value: '24 mm' },
+      { spec: 'focalLength', value: '24 mm eq.' },
     ]);
     expect(exposureSpecs(iphone)).toEqual([
       { spec: 'focalLength', value: '6.8 mm' },
     ]);
+    // No lens model and a code for a model, as many Android phones write.
     expect(
       exposureSpecs({
-        make: 'samsung',
-        model: 'Galaxy S23',
-        lens: 'Galaxy S23 Rear Wide Camera',
-        focalLength: 6.3,
-        focalLength35: 23,
+        make: 'Xiaomi',
+        model: '2201123G',
+        focalLength: 5.4,
+        focalLength35: 26,
       })
-    ).toEqual([{ spec: 'focalLength', value: '23 mm' }]);
+    ).toEqual([{ spec: 'focalLength', value: '26 mm eq.' }]);
   });
 
   it('should keep the real focal length for cameras', () => {
@@ -126,6 +126,10 @@ describe('exif formatting', () => {
         focalLength35: 82,
       })
     ).toEqual([{ spec: 'focalLength', value: '55 mm' }]);
+    // A 1" compact (crop 2.7) is not a phone either.
+    expect(
+      exposureSpecs({ model: 'DSC-RX100M7', focalLength: 9, focalLength35: 24 })
+    ).toEqual([{ spec: 'focalLength', value: '9 mm' }]);
   });
 
   it('should format the capture date and time in the page language, ignoring the time zone', () => {

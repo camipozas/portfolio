@@ -14,12 +14,12 @@ exif=$(mktemp)
 trap 'rm -f "$exif"' EXIT
 cd "$ROOT/edited"
 # exiftool exits 1 when a single file fails; the others are still in the output.
-exiftool -q -j -n -r -ext jpg -ext jpeg -ext png -ext heic -ext tif -ext tiff \
+exiftool -q -j -n -r -i HIDDEN -ext jpg -ext jpeg -ext png -ext heic -ext tif -ext tiff \
   -Make -Model -LensModel -FocalLength -FocalLengthIn35mmFormat -FNumber -ExposureTime -ISO -DateTimeOriginal \
   . > "$exif" || [[ -s $exif ]]
 
 counts=$(node - "$exif" << 'JS'
-const { existsSync, readFileSync, renameSync, writeFileSync } = require('node:fs');
+const { existsSync, readFileSync, renameSync, statSync, utimesSync, writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 
 const meta = join(process.env.ROOT, 'web/meta');
@@ -38,8 +38,11 @@ for (const { SourceFile, ...tags } of JSON.parse(readFileSync(process.argv[2], '
     continue;
   }
   data.exif = { ...data.exif, ...tags };
+  // Keep the mtime: derive.sh rebuilds a photo whose source is newer than its meta.
+  const { atime, mtime } = statSync(file);
   writeFileSync(`${file}.tmp`, `${JSON.stringify(data)}\n`);
   renameSync(`${file}.tmp`, file);
+  utimesSync(file, atime, mtime);
   updated++;
 }
 console.log(`photos=${updated + unchanged + noMeta}\tupdated=${updated}\tunchanged=${unchanged}\tno-meta=${noMeta}`);

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { ThemeProvider } from 'next-themes';
+import { siteIcons } from '@/lib/icons';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -9,6 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Fotos · Administración',
   robots: { index: false, follow: false },
+  icons: siteIcons,
 };
 
 // Only the backoffice Vercel project sets BACKOFFICE=1; the public site answers 404.

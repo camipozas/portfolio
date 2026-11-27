@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
+import { NotFoundMessage } from '@/components/not-found-message';
 import './globals.css';
 
 // The root layout lives under app/[lang], so unmatched URLs (/fr, /es/nope) render this page on its own.
@@ -15,18 +16,7 @@ export default function GlobalNotFound() {
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-6">
-            <h1 className="text-lg font-medium">404 — Page not found</h1>
-            <p className="text-muted text-sm">
-              <a className="accent-link" href="/">
-                camipg.com
-              </a>{' '}
-              ·{' '}
-              <a className="accent-link" href="/es" lang="es">
-                Página no encontrada — ir al inicio
-              </a>
-            </p>
-          </main>
+          <NotFoundMessage />
         </ThemeProvider>
       </body>
     </html>

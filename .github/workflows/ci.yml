@@ -7,6 +7,37 @@ on:
     branches: [main]
 
 jobs:
+  commitlint:
+    name: Lint commit messages
+    runs-on: ubuntu-latest
+    # Dependabot subjects overflow header-max-length on long package names.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate PR commit messages
+        # Use the merge-base so commits merged in from the base branch aren't linted.
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "$BASE_REF"
+          merge_base=$(git merge-base FETCH_HEAD "$HEAD_SHA")
+          pnpm exec commitlint --from "$merge_base" --to "$HEAD_SHA" --verbose
+
   ci:
     runs-on: ubuntu-latest
 

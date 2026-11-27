@@ -1,6 +1,6 @@
 import { CLOUDFRONT_BASE } from '@/lib/data';
 import type { Locale } from '@/lib/locale';
-import type { Album, Collection, Localized, Manifest } from './types';
+import type { Album, Collection, Localized, Manifest, Photo } from './types';
 
 export const PICTURES_TAG = 'pictures';
 
@@ -9,6 +9,17 @@ const PHOTOS_BASE =
 
 export const PHOTO_SIZES = ['thumb', '1200', '2048', 'full'] as const;
 export type PhotoSize = (typeof PHOTO_SIZES)[number];
+
+// The watermark fits in a bottom band 5% of the image width tall (scripts/photos/derive.sh).
+const WATERMARK_BAND = 0.05;
+
+/** Share of the height above the watermark: previews show only that; the viewer keeps it all. */
+export function aboveWatermark({
+  width,
+  height,
+}: Pick<Photo, 'width' | 'height'>): number {
+  return 1 - (WATERMARK_BAND * width) / height;
+}
 
 export function photoUrl(id: string, size: PhotoSize): string {
   return `${PHOTOS_BASE}/p/${id}/${size}.jpg`;

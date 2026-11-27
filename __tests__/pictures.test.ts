@@ -7,6 +7,7 @@ import {
   formatTakenAt,
 } from '@/lib/pictures/exif';
 import {
+  aboveWatermark,
   localized,
   parseAlbums,
   parseCollections,
@@ -105,5 +106,12 @@ describe('formatDateRange', () => {
       'May 2025'
     );
     expect(formatDateRange([undefined], 'en')).toBeUndefined();
+  });
+});
+
+describe('aboveWatermark', () => {
+  it('should trim more of a wide photo, since the watermark scales with the width', () => {
+    expect(aboveWatermark({ width: 1600, height: 900 })).toBeCloseTo(0.911, 3);
+    expect(aboveWatermark({ width: 800, height: 1200 })).toBeCloseTo(0.967, 3);
   });
 });

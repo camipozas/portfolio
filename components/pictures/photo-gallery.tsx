@@ -8,8 +8,9 @@ import {
   Info,
   Share2,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Locale } from '@/lib/locale';
+import { justifyRows } from '@/lib/pictures/justify';
 import { aboveWatermark, localized, photoUrl } from '@/lib/pictures/manifest';
 import type { Photo } from '@/lib/pictures/types';
 import type { PhotoInfoLabels } from './photo-info';
@@ -65,6 +66,9 @@ const markHintSeen = () => {
 // ~1.6x their base width to fill a row, so `sizes` asks for that much.
 const ROW_PX = { phone: 104 * 1.6, wide: 176 * 1.6 };
 const EAGER = 6;
+// Target row heights once the grid's width is known (below that, the CSS rows above).
+const TARGET_ROW = { phone: 120, wide: 230 };
+const SM = 640; // Tailwind's sm, where the CSS rows and gaps switch too.
 
 // Images that finished loading before hydration never fire onLoad.
 const revealWhenLoaded = (img: HTMLImageElement | null) => {
@@ -224,18 +228,62 @@ export function PhotoGallery({
     }
   }, [index, photos]);
 
+  const grid = useRef<HTMLUListElement>(null);
+  const [gridSize, setGridSize] = useState({ width: 0, gap: 0 });
+  useEffect(() => {
+    const list = grid.current;
+    if (!list) {
+      return;
+    }
+    const observer = new ResizeObserver(([entry]) =>
+      setGridSize({
+        width: Math.floor(entry.contentRect.width),
+        gap: Number.parseFloat(getComputedStyle(list).columnGap) || 0,
+      })
+    );
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, []);
+  const ratios = useMemo(
+    () => photos.map((p) => p.width / (p.height * aboveWatermark(p))),
+    [photos]
+  );
+  // Per photo: its tile width and whether it absorbs the row's rounding.
+  const tiles = useMemo(() => {
+    const { width, gap } = gridSize;
+    if (width === 0) {
+      return;
+    }
+    const target = window.innerWidth < SM ? TARGET_ROW.phone : TARGET_ROW.wide;
+    const rows = justifyRows(ratios, width, target, gap);
+    return rows.flatMap((row) =>
+      ratios.slice(row.start, row.end).map((ratio, k) => ({
+        width: Math.floor(ratio * row.height),
+        grow: row.fills && row.start + k === row.end - 1,
+      }))
+    );
+  }, [ratios, gridSize]);
+
   return (
     <>
-      <ul className="flex flex-wrap gap-1.5 [--row:6.5rem] after:grow-[999] after:content-[''] sm:gap-2 sm:[--row:11rem]">
+      <ul
+        className="flex flex-wrap gap-1.5 [--row:6.5rem] after:grow-[999] after:content-[''] sm:gap-2 sm:[--row:11rem]"
+        ref={grid}
+      >
         {photos.map((photo, i) => {
-          const ratio = photo.width / (photo.height * aboveWatermark(photo));
+          const ratio = ratios[i];
+          const tile = tiles?.[i];
           return (
             <li
               key={photo.id}
-              style={{
-                flexGrow: ratio,
-                flexBasis: `calc(var(--row) * ${ratio})`,
-              }}
+              style={
+                tile
+                  ? { width: tile.width, flexGrow: tile.grow ? 1 : 0 }
+                  : {
+                      flexGrow: ratio,
+                      flexBasis: `calc(var(--row) * ${ratio})`,
+                    }
+              }
             >
               <button
                 className="group bg-border focus-visible:outline-accent relative block w-full cursor-zoom-in overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -255,6 +303,7 @@ export function PhotoGallery({
                   loading={i < EAGER ? 'eager' : 'lazy'}
                   onLoad={reveal}
                   ref={revealWhenLoaded}
+                  // Stays the CSS estimate after layout, so eager images are not fetched twice.
                   sizes={`(min-width: 640px) ${Math.round(ROW_PX.wide * ratio)}px, ${Math.round(ROW_PX.phone * ratio)}px`}
                   src={photoUrl(photo.id, 'thumb')}
                   srcSet={`${photoUrl(photo.id, 'thumb')} 600w, ${photoUrl(photo.id, '1200')} 1200w`}

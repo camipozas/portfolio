@@ -7,6 +7,7 @@ import {
   formatLens,
   formatTakenAt,
 } from '@/lib/pictures/exif';
+import { justifyRows } from '@/lib/pictures/justify';
 import {
   aboveWatermark,
   albumsIn,
@@ -255,5 +256,53 @@ describe('aboveWatermark', () => {
   it('should trim more of a wide photo, since the watermark scales with the width', () => {
     expect(aboveWatermark({ width: 1600, height: 900 })).toBeCloseTo(0.911, 3);
     expect(aboveWatermark({ width: 800, height: 1200 })).toBeCloseTo(0.967, 3);
+  });
+});
+
+describe('justifyRows', () => {
+  it('should put two 16:9 photos per row on a phone instead of one', () => {
+    const rows = justifyRows([1.95, 1.95, 1.95, 1.95], 326, 120, 6);
+    expect(rows.map((r) => r.end - r.start)).toEqual([2, 2]);
+    expect(rows[0].height).toBeCloseTo((326 - 6) / 3.9);
+  });
+
+  it('should pick the photo count whose height is closest to the target', () => {
+    const rows = justifyRows(new Array(8).fill(0.6), 326, 120, 6);
+    expect(rows.map((r) => r.end - r.start)).toEqual([4, 4]);
+  });
+
+  it('should fill the width exactly on every full row', () => {
+    const ratios = [1.5, 0.67, 1.78, 1, 0.56, 1.5, 2.4, 0.75];
+    for (const row of justifyRows(ratios, 1100, 240, 8).slice(0, -1)) {
+      const widths = ratios
+        .slice(row.start, row.end)
+        .reduce((sum, r) => sum + r * row.height, 0);
+      expect(widths + 8 * (row.end - row.start - 1)).toBeCloseTo(1100);
+    }
+  });
+
+  it('should not stretch a short last row', () => {
+    const rows = justifyRows([1.5, 1.5, 1.5, 0.67], 1100, 240, 8);
+    expect(rows.at(-1)?.height).toBe(240);
+  });
+
+  it('should cover every photo once, in order, and handle an empty album', () => {
+    const rows = justifyRows([1, 2, 0.5, 1.5, 1, 0.7, 2.4], 400, 150, 4);
+    expect(rows[0].start).toBe(0);
+    for (const [i, row] of rows.entries()) {
+      expect(row.end).toBeGreaterThan(row.start);
+      expect(row.start).toBe(i === 0 ? 0 : rows[i - 1].end);
+    }
+    expect(rows.at(-1)?.end).toBe(7);
+    expect(justifyRows([], 400, 150, 4)).toEqual([]);
+  });
+
+  it('should mark only a short last row as not filling the width', () => {
+    expect(
+      justifyRows([1.95, 1.95, 1.95, 1.95], 326, 120, 6).map((r) => r.fills)
+    ).toEqual([true, true]);
+    expect(justifyRows([1.5, 1.5, 1.5, 0.67], 1100, 240, 8).at(-1)?.fills).toBe(
+      false
+    );
   });
 });

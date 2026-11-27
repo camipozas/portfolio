@@ -94,7 +94,7 @@ export default async function RootLayout({
     <html lang={lang} suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main className="mx-auto max-w-2xl px-6 py-16">{children}</main>
+          {children}
         </ThemeProvider>
       </body>
     </html>

@@ -52,5 +52,15 @@
   "A tool that can clone all repositories in a GitHub organization with ease.": "Una herramienta que clona fácilmente todos los repositorios de una organización de GitHub.",
   "A curated list of unique extensions to boost your productivity and streamline your workflow.": "Una lista seleccionada de extensiones únicas para potenciar tu productividad y agilizar tu flujo de trabajo.",
   "How to get data and post it in Google Sheets for stakeholders to read easily.": "Cómo obtener datos y publicarlos en Google Sheets para que los interesados los lean fácilmente.",
-  "Reading unstructured PDFs with Python using temporary folders.": "Lectura de PDFs no estructurados con Python usando carpetas temporales."
+  "Reading unstructured PDFs with Python using temporary folders.": "Lectura de PDFs no estructurados con Python usando carpetas temporales.",
+  "Pictures": "Fotos",
+  "Places and moments, edited by me.": "Lugares y momentos, editados por mí.",
+  "Photos are coming soon.": "Pronto habrá fotos aquí.",
+  "All albums": "Todos los álbumes",
+  "photo": "foto",
+  "photos": "fotos",
+  "Close": "Cerrar",
+  "Previous photo": "Foto anterior",
+  "Next photo": "Foto siguiente",
+  "Open full size": "Ver en tamaño completo"
 }

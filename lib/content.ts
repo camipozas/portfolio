@@ -6,6 +6,7 @@ import {
   experiences,
   featuredProjects,
   navLinks,
+  picturesLink,
   siteDescription,
   siteTitle,
   skillCategories,
@@ -41,6 +42,11 @@ export function getContent(lang: Locale, t: Translate = translator(lang)) {
       Object.entries(ui).map(([key, text]) => [key, t(text)]),
     ) as typeof ui,
     navLinks: navLinks.map((link) => ({ ...link, label: t(link.label) })),
+    picturesLabel: t(picturesLink.label),
+    menuLinks: [...navLinks, picturesLink].map((link) => ({
+      ...link,
+      label: t(link.label),
+    })),
     skillCategories: skillCategories.map((category) => ({
       ...category,
       label: t(category.label),

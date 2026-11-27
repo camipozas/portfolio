@@ -12,6 +12,10 @@ interface NavProps {
 
 export function Nav({ lang, navLinks, toggleThemeLabel }: NavProps) {
   const other: Locale = lang === "en" ? "es" : "en";
+  const home = localizedPath("/", lang);
+  // Section anchors live on the home page, so they also work from /pictures.
+  const hrefOf = (href: string) =>
+    href.startsWith("#") ? `${home}${href}` : localizedPath(href, lang);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
@@ -27,7 +31,7 @@ export function Nav({ lang, navLinks, toggleThemeLabel }: NavProps) {
             {navLinks.map((link) => (
               <a
                 key={link.href}
-                href={link.href}
+                href={hrefOf(link.href)}
                 className="text-sm text-muted transition-colors hover:text-accent"
               >
                 {link.label}

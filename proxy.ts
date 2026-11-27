@@ -9,10 +9,12 @@ import {
   defaultLocale,
   isLocale,
   LOCALE_COOKIE,
+  locales,
   localizedPath,
 } from '@/lib/locale';
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
+const PICTURES_PAGE = new RegExp(`^(/(${locales.join('|')}))?/pictures$`, 'u');
 
 function adminGate(request: NextRequest) {
   // The public site renders /admin as 404 (see app/admin/layout.tsx).
@@ -36,6 +38,14 @@ export function proxy(request: NextRequest) {
   }
   if (process.env.BACKOFFICE === '1') {
     return NextResponse.redirect(new URL('/admin', request.url));
+  }
+
+  // Collections used to be a "?c=<slug>" filter here; links shared back then keep working.
+  const legacy = url.searchParams.get('c');
+  if (legacy && PICTURES_PAGE.test(url.pathname)) {
+    url.searchParams.delete('c');
+    url.pathname = `${url.pathname}/c/${encodeURIComponent(legacy)}`;
+    return NextResponse.redirect(url);
   }
 
   // The language toggle links to "?lang=xx": remember the choice, like next-themes does for the theme.

@@ -41,7 +41,9 @@ export const ui = {
   picturesEmpty: 'Photos are coming soon.',
   picturesCollections: 'Collections',
   picturesAll: 'All',
-  picturesOther: 'Other',
+  picturesMore: 'More albums',
+  album: 'album',
+  albums: 'albums',
   photo: 'photo',
   photos: 'photos',
   close: 'Close',
@@ -49,6 +51,7 @@ export const ui = {
   nextPhoto: 'Next photo',
   openFullSize: 'Open full size',
   nextAlbum: 'Next album',
+  nextIn: 'Next in',
   photoDetails: 'Photo details',
 };
 

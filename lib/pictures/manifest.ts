@@ -74,3 +74,33 @@ export async function getAlbums(): Promise<Album[]> {
 export async function getAlbum(slug: string): Promise<Album | undefined> {
   return (await getAlbums()).find((album) => album.slug === slug);
 }
+
+/** The albums of collection `slug`; without one, those outside every collection. */
+export function albumsIn(
+  albums: Album[],
+  collections: Collection[],
+  slug?: string
+): Album[] {
+  const known = new Set(collections.map((c) => c.slug));
+  return albums.filter(
+    (album) =>
+      (album.collection && known.has(album.collection)
+        ? album.collection
+        : undefined) === slug
+  );
+}
+
+/** Up to three photos: the lead album's cover, the next albums' covers, then more of the lead. */
+export function mosaicPhotos(albums: Album[], coverAlbum?: string): Photo[] {
+  const lead = albums.find((a) => a.slug === coverAlbum) ?? albums[0];
+  if (!lead) {
+    return [];
+  }
+  const covers = [lead, ...albums.filter((a) => a !== lead)].map(
+    (a) => a.photos.find((p) => p.id === a.coverId) ?? a.photos[0]
+  );
+  const unique = new Map(
+    [...covers, ...lead.photos].map((photo) => [photo.id, photo])
+  );
+  return [...unique.values()].slice(0, 3);
+}

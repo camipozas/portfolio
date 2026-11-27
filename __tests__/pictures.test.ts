@@ -8,10 +8,13 @@ import {
 } from '@/lib/pictures/exif';
 import {
   aboveWatermark,
+  albumsIn,
   localized,
+  mosaicPhotos,
   parseAlbums,
   parseCollections,
 } from '@/lib/pictures/manifest';
+import type { Album } from '@/lib/pictures/types';
 
 describe('exif formatting', () => {
   it('should show fast shutter speeds as fractions and slow ones in seconds', () => {
@@ -106,6 +109,54 @@ describe('formatDateRange', () => {
       'May 2025'
     );
     expect(formatDateRange([undefined], 'en')).toBeUndefined();
+  });
+});
+
+const makeAlbum = (
+  slug: string,
+  ids: string[],
+  collection?: string
+): Album => ({
+  slug,
+  title: { en: slug },
+  coverId: ids.at(-1) as string,
+  photos: ids.map((id) => ({ id, width: 3, height: 2 })),
+  collection,
+});
+
+describe('collections', () => {
+  const trips = [makeAlbum('a', ['a1', 'a2']), makeAlbum('b', ['b1'])].map(
+    (a) => ({
+      ...a,
+      collection: 'trips',
+    })
+  );
+  const albums = [
+    ...trips,
+    makeAlbum('kira', ['k1']),
+    makeAlbum('lost', ['l1'], 'gone'),
+  ];
+
+  it('should list the albums of a collection, and those of none or an unknown one apart', () => {
+    const collections = [{ slug: 'trips', title: { en: 'Trips' } }];
+    expect(albumsIn(albums, collections, 'trips')).toEqual(trips);
+    expect(albumsIn(albums, collections).map((a) => a.slug)).toEqual([
+      'kira',
+      'lost',
+    ]);
+  });
+
+  it('should lead the mosaic with the chosen album, then the other covers', () => {
+    expect(mosaicPhotos(trips, 'b').map((p) => p.id)).toEqual(['b1', 'a2']);
+    expect(mosaicPhotos(trips).map((p) => p.id)).toEqual(['a2', 'b1', 'a1']);
+    expect(mosaicPhotos(trips, 'gone')[0].id).toBe('a2');
+  });
+
+  it('should fill the mosaic of a one-album collection with more of its photos', () => {
+    expect(
+      mosaicPhotos([makeAlbum('x', ['1', '2', '3', '4'])]).map((p) => p.id)
+    ).toEqual(['4', '1', '2']);
+    expect(mosaicPhotos([])).toEqual([]);
   });
 });
 

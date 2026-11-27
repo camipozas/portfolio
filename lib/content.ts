@@ -86,3 +86,7 @@ export function headingFor(content: Content, id: string): string {
 export function photoCount(content: Content, count: number): string {
   return `${count} ${count === 1 ? content.ui.photo : content.ui.photos}`;
 }
+
+export function albumCount(content: Content, count: number): string {
+  return `${count} ${count === 1 ? content.ui.album : content.ui.albums}`;
+}

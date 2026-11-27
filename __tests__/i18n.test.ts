@@ -94,6 +94,18 @@ describe('proxy', () => {
     expect(response.cookies.get('lang')?.value).toBe('en');
   });
 
+  it('should send the old ?c= collection filter to the collection page', () => {
+    expect(proxy(request('/pictures?c=trips')).headers.get('location')).toBe(
+      'https://www.camipg.com/pictures/c/trips'
+    );
+    expect(proxy(request('/es/pictures?c=trips')).headers.get('location')).toBe(
+      'https://www.camipg.com/es/pictures/c/trips'
+    );
+    expect(
+      proxy(request('/pictures/berlin?c=trips')).headers.get('location')
+    ).toBeNull();
+  });
+
   it('should ignore an unknown ?lang= value', () => {
     const response = proxy(request('/?lang=fr'));
     expect(response.cookies.get('lang')).toBeUndefined();

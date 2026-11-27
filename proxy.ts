@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
+  isValidSession,
+  SESSION_COOKIE,
+  sessionSecret,
+} from "@/lib/backoffice/auth";
+import {
   defaultLocale,
   isLocale,
   LOCALE_COOKIE,
@@ -8,8 +13,29 @@ import {
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
+function adminGate(request: NextRequest) {
+  // The public site renders /admin as 404 (see app/admin/layout.tsx).
+  if (
+    process.env.BACKOFFICE !== "1" ||
+    request.nextUrl.pathname === "/admin/login"
+  ) {
+    return NextResponse.next();
+  }
+  const token = request.cookies.get(SESSION_COOKIE)?.value;
+  return isValidSession(token, sessionSecret())
+    ? NextResponse.next()
+    : NextResponse.redirect(new URL("/admin/login", request.url));
+}
+
 export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
+
+  if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) {
+    return adminGate(request);
+  }
+  if (process.env.BACKOFFICE === "1") {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
 
   // The language toggle links to "?lang=xx": remember the choice, like next-themes does for the theme.
   const requested = url.searchParams.get("lang") ?? undefined;

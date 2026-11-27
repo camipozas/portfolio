@@ -14,6 +14,7 @@ import type { AlbumState } from '@/lib/backoffice/curation';
 import {
   buildManifest,
   catalogIndex,
+  inBatches,
   planPublish,
   syncState,
 } from '@/lib/backoffice/curation';
@@ -30,6 +31,7 @@ import {
   writeManifest,
   writeState,
 } from '@/lib/backoffice/storage';
+import { SITE_URL } from '@/lib/data';
 
 const LOCK_WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILURES = 10;
@@ -114,6 +116,11 @@ export async function saveAlbumPhotos(
 
 export async function publish() {
   await requireSession();
+  if (process.env.CURATION_STATE_KEY) {
+    throw new Error(
+      'publishing is disabled while using a test state (CURATION_STATE_KEY)'
+    );
+  }
   const catalog = await readCatalog();
   const manifest = buildManifest(
     catalog,
@@ -126,19 +133,23 @@ export async function publish() {
     await readPublishedManifest()
   );
   const paths = catalogIndex(catalog);
-  for (let i = 0; i < copy.length; i += 24) {
-    await Promise.all(
-      copy
-        .slice(i, i + 8)
-        .map((id) => publishPhoto(id, paths.get(id)?.path as string))
-    );
-  }
+  await inBatches(copy, 24, (id) =>
+    publishPhoto(id, paths.get(id)?.path as string)
+  );
   await writeManifest(manifest);
+  const refreshed = await fetch(`${SITE_URL}/api/revalidate`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${process.env.REVALIDATE_SECRET ?? ''}` },
+  }).then(
+    (response) => response.ok,
+    () => false
+  );
   await unpublishPhotos(remove);
   return {
     albums: manifest.albums.length,
     photos: manifest.albums.reduce((n, album) => n + album.photos.length, 0),
     copied: copy.length,
     removed: remove.length,
+    refreshed,
   };
 }

@@ -6,34 +6,34 @@ export default async function LoginPage({
   const { error } = await searchParams;
   return (
     <form action={login} className="mx-auto mt-24 flex max-w-xs flex-col gap-3">
-      <h1 className="text-xl font-semibold">Backoffice</h1>
+      <h1 className="text-xl font-semibold">Fotos · Administración</h1>
       <input
         autoComplete="username"
         className="border-border bg-background rounded-md border px-3 py-2"
         name="username"
-        placeholder="Username"
+        placeholder="Usuario"
         required
       />
       <input
         autoComplete="current-password"
         className="border-border bg-background rounded-md border px-3 py-2"
         name="password"
-        placeholder="Password"
+        placeholder="Contraseña"
         required
         type="password"
       />
-      {!!error && (
+      {error ? (
         <p className="text-sm text-red-500" role="alert">
           {error === 'locked'
-            ? 'Too many failed attempts. Try again in 15 minutes.'
-            : 'Wrong username or password.'}
+            ? 'Demasiados intentos fallidos. Vuelve a intentar en 15 minutos.'
+            : 'Usuario o contraseña incorrectos.'}
         </p>
-      )}
+      ) : null}
       <button
         className="bg-foreground text-background rounded-md px-3 py-2"
         type="submit"
       >
-        Sign in
+        Entrar
       </button>
     </form>
   );

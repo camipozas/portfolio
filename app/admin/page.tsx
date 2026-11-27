@@ -1,45 +1,42 @@
 import { AlbumsEditor } from '@/components/admin/albums-editor';
-import { catalogIndex, syncState } from '@/lib/backoffice/curation';
+import { loadOverview } from '@/lib/backoffice/overview';
 import { requireSession } from '@/lib/backoffice/session';
-import { readCatalog, readState, thumbUrl } from '@/lib/backoffice/storage';
-import { logout } from './actions';
+import { thumbUrl } from '@/lib/backoffice/storage';
 
 // Hobby plan limit. A publish cut short resumes on the next click (see planPublish).
 export const maxDuration = 60;
 
 export default async function AdminPage() {
   await requireSession();
-  const catalog = await readCatalog();
-  const state = syncState(catalog, await readState());
-  const photos = catalogIndex(catalog);
+  const { state, photos, pending, publishedAt } = await loadOverview();
 
   const albums = await Promise.all(
-    state.albums.map(async ({ photos: albumPhotos, ...album }) => {
-      const coverId = album.coverId ?? albumPhotos[0]?.id;
-      const cover = coverId && photos.get(coverId);
-      return {
-        ...album,
-        total: albumPhotos.length,
-        shown: albumPhotos.filter((photo) => photo.visible).length,
-        coverUrl: cover ? await thumbUrl(cover.path) : undefined,
-      };
-    })
+    state.albums.map(
+      async ({ photos: albumPhotos, key, slug, title, visible, coverId }) => {
+        const cover = photos.get(
+          coverId ??
+            albumPhotos.find((p) => p.visible)?.id ??
+            albumPhotos[0]?.id ??
+            ''
+        );
+        return {
+          key,
+          slug,
+          title,
+          visible,
+          total: albumPhotos.length,
+          shown: albumPhotos.filter((photo) => photo.visible).length,
+          coverUrl: cover ? await thumbUrl(cover.path) : undefined,
+        };
+      }
+    )
   );
 
   return (
-    <>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Albums</h1>
-        <form action={logout}>
-          <button
-            className="text-muted hover:text-accent text-sm"
-            type="submit"
-          >
-            Sign out
-          </button>
-        </form>
-      </div>
-      <AlbumsEditor initial={albums} />
-    </>
+    <AlbumsEditor
+      initial={albums}
+      initialPending={pending}
+      publishedAt={publishedAt}
+    />
   );
 }

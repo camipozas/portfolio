@@ -16,6 +16,8 @@ const BACKUP =
   process.env.PHOTOS_BACKUP_BUCKET ?? 'camipg-photos-backup-326733328768';
 const ASSETS = process.env.PHOTOS_ASSETS_BUCKET ?? 'assets-portfolio';
 const SIZES = ['thumb', '2048', 'full'] as const;
+// Local development points this elsewhere so testing never touches the real choices.
+const STATE_KEY = process.env.CURATION_STATE_KEY ?? 'curation/state.json';
 
 // On Vercel the role comes from OIDC; locally the default chain (AWS_PROFILE=photos).
 const s3 = new S3Client({
@@ -44,7 +46,7 @@ async function readJson<T>(key: string, fallback: T): Promise<T> {
 export const readCatalog = () =>
   readJson<Catalog>('curation/catalog.json', { generatedAt: '', albums: [] });
 export const readState = () =>
-  readJson<CurationState>('curation/state.json', { albums: [] });
+  readJson<CurationState>(STATE_KEY, { albums: [] });
 
 export interface LoginAttempts {
   failures: number[];
@@ -70,7 +72,7 @@ export async function writeLoginAttempts(
 }
 
 export async function writeState(state: CurationState): Promise<void> {
-  await putJson('curation/state.json', state);
+  await putJson(STATE_KEY, state);
 }
 
 export function thumbUrl(path: string): Promise<string> {
@@ -169,7 +171,8 @@ export async function writeManifest(manifest: Manifest): Promise<void> {
       Key: 'photos/manifest.json',
       Body: JSON.stringify(manifest),
       ContentType: 'application/json',
-      CacheControl: 'public, max-age=300',
+      // The site re-reads it right after each publish (see /api/revalidate).
+      CacheControl: 'no-cache',
     })
   );
 }

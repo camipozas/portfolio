@@ -6,7 +6,11 @@ import {
   formatSettings,
   formatTakenAt,
 } from '@/lib/pictures/exif';
-import { localized, parseAlbums } from '@/lib/pictures/manifest';
+import {
+  localized,
+  parseAlbums,
+  parseCollections,
+} from '@/lib/pictures/manifest';
 
 describe('exif formatting', () => {
   it('should show fast shutter speeds as fractions and slow ones in seconds', () => {
@@ -65,6 +69,15 @@ describe('manifest', () => {
   it('should treat a malformed manifest as nothing published', () => {
     expect(parseAlbums(null)).toEqual([]);
     expect(parseAlbums({ albums: 'nope' })).toEqual([]);
+  });
+
+  it('should read collections and find none in a manifest published before them', () => {
+    const trips = { slug: 'trips', title: { en: 'Trips' } };
+    expect(parseCollections({ albums: [], collections: [trips] })).toEqual([
+      trips,
+    ]);
+    expect(parseCollections({ albums: [] })).toEqual([]);
+    expect(parseCollections(null)).toEqual([]);
   });
 
   it('should fall back to English when the Spanish text is missing', () => {

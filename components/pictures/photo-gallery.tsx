@@ -107,7 +107,9 @@ export function PhotoGallery({
   const arrows = showInfo ? 'md:block' : 'sm:block';
 
   const altOf = (photo: Photo, i: number) =>
-    localized(photo.alt, lang) || `${albumTitle} ${i + 1}/${photos.length}`;
+    localized(photo.caption, lang) ||
+    localized(photo.alt, lang) ||
+    `${albumTitle} ${i + 1}/${photos.length}`;
   // Each photo has its own URL. The URL is the source of truth: back/forward and
   // shared links open or close the viewer, and every way of closing it lands in onClose.
   const show = (i: number) => {
@@ -427,6 +429,11 @@ export function PhotoGallery({
                     width={current.width}
                   />
                 </div>
+                {localized(current.caption, lang) ? (
+                  <figcaption className="max-w-prose pt-3 text-center text-sm text-white/80">
+                    {localized(current.caption, lang)}
+                  </figcaption>
+                ) : null}
                 <button
                   aria-label={labels.previous}
                   className={`absolute top-1/2 left-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 ${arrows}`}

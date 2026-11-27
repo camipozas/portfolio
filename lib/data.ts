@@ -19,12 +19,12 @@ export const name = "Camila Pozas";
 export const title = "Hi, I'm Camila";
 
 export const subtitle =
-  "Senior Software Engineer with experience in backend development and continuous improvement — TypeScript, Next.js, Docker, and Cloud.";
+  "Senior Software Engineer with experience in full-stack development and infrastructure — TypeScript, Next.js, Docker, and Cloud.";
 
 export const siteTitle = "Camila Pozas — Senior Software Engineer";
 
 export const siteDescription =
-  "Senior Software Engineer with experience in backend development, TypeScript, Next.js, Docker, and Cloud.";
+  "Senior Software Engineer with experience in full-stack development and infrastructure — TypeScript, Next.js, Docker, and Cloud.";
 
 // Text the components render outside the content below.
 export const ui = {
@@ -72,7 +72,7 @@ export const navLinks: NavLink[] = [
 ];
 
 export const bio =
-  "I build tools that reduce manual processes and automate workflows. Focused on robust, scalable backend applications using Node.js and TypeScript, with cloud infrastructure on AWS.";
+  "I build tools and applications with impact around the world, like Ria's international money transfer products, and automate workflows to eliminate manual processes. I focus on robust, scalable backend systems with Node.js and TypeScript, on AWS cloud infrastructure.";
 
 export const skills: Skill[] = [
   { name: "TypeScript" },

@@ -7,8 +7,9 @@ on a Mac; nothing here runs in CI or on Vercel.
 ## New album
 
 1. In Lightroom web, open the album, select all and download as **Full Size**.
-2. `scripts/photos/add-album.sh ~/Downloads/<album>.zip "<album>"` runs steps 2–5
-   below in order, with progress, and stops at the first failure.
+2. `scripts/photos/add-album.sh ~/Downloads/<album>.zip "<album>"` runs backup,
+   derive, catalog and Drive (steps 2, 3, 5, 4 below), with progress, and stops
+   at the first failure. Safe to re-run.
 3. In the backoffice, open the album, choose what to show and press Publicar.
 
 Run it on the Mac that holds `~/Pictures/lightroom-backup`: the catalog is

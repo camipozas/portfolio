@@ -83,7 +83,8 @@ export function syncState(catalog: Catalog, state: SavedState): CurationState {
     catalog.albums.map((album) => [album.key, album])
   );
   const kept = state.albums.filter((album) => catalogAlbums.has(album.key));
-  const taken = new Set(kept.map((album) => album.slug));
+  // "c" is taken by the collection pages (/pictures/c/<slug>).
+  const taken = new Set(['c', ...kept.map((album) => album.slug)]);
   const added = catalog.albums
     .filter((album) => !kept.some((known) => known.key === album.key))
     .map((album): AlbumState => {

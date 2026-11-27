@@ -17,7 +17,8 @@ import {
   photoUrl,
 } from '@/lib/pictures/manifest';
 
-// A CDN outage must not block deploys; unlisted collections render on first visit.
+// Published without a deploy: unlisted collections render on first visit. A CDN outage
+// must not block deploys.
 export async function generateStaticParams() {
   const { collections } = await getManifest().catch(() => ({
     collections: [],

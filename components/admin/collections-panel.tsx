@@ -78,21 +78,25 @@ export function CollectionsPanel({
               (a) => a.collection === collection.slug
             );
             const albums = members.length;
+            const name =
+              collection.title.es || collection.title.en || 'Sin nombre';
+            const headingId = `collection-${collection.slug}`;
             return (
               <li
+                aria-labelledby={headingId}
                 className="border-border bg-background grid gap-4 rounded-lg border p-4"
                 key={collection.slug}
               >
                 <header className="flex items-center gap-2">
-                  <h3 className="truncate font-medium">
-                    {collection.title.es || collection.title.en || 'Sin nombre'}
+                  <h3 className="truncate font-medium" id={headingId}>
+                    {name}
                   </h3>
                   <span className="text-muted text-xs">
                     {albums === 1 ? '1 álbum' : `${albums} álbumes`}
                   </span>
                   <span className="ml-auto flex items-center gap-1">
                     <button
-                      aria-label={`Subir ${collection.title.en}`}
+                      aria-label={`Subir ${name}`}
                       className="text-muted hover:bg-border rounded-full p-1.5 disabled:opacity-30"
                       disabled={i === 0}
                       onClick={() => onChange(move(collections, i, i - 1))}
@@ -102,7 +106,7 @@ export function CollectionsPanel({
                       <ArrowUp size={14} />
                     </button>
                     <button
-                      aria-label={`Bajar ${collection.title.en}`}
+                      aria-label={`Bajar ${name}`}
                       className="text-muted hover:bg-border rounded-full p-1.5 disabled:opacity-30"
                       disabled={i === collections.length - 1}
                       onClick={() => onChange(move(collections, i, i + 1))}
@@ -112,7 +116,7 @@ export function CollectionsPanel({
                       <ArrowDown size={14} />
                     </button>
                     <button
-                      aria-label={`Eliminar ${collection.title.en}`}
+                      aria-label={`Eliminar ${name}`}
                       className="text-muted rounded-full p-1.5 hover:bg-red-500/10 hover:text-red-600"
                       onClick={() => setConfirming(collection.slug)}
                       title="Eliminar"
@@ -132,7 +136,6 @@ export function CollectionsPanel({
                           title: { ...collection.title, en: e.target.value },
                         })
                       }
-                      required
                       value={collection.title.en}
                     />
                   </label>
@@ -211,7 +214,7 @@ export function CollectionsPanel({
                     role="alert"
                   >
                     <span className="mr-auto">
-                      ¿Eliminar «{collection.title.es || collection.title.en}»?
+                      ¿Eliminar «{name}»?
                       {albums > 0 && ' Sus álbumes quedarán sin colección.'}
                     </span>
                     <button
@@ -256,7 +259,7 @@ export function CollectionsPanel({
           />
         </label>
         <label className={field}>
-          Nombre en español
+          Nueva colección, nombre en español
           <input
             className={input}
             onChange={(e) =>

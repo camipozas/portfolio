@@ -29,7 +29,8 @@ export function localized(text: Localized | undefined, lang: Locale): string {
   if (!text) {
     return '';
   }
-  return (lang === 'es' && text.es) || text.en;
+  // A caption may exist only in Spanish: better than nothing on the English page.
+  return (lang === 'es' && text.es) || text.en || text.es || '';
 }
 
 export function parseAlbums(data: unknown): Album[] {

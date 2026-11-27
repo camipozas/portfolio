@@ -106,8 +106,9 @@ export function PhotoGallery({
   // Below md the details sheet covers the middle of the photo, arrows included.
   const arrows = showInfo ? 'md:block' : 'sm:block';
 
-  const altOf = (photo: Photo, i: number) =>
-    localized(photo.caption, lang) ||
+  // The viewer prints the caption under the photo, so its alt leaves it out.
+  const altOf = (photo: Photo, i: number, withCaption = true) =>
+    (withCaption && localized(photo.caption, lang)) ||
     localized(photo.alt, lang) ||
     `${albumTitle} ${i + 1}/${photos.length}`;
   // Each photo has its own URL. The URL is the source of truth: back/forward and
@@ -407,7 +408,7 @@ export function PhotoGallery({
                 <div className="relative flex min-h-0 w-full flex-1 items-center justify-center">
                   {/* biome-ignore lint/performance/noImgElement: pre-sized on S3 */}
                   <img
-                    alt={altOf(current, index)}
+                    alt={altOf(current, index, false)}
                     className="peer relative z-10 max-h-full max-w-full object-contain opacity-0 data-loaded:opacity-100 motion-safe:transition-opacity motion-safe:duration-300"
                     height={current.height}
                     key={current.id}
@@ -451,7 +452,7 @@ export function PhotoGallery({
                   <ChevronRight aria-hidden="true" size={24} />
                 </button>
                 <p
-                  className={`pointer-events-none absolute bottom-8 left-1/2 z-20 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-sm whitespace-nowrap motion-safe:animate-pulse ${hint ? '' : 'hidden'}`}
+                  className={`pointer-events-none absolute left-1/2 ${current.caption ? 'bottom-20' : 'bottom-8'} z-20 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-sm whitespace-nowrap motion-safe:animate-pulse ${hint ? '' : 'hidden'}`}
                   role="status"
                 >
                   {hint ? (

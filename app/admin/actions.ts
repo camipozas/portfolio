@@ -185,7 +185,8 @@ export async function saveAlbumPhotos(
             photos: photos.map(({ id, visible, caption }) => ({
               id,
               visible,
-              caption: caption && cleanCaption(caption),
+              caption:
+                caption === undefined ? undefined : cleanCaption(caption),
             })),
           }
         : album

@@ -265,9 +265,15 @@ describe('cleanCaption', () => {
     expect(caption?.es).toHaveLength(CAPTION_MAX);
   });
 
+  it('should not split an emoji at the limit', () => {
+    const caption = cleanCaption({ en: `${'x'.repeat(CAPTION_MAX - 1)}📷!` });
+    expect(caption?.en.endsWith('📷')).toBe(true);
+  });
+
   it('should reject anything that is not text', () => {
     expect(() => cleanCaption({ en: 5 } as never)).toThrow();
     expect(() => cleanCaption({ en: 'ok', es: ['x'] } as never)).toThrow();
+    expect(() => cleanCaption(null as never)).toThrow();
   });
 });
 

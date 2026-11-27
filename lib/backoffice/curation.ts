@@ -52,6 +52,9 @@ export function cleanText({ en, es }: Localized): Localized | undefined {
 export const CAPTION_MAX = 140;
 
 /** For input from the page: anything but text is refused, not stored. */
+// By code point, so an emoji at the limit is not split in half.
+const cut = (text: string) => Array.from(text).slice(0, CAPTION_MAX).join('');
+
 export function cleanCaption({
   en,
   es = '',
@@ -60,8 +63,8 @@ export function cleanCaption({
     throw new Error('a caption must be text');
   }
   return cleanText({
-    en: en.trim().slice(0, CAPTION_MAX),
-    es: es.trim().slice(0, CAPTION_MAX),
+    en: cut(en.trim()),
+    es: cut(es.trim()),
   });
 }
 

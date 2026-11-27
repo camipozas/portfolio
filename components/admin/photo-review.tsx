@@ -182,7 +182,11 @@ export function PhotoReview({
                     })
                   }
                   onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
+                    // Enter or Esc leaves the field (Esc would otherwise close the review).
+                    const leave =
+                      event.key === 'Enter' || event.key === 'Escape';
+                    if (leave && !event.nativeEvent.isComposing) {
+                      event.preventDefault();
                       dialog.current?.focus();
                     }
                   }}

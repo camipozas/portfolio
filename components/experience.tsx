@@ -1,11 +1,13 @@
 import Image from "next/image";
-import { experiences } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export function Experience() {
+export function Experience({ content }: { content: Content }) {
+  const { experiences } = content;
+
   return (
-    <Section id="experience" heading="Experience">
+    <Section id="experience" heading={headingFor(content, "experience")}>
       <div className="space-y-4">
         {experiences.map((exp, i) => (
           <AnimateOnScroll key={exp.company} delay={i * 100}>

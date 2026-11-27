@@ -1,11 +1,16 @@
 import { ExternalLink } from "lucide-react";
-import { certifications } from "@/lib/data";
+import { type Content, headingFor } from "@/lib/content";
 import { AnimateOnScroll } from "./animate-on-scroll";
 import { Section } from "./section";
 
-export function Certifications() {
+export function Certifications({ content }: { content: Content }) {
+  const { certifications } = content;
+
   return (
-    <Section id="certifications" heading="Certifications">
+    <Section
+      id="certifications"
+      heading={headingFor(content, "certifications")}
+    >
       <div className="space-y-4">
         {certifications.map((cert, i) => (
           <AnimateOnScroll key={cert.title} delay={i * 100}>

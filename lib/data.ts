@@ -12,12 +12,32 @@ import type {
 
 export const CLOUDFRONT_BASE = "https://d3j0xmrk71qrvn.cloudfront.net";
 
+export const SITE_URL = "https://www.camipg.com";
+
 export const name = "Camila Pozas";
 
 export const title = "Hi, I'm Camila";
 
 export const subtitle =
   "Senior Software Engineer with experience in backend development and continuous improvement — TypeScript, Next.js, Docker, and Cloud.";
+
+export const siteTitle = "Camila Pozas — Senior Software Engineer";
+
+export const siteDescription =
+  "Senior Software Engineer with experience in backend development, TypeScript, Next.js, Docker, and Cloud.";
+
+// Text the components render outside the content below.
+export const ui = {
+  greeting: "Hey there!",
+  resume: "Resume",
+  toggleTheme: "Toggle theme",
+  writingIntro:
+    "Sometimes I like to write and share some things that I've learned.",
+  projectsFallback: "Check out my work on",
+  live: "Live",
+  chat: "Want to chat?",
+  sendEmail: "Send me an email",
+};
 
 export const heroEmoji = "👋";
 

@@ -3,6 +3,7 @@
 import {
   ArrowDownWideNarrow,
   ArrowLeft,
+  Captions,
   Check,
   Eye,
   EyeOff,
@@ -12,6 +13,7 @@ import {
 import { useState } from 'react';
 import { saveAlbumPhotos } from '@/app/admin/actions';
 import { move } from '@/lib/backoffice/curation';
+import type { Localized } from '@/lib/pictures/types';
 import { cn } from '@/lib/utils';
 import { PhotoReview } from './photo-review';
 import { PublishBar } from './publish-bar';
@@ -23,6 +25,7 @@ export interface PhotoTile {
   thumbUrl: string;
   largeUrl: string;
   takenAt?: string;
+  caption?: Localized;
 }
 
 interface PhotosEditorProps {
@@ -52,7 +55,11 @@ export function PhotosEditor(props: PhotosEditorProps) {
     (value) =>
       saveAlbumPhotos(
         props.albumKey,
-        value.photos.map(({ id, visible }) => ({ id, visible })),
+        value.photos.map(({ id, visible, caption }) => ({
+          id,
+          visible,
+          caption,
+        })),
         value.coverId
       ),
     () => setPending(true)
@@ -177,13 +184,21 @@ export function PhotosEditor(props: PhotosEditorProps) {
       <p className="text-muted mb-3 text-xs">
         Clic en una foto para mostrarla u ocultarla en el sitio (Shift+clic para
         un rango). Las de color con ✓ se ven; las apagadas no. La estrella la
-        deja de portada, la lupa la abre en grande. Arrastra para cambiar el
-        orden.
+        deja de portada, la lupa la abre en grande, donde también se le pone
+        título (las que tienen uno muestran{' '}
+        <Captions
+          aria-hidden="true"
+          className="inline align-text-bottom"
+          size={14}
+        />
+        ). Arrastra para cambiar el orden.
       </p>
 
       <ol className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         {view.map((photo, i) => {
           const index = photos.indexOf(photo);
+          const caption =
+            photo.caption?.en?.trim() || photo.caption?.es?.trim();
           return (
             <li
               className="relative"
@@ -200,7 +215,7 @@ export function PhotosEditor(props: PhotosEditorProps) {
               }
             >
               <button
-                aria-label={`Foto ${index + 1}: ${photo.visible ? 'visible en el sitio' : 'oculta'}`}
+                aria-label={`Foto ${index + 1}: ${photo.visible ? 'visible en el sitio' : 'oculta'}${caption ? `, título: ${caption}` : ''}`}
                 aria-pressed={photo.visible}
                 className={cn(
                   'ring-offset-background block w-full overflow-hidden rounded-lg ring-offset-2 transition',
@@ -234,6 +249,11 @@ export function PhotosEditor(props: PhotosEditorProps) {
               >
                 {photo.visible ? <Check size={14} strokeWidth={3} /> : null}
               </span>
+              {caption ? (
+                <span className="pointer-events-none absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white shadow">
+                  <Captions aria-hidden="true" size={14} />
+                </span>
+              ) : null}
               <button
                 aria-label={`Usar foto ${index + 1} como portada`}
                 aria-pressed={coverId === photo.id}
@@ -267,6 +287,11 @@ export function PhotosEditor(props: PhotosEditorProps) {
         <PhotoReview
           coverId={coverId}
           index={review}
+          onCaption={(id, caption) =>
+            setPhotos((list) =>
+              list.map((p) => (p.id === id ? { ...p, caption } : p))
+            )
+          }
           onClose={() => setReview(null)}
           onCover={(id) => setAlbum((a) => ({ ...a, coverId: id }))}
           onIndex={setReview}

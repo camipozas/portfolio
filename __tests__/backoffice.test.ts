@@ -11,6 +11,8 @@ import type { Catalog, SavedState } from '@/lib/backoffice/curation';
 import {
   albumStatuses,
   buildManifest,
+  CAPTION_MAX,
+  cleanCaption,
   hasUnpublishedChanges,
   inBatches,
   move,
@@ -228,6 +230,51 @@ describe('buildManifest', () => {
     expect(manifest.albums[0].collection).toBeUndefined();
     expect(manifest.collections).toEqual([]);
   });
+
+  it('should carry a photo caption and leave out an empty one', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.albums[0] = {
+      ...state.albums[0],
+      visible: true,
+      photos: [
+        { id: 'a', visible: true, caption: { en: 'Old town', es: 'Casco' } },
+        { id: 'b', visible: true, caption: { en: '', es: '' } },
+        { id: 'c', visible: true, caption: { en: '', es: 'Solo español' } },
+      ],
+    };
+    const [a, b, c] = buildManifest(catalog, state, 'now').albums[0].photos;
+    expect(a.caption).toEqual({ en: 'Old town', es: 'Casco' });
+    expect(b.caption).toBeUndefined();
+    expect(c.caption).toEqual({ en: '', es: 'Solo español' });
+  });
+});
+
+describe('cleanCaption', () => {
+  it('should trim, drop a blank language and a blank caption', () => {
+    expect(cleanCaption({ en: '  Old town ', es: '   ' })).toEqual({
+      en: 'Old town',
+    });
+    expect(cleanCaption({ en: ' ', es: '' })).toBeUndefined();
+    expect(cleanCaption({ en: '' })).toBeUndefined();
+  });
+
+  it('should cut each language to the maximum length', () => {
+    const long = 'x'.repeat(CAPTION_MAX + 10);
+    const caption = cleanCaption({ en: long, es: long });
+    expect(caption?.en).toHaveLength(CAPTION_MAX);
+    expect(caption?.es).toHaveLength(CAPTION_MAX);
+  });
+
+  it('should not split an emoji at the limit', () => {
+    const caption = cleanCaption({ en: `${'x'.repeat(CAPTION_MAX - 1)}📷!` });
+    expect(caption?.en.endsWith('📷')).toBe(true);
+  });
+
+  it('should reject anything that is not text', () => {
+    expect(() => cleanCaption({ en: 5 } as never)).toThrow();
+    expect(() => cleanCaption({ en: 'ok', es: ['x'] } as never)).toThrow();
+    expect(() => cleanCaption(null as never)).toThrow();
+  });
 });
 
 describe('planPublish', () => {
@@ -343,6 +390,20 @@ describe('hasUnpublishedChanges', () => {
     state.albums[0].collection = 'trips';
     const published = buildManifest(catalog, state, 'then');
     state.collections = [{ slug: 'trips', title: { en: 'Travel' } }];
+    expect(
+      hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
+    ).toBe(true);
+  });
+
+  it('should notice when only a caption changed', () => {
+    const state = syncState(catalog, { albums: [] });
+    state.albums[0] = {
+      ...state.albums[0],
+      visible: true,
+      photos: [{ id: 'a', visible: true }],
+    };
+    const published = buildManifest(catalog, state, 'then');
+    state.albums[0].photos[0].caption = { en: 'Old town' };
     expect(
       hasUnpublishedChanges(buildManifest(catalog, state, 'now'), published)
     ).toBe(true);

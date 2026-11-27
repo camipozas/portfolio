@@ -30,7 +30,9 @@ export async function albumMetadata(
   }
   // A photo page shows the album, so search engines should index the album instead.
   const albumPath = `/pictures/${slug}`;
-  const title = `${localized(album.title, lang)} — Camila Pozas`;
+  const caption = photo && localized(photo.caption, lang);
+  const albumTitle = localized(album.title, lang);
+  const title = `${caption ? `${caption} · ${albumTitle}` : albumTitle} — Camila Pozas`;
   const image = photo
     ? {
         url: photoUrl(photo.id, '1200'),

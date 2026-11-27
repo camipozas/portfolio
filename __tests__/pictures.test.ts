@@ -180,6 +180,10 @@ describe('manifest', () => {
     expect(localized({ en: 'Rome', es: 'Roma' }, 'es')).toBe('Roma');
     expect(localized({ en: 'Rome' }, 'es')).toBe('Rome');
     expect(localized(undefined, 'en')).toBe('');
+    // Captions may be written only in Spanish.
+    expect(localized({ en: '', es: 'Casco antiguo' }, 'en')).toBe(
+      'Casco antiguo'
+    );
   });
 });
 

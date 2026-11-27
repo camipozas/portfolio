@@ -2,6 +2,8 @@
 
 import { ChevronLeft, ChevronRight, Eye, EyeOff, Star, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { CAPTION_MAX } from '@/lib/backoffice/curation';
+import type { Localized } from '@/lib/pictures/types';
 import { cn } from '@/lib/utils';
 import type { PhotoTile } from './photos-editor';
 
@@ -12,6 +14,7 @@ interface PhotoReviewProps {
   onIndex: (index: number) => void;
   onToggle: (id: string) => void;
   onCover: (id: string) => void;
+  onCaption: (id: string, caption: Localized) => void;
   onClose: () => void;
 }
 
@@ -23,6 +26,7 @@ export function PhotoReview({
   onIndex,
   onToggle,
   onCover,
+  onCaption,
   onClose,
 }: PhotoReviewProps) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -41,10 +45,15 @@ export function PhotoReview({
   return (
     <dialog
       aria-label="Revisar fotos"
-      className="m-0 h-dvh max-h-none w-screen max-w-none bg-black p-0 text-white backdrop:bg-black"
+      className="m-0 h-dvh max-h-none w-screen max-w-none bg-black p-0 text-white outline-none backdrop:bg-black"
       onClose={onClose}
       onKeyDown={(event) => {
-        if (event.metaKey || event.ctrlKey || event.altKey) {
+        if (
+          event.metaKey ||
+          event.ctrlKey ||
+          event.altKey ||
+          event.target instanceof HTMLInputElement
+        ) {
           return;
         }
         switch (event.key.toLowerCase()) {
@@ -64,6 +73,8 @@ export function PhotoReview({
         }
       }}
       ref={dialog}
+      // Clicking the photo after typing focuses the dialog, so the shortcuts work again.
+      tabIndex={-1}
     >
       <div className="flex h-full flex-col">
         <header className="flex items-center gap-2 px-4 py-3 text-sm">
@@ -135,6 +146,56 @@ export function PhotoReview({
           >
             <ChevronRight size={24} />
           </button>
+        </div>
+        <div className="grid gap-3 px-4 pt-1 pb-4 text-sm sm:grid-cols-2">
+          {(
+            [
+              ['en', 'Título en inglés', 'Old town at dusk'],
+              [
+                'es',
+                'Título en español (opcional)',
+                'Casco antiguo al atardecer',
+              ],
+            ] as const
+          ).map(([lang, label, placeholder]) => {
+            const text = photo.caption?.[lang] ?? '';
+            return (
+              <label className="grid gap-1" key={lang}>
+                <span className="flex justify-between text-white/60">
+                  {label}
+                  <span
+                    aria-hidden="true"
+                    className="text-white/40 tabular-nums"
+                  >
+                    {text.length}/{CAPTION_MAX}
+                  </span>
+                </span>
+                <input
+                  className="rounded-lg bg-white/10 px-3 py-2 placeholder:text-white/30 focus:bg-white/15 focus:outline-2 focus:outline-white/60"
+                  lang={lang}
+                  maxLength={CAPTION_MAX}
+                  onChange={(event) =>
+                    onCaption(photo.id, {
+                      en: photo.caption?.en ?? '',
+                      es: photo.caption?.es,
+                      [lang]: event.target.value,
+                    })
+                  }
+                  onKeyDown={(event) => {
+                    // Enter or Esc leaves the field (Esc would otherwise close the review).
+                    const leave =
+                      event.key === 'Enter' || event.key === 'Escape';
+                    if (leave && !event.nativeEvent.isComposing) {
+                      event.preventDefault();
+                      dialog.current?.focus();
+                    }
+                  }}
+                  placeholder={placeholder}
+                  value={text}
+                />
+              </label>
+            );
+          })}
         </div>
       </div>
     </dialog>

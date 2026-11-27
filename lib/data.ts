@@ -72,7 +72,7 @@ export const navLinks: NavLink[] = [
 ];
 
 export const bio =
-  "I build tools and applications with impact around the world, like Ria's international money transfer products, and automate workflows to eliminate manual processes. I focus on robust, scalable backend systems with Node.js and TypeScript, on AWS cloud infrastructure.";
+  "I build tools and applications with impact around the world, like the ones I develop at Ria for its operations in many countries, and automate workflows to eliminate manual processes. I focus on robust, scalable backend systems with Node.js and TypeScript, on AWS cloud infrastructure.";
 
 export const skills: Skill[] = [
   { name: "TypeScript" },

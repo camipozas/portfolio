@@ -96,10 +96,17 @@ export function formatTakenAt(
 
 export type ExposureSpec = 'aperture' | 'shutter' | 'iso' | 'focalLength';
 
+const isPhone = ({ make, model, lens }: PhotoExif) =>
+  make === 'Apple' ||
+  make === 'Google' ||
+  Boolean(model && lens?.startsWith(model));
+
 /** Exposure settings the photo has, in the order photographers read them. */
 export function exposureSpecs(
   exif: PhotoExif
 ): { spec: ExposureSpec; value: string }[] {
+  // A phone's real focal length ("5.7 mm") means nothing; people know its 35 mm equivalent.
+  const focal = (isPhone(exif) && exif.focalLength35) || exif.focalLength;
   const specs: { spec: ExposureSpec; value: string | undefined }[] = [
     {
       spec: 'aperture',
@@ -112,9 +119,7 @@ export function exposureSpecs(
     { spec: 'iso', value: exif.iso ? `${exif.iso}` : undefined },
     {
       spec: 'focalLength',
-      value: exif.focalLength
-        ? `${Number(exif.focalLength.toFixed(1))} mm`
-        : undefined,
+      value: focal ? `${Number(focal.toFixed(1))} mm` : undefined,
     },
   ];
   return specs.filter(

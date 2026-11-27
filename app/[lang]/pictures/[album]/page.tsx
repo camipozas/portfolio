@@ -116,6 +116,13 @@ export default async function AlbumPage({
           next: ui.nextPhoto,
           openFullSize: ui.openFullSize,
           details: ui.photoDetails,
+          closeDetails: ui.closeDetails,
+          specs: {
+            aperture: ui.aperture,
+            shutter: ui.shutterSpeed,
+            iso: 'ISO',
+            focalLength: ui.focalLength,
+          },
         }}
         lang={lang}
         photos={album.photos}

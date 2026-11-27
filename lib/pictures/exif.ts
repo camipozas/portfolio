@@ -5,7 +5,8 @@ const EXIF_DATE =
   /^(?<year>\d{4}):(?<month>\d{2}):(?<day>\d{2})(?: (?<hour>\d{2}):(?<minute>\d{2}))?/u;
 
 export function formatExposure(seconds: number): string {
-  if (seconds >= 1) {
+  // Below ~0.3 s a fraction reads better; above it "1/1 s" would hide 0.8 s.
+  if (seconds >= 0.3) {
     return `${Number(seconds.toFixed(1))} s`;
   }
   return `1/${Math.round(1 / seconds)} s`;
@@ -14,12 +15,16 @@ export function formatExposure(seconds: number): string {
 // Sony bodies report their code: ILCE-6400 is the α6400, ILCE-7RM5 the α7R V.
 const SONY_ALPHA = /^ILCE-(?<body>\d+[A-Z]*?)(?:M(?<gen>\d))?$/u;
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
-const TRAILING_ZERO = /(?<digit>\d)\.0\b/gu;
+const TRAILING_ZERO = /(?<digit>\d)\.0(?!\d)/gu;
 
+// "SONY" → "Sony", "samsung" → "Samsung", "NIKON CORPORATION" → "Nikon"; short
+// acronyms ("DJI") stay as they are.
 const brandOf = (make: string) => {
   const word = make.split(' ')[0];
-  const shouting = word.length > 3 && word === word.toUpperCase();
-  return shouting ? word[0] + word.slice(1).toLowerCase() : word;
+  const oneCase = word === word.toUpperCase() || word === word.toLowerCase();
+  return word.length > 3 && oneCase
+    ? word[0].toUpperCase() + word.slice(1).toLowerCase()
+    : word;
 };
 
 /** "Sony α6400", "Nikon D5100", "iPhone 16 Pro". */
@@ -33,8 +38,10 @@ export function formatCamera(exif: PhotoExif): string | undefined {
     ? model.slice(brand.length + 1)
     : model;
   const alpha = bare.match(SONY_ALPHA)?.groups;
-  const name = alpha
-    ? `α${alpha.body}${alpha.gen ? ` ${ROMAN[+alpha.gen]}` : ''}`
+  const generation = alpha?.gen ? ROMAN[+alpha.gen] : '';
+  const known = alpha && (alpha.gen === undefined || generation);
+  const name = known
+    ? `α${alpha.body}${generation ? ` ${generation}` : ''}`
     : bare;
   // Phones name themselves ("iPhone 16 Pro"); cameras need the brand.
   return !brand || make === 'Apple' || make === 'Google'
@@ -56,7 +63,17 @@ export function formatTakenAt(
   lang: Locale
 ): string | undefined {
   const groups = takenAt.match(EXIF_DATE)?.groups;
-  if (!groups) {
+  // Cameras with an unset clock write 0000:00:00; Date.UTC would roll it into 1899.
+  const valid =
+    groups &&
+    +groups.year >= 1900 &&
+    +groups.month >= 1 &&
+    +groups.month <= 12 &&
+    +groups.day >= 1 &&
+    +groups.day <= 31 &&
+    +(groups.hour ?? 0) <= 23 &&
+    +(groups.minute ?? 0) <= 59;
+  if (!(groups && valid)) {
     return undefined;
   }
   // EXIF stores the camera's wall-clock time without a zone: show it as is.

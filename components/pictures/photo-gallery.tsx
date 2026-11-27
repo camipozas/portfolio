@@ -55,8 +55,19 @@ export function PhotoGallery({
   const touchX = useRef<number | null>(null);
   const [index, setIndex] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const infoButton = useRef<HTMLButtonElement>(null);
+  // Closing the panel unmounts its close button: keep focus inside the dialog so
+  // the arrow keys and "i" keep working.
+  const toggleInfo = () => {
+    if (showInfo) {
+      infoButton.current?.focus();
+    }
+    setShowInfo(!showInfo);
+  };
   const pushed = useRef(false);
   const current = index === null ? undefined : photos[index];
+  // Below md the details sheet covers the middle of the photo, arrows included.
+  const arrows = showInfo ? 'md:block' : 'sm:block';
 
   const altOf = (photo: Photo, i: number) =>
     localized(photo.alt, lang) || `${albumTitle} ${i + 1}/${photos.length}`;
@@ -178,8 +189,9 @@ export function PhotoGallery({
           if (event.key === 'ArrowRight') {
             step(1);
           }
-          if (event.key === 'i' && current?.exif) {
-            setShowInfo((on) => !on);
+          const plainKey = !(event.metaKey || event.ctrlKey || event.altKey);
+          if (plainKey && event.key.toLowerCase() === 'i' && current?.exif) {
+            toggleInfo();
           }
         }}
         onTouchEnd={(event) => {
@@ -218,7 +230,8 @@ export function PhotoGallery({
                   aria-label={labels.details}
                   aria-pressed={showInfo}
                   className="rounded-full p-2 hover:bg-white/10 aria-pressed:bg-white/15"
-                  onClick={() => setShowInfo((on) => !on)}
+                  onClick={toggleInfo}
+                  ref={infoButton}
                   title={`${labels.details} (i)`}
                   type="button"
                 >
@@ -267,7 +280,7 @@ export function PhotoGallery({
                 </div>
                 <button
                   aria-label={labels.previous}
-                  className="absolute top-1/2 left-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
+                  className={`absolute top-1/2 left-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 ${arrows}`}
                   onClick={() => step(-1)}
                   type="button"
                 >
@@ -275,7 +288,7 @@ export function PhotoGallery({
                 </button>
                 <button
                   aria-label={labels.next}
-                  className="absolute top-1/2 right-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 sm:block"
+                  className={`absolute top-1/2 right-2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-3 hover:bg-white/15 ${arrows}`}
                   onClick={() => step(1)}
                   type="button"
                 >
@@ -290,7 +303,7 @@ export function PhotoGallery({
                     specs: labels.specs,
                   }}
                   lang={lang}
-                  onClose={() => setShowInfo(false)}
+                  onClose={toggleInfo}
                   photo={current}
                 />
               ) : null}

@@ -22,6 +22,7 @@ describe('exif formatting', () => {
     expect(formatExposure(0.001_052_631_579)).toBe('1/950 s');
     expect(formatExposure(1 / 250)).toBe('1/250 s');
     expect(formatExposure(2.5)).toBe('2.5 s');
+    expect(formatExposure(0.8)).toBe('0.8 s');
   });
 
   it('should name cameras the way people know them', () => {
@@ -45,6 +46,12 @@ describe('exif formatting', () => {
     );
     expect(formatCamera({ make: 'Google', model: 'Pixel 7' })).toBe('Pixel 7');
     expect(formatCamera({ make: 'DJI', model: 'AC004' })).toBe('DJI AC004');
+    expect(formatCamera({ make: 'samsung', model: 'SM-S918B' })).toBe(
+      'Samsung SM-S918B'
+    );
+    expect(formatCamera({ make: 'SONY', model: 'ILCE-7M8' })).toBe(
+      'Sony ILCE-7M8'
+    );
     expect(formatCamera({})).toBeUndefined();
   });
 
@@ -61,6 +68,9 @@ describe('exif formatting', () => {
     expect(
       formatLens({ model: 'NIKON D5100', lens: '70.0-300.0 mm f/4.5-5.6' })
     ).toBe('70-300 mm f/4.5-5.6');
+    expect(formatLens({ lens: '18.0-55.0mm f/3.5-5.6' })).toBe(
+      '18-55mm f/3.5-5.6'
+    );
   });
 
   it('should list only the exposure settings the photo has, in order', () => {
@@ -92,6 +102,8 @@ describe('exif formatting', () => {
     );
     expect(formatTakenAt('2023:08:05', 'en')).toBe('August 5, 2023');
     expect(formatTakenAt('not a date', 'en')).toBeUndefined();
+    expect(formatTakenAt('0000:00:00 00:00:00', 'en')).toBeUndefined();
+    expect(formatTakenAt('2023:08:05 25:99:00', 'en')).toBeUndefined();
   });
 });
 
